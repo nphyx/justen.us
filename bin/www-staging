@@ -10,11 +10,11 @@ lex.create({
   onRequest: app,
   approveRegistration: function (hostname, cb) {
     cb(null, {
-      domains: [hostname],
-      email: 'justen@.justen.us',
+      domains: ['justen.us'],
+      email: 'justen@justen.us',
       agreeTos: true
     });
   }
-}).listen([8080], [8443, 5001], function () {
+}).listen([8080], [8443], function () {
   console.log("Justen.us Web Server Started");
 });

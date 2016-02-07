@@ -10,8 +10,8 @@ lex.create({
   onRequest: app,
   approveRegistration: function (hostname, cb) {
     cb(null, {
-      domains: [hostname],
-      email: 'justen@.justen.us',
+      domains: ['justen.us'],
+      email: 'justen@justen.us',
       agreeTos: true
     });
   }
