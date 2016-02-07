@@ -1,0 +1,18 @@
+@import url(/styles/reset.css);
+@import url(https://fonts.googleapis.com/css?family=Oswald:400,700,300);
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,300,700,300italic,400italic,700italic);
+
+body {
+  font-family:'Roboto', sans-serif;
+}
+
+h1,h2,h3,h4,h5,h6 {font-weight:bold; font-family:'Oswald', sans-serif;}
+h1 {font-size:2.5em;}
+h2 {font-size:2.0em;}
+h3 {font-size:1.5em;}
+h4 {font-size:1.2em;}
+h5 {font-size:0.9em;}
+h6 {font-size:0.8em;}
+a {
+  color: #00B7FF;
+}

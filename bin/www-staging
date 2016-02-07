@@ -2,7 +2,7 @@
 "use strict";
 
 // Note: using staging server url, remove .testing() for production
-var lex = require('letsencrypt-express');
+var lex = require('letsencrypt-express').testing();
 var app = require('../app');
 
 lex.create({
@@ -15,6 +15,6 @@ lex.create({
       agreeTos: true
     });
   }
-}).listen([80], [443, 5001], function () {
+}).listen([8080], [8443, 5001], function () {
   console.log("Justen.us Web Server Started");
 });
