@@ -1,4 +1,5 @@
 var express = require("express");
+var babelify = require("express-babelify-middleware");
 var path = require("path");
 var favicon = require("serve-favicon");
 var logger = require("morgan");
@@ -29,6 +30,7 @@ app.use(sassMiddleware({
     outputStyle: "compressed",
     prefix:  ""
 }));
+app.use('/scripts', babelify(path.join(__dirname, "src/scripts")));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", routes);
