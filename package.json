@@ -10,12 +10,41 @@
     "cookie-parser": "~1.3.5",
     "debug": "~2.2.0",
     "express": "~4.13.1",
+    "express-babelify-middleware": "^0.2.1",
     "jade": "~1.11.0",
     "letsencrypt": "^1.4.0",
+    "letsencrypt-express": "~1.0.6",
     "morgan": "~1.6.1",
     "node-sass": "^3.4.2",
-		"node-sass-middleware": "~0.9.7",
-    "serve-favicon": "~2.3.0",
-		"letsencrypt-express": "~1.0.6"
-  }
+    "node-sass-middleware": "~0.9.7",
+    "serve-favicon": "~2.3.0"
+  },
+	"jshintConfig": {
+		"curly":false,
+		"latedef":true,
+		"newcap":true,
+		"quotmark":"double",
+		"undef":true,
+		"unused":false,
+		"globalstrict":true,
+		"asi":true,
+		"esnext":true,
+		"browser":true,
+		"devel":true,
+		"node":true,
+		"worker":true,
+		"globals":{
+			"mocha":false,
+			"chai":false,
+			"describe":false,
+			"define":false,
+			"it":false,
+			"before":false,
+			"beforeEach":false,
+			"after":false,
+			"afterEach":false,
+			"requestAnimFrame":false,
+			"console":false
+		}
+	}
 }
