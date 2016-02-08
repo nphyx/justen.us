@@ -310,6 +310,7 @@ function shadersDone() {
 
 window.addEventListener("load", function() {
 	console.log("loaded");
+	if(window.getComputedStyle(document.getElementById("background")).display == "none") return;
 	var utilCanvasElement = document.getElementById("utilCanvas");
 	utilCanvas = utilCanvasElement.getContext("2d");
 
