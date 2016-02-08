@@ -1,18 +1,30 @@
-@import url(/styles/reset.css);
+@import 'reset';
 @import url(https://fonts.googleapis.com/css?family=Oswald:400,700,300);
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,700,300italic,400italic,700italic);
 
-body {
-  font-family:'Roboto', sans-serif;
-}
+$content-padding: 1em;
+html, body {height:100%; margin:0; padding:0;}
+body {font-family:'Roboto', sans-serif; color:rgba(11,19,43,1);}
 
-h1,h2,h3,h4,h5,h6 {font-weight:bold; font-family:'Oswald', sans-serif;}
+h1,h2,h3,h4,h5,h6 {font-weight:bold; font-family:'Oswald', sans-serif; margin:.5em 0 .5em 0;}
 h1 {font-size:2.5em;}
 h2 {font-size:2.0em;}
 h3 {font-size:1.5em;}
 h4 {font-size:1.2em;}
 h5 {font-size:0.9em;}
 h6 {font-size:0.8em;}
-a {
-  color: #00B7FF;
+p {line-height:1.2em; margin:1em;}
+a {color: rgba(50,80,107,1);}
+
+#background {position:absolute; top:0px; left:0px; z-index:-1; width:100%; height:100%; background:rgba(72,72,72,1); margin:0; padding:0; overflow:hidden;
+	#webglCanvas {width:100%; height:100%; display:block; position:absolute; top:0; left:0;}
+}
+#content {box-sizing:border-box; width:50%; padding:$content-padding; background:rgba(256,256,256,0.9); height:100%;
+	.inner {position:relative; top:50%; transform:translateY(-50%); text-align:center;}
+	#networks {
+		a {font-family:'Oswald', sans-serif; font-size:1.35em; text-decoration:none; text-transform:uppercase;
+			img {width:20px; height:20px; margin-left:1em; margin-right:.2em;}
+		}
+	}
+	hr {width:95%; height:2px; border:0; margin:1em auto; display:block; background:rgba(50,80,107,1);}
 }
