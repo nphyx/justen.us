@@ -12,7 +12,7 @@ varying vec2 uv;
 // Constants
 const int maxMaterial = 128;
 const float g_focalLength = 3.5; // Distance between the eye and the image plane
-const float g_zNear = 0.0; // Near clip depth
+const float g_zNear = 0.001; // Near clip depth
 const float g_zFar = 25.0; // Far clip depth
 const int   g_rmSteps = 256; // Max raymarch steps
 const float g_rmEpsilon = 0.0001; // Surface threshold
@@ -33,6 +33,13 @@ uniform octet u_octets[128];
 // Light uniforms
 uniform vec3 u_light0Position;
 uniform vec4 u_light0Color;
+
+/**
+ * RNG for shadow dithering
+ */
+float rnd(vec2 p) {
+	return fract(sin(dot(p, vec2(12.9898, 78.233)))*43758.5453);
+}
 
 /**
  * Maps x from [minX, maxX] to [minY, maxY], without clamping
@@ -147,7 +154,7 @@ float getShadow(vec3 p0, vec3 p1, float k) {
  */
 vec4 getShading(vec3 p, vec3 normal, vec3 lightPos, vec4 lightColor) {
 	float lightIntensity = 0.0;
-	float shadow = getShadow(p, lightPos, 16.0);
+	float shadow = getShadow(p, lightPos, 32.0);
 	if(shadow > 0.0) { // If we are at all visible
 		vec3 lightDirection = normalize(lightPos - p);
 		lightIntensity = shadow * clamp(dot(normal, lightDirection), 0.0, 1.0);
