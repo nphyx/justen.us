@@ -5,7 +5,8 @@ const inputManagerFactory = require("./voctworks.InputManager.js").factory;
 const keyCodes = require("./voctworks.InputManager.js").keyCodes;
 const vec3 = require("./gl-matrix-min.js").vec3;
 const bgID = "background";
-const mouseMultiplier = 0.00003;
+const mouseSpeed = 0.00005;
+const moveSpeed = 0.1;
 
 let gl, sm, im, glCanvasElement, utilCanvasElement, utilCanvas, glCanvas;
 let offset = -10;
@@ -156,7 +157,6 @@ function initCanvasMaterials(utilCanvas) {
 function initControls() {
 	console.log("Initializing controls.");
 	im = inputManagerFactory();
-	let moveSpeed = 0.5;
 	im.onFrame(keyCodes.W, () => {
 		u_eye.forEach((el, i, arr) => {
 			u_eye[i] += u_camForward[i] * moveSpeed;
@@ -210,8 +210,8 @@ function initControls() {
 		let dx = x - (rect.left + rect.width / 2);
 		let dy = y - (rect.top + rect.height / 2);
 
-		mouseSpeedX = dx * mouseMultiplier;
-		mouseSpeedY = dy * mouseMultiplier;
+		mouseSpeedX = dx * mouseSpeed;
+		mouseSpeedY = dy * mouseSpeed;
 	});
 }
 
