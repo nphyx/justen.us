@@ -1,62 +1,63 @@
 "use strict";
 
-function ShaderManager(gl, shaderList, callback) {
-	var i;
-	this._countdown = shaderList.length;
-	this._callback = callback;
-	this.shaders = [];
+function ShaderManagerFactory(gl) {
+	let sm = Object.create(Object);
+	let shaderList = [];
+	let countdown = shaderList.length;
+	sm.shaders = [];
 	
-	this.program = gl.createProgram();
-
-	this._initShaders = function() {
-		var i;
-		if(this._countdown > 0) return;
-		console.log("initializing shaders");
-		for(i = 0; i < this.shaders.length; i++) {
-			gl.attachShader(this.program, this.shaders[i]);
-		}
-		this._callback();
-	}
+	sm.program = gl.createProgram();
 
 	/**
 	 * Performs an asyncrhonous request for a shader fragment file,
 	 * compiles the shader, and passes it to the callback function
 	 */
-	this._requestShader = function(file, type) {
-		console.log("requesting shader "+file);
-		var xhr = new XMLHttpRequest();
-		var that = this;
-		xhr.open("GET", file);
-		xhr.onload = function() {
-			var shader;
-			if (xhr.readyState === 4) { 
-				if (xhr.status === 200) {
-					console.log("compiling shader "+file);
-					shader = gl.createShader(type);
-					gl.shaderSource(shader, xhr.responseText);
-					gl.compileShader(shader);
-					if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-						alert(gl.getShaderInfoLog(shader));
-						return null;
+	let requestShader = function(req) {
+		console.log("requesting shader "+req.url);
+		return new Promise((resolve, reject) => {
+			let xhr = new XMLHttpRequest();
+			xhr.open("GET", req.url);
+			xhr.onload = function() {
+				if (xhr.readyState === 4) { 
+					if (xhr.status === 200) {
+						console.log("compiling shader "+req.url);
+						let shader = gl.createShader(req.type);
+						gl.shaderSource(shader, xhr.responseText);
+						gl.compileShader(shader);
+						if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+							reject(new Error(gl.getShaderInfoLog(shader)));
+						}
+						else resolve(shader);
 					}
-					that.shaders.push(shader);
-					that._countdown--;
-					that._initShaders();
 				}
-			}	
-		}
-		xhr.send(null);
+			}
+			xhr.onerror = function(msg) {
+				reject(new Error(msg));
+			}
+			xhr.send(null);
+		}); // end promise
 	}
 
-	/**
-	 * Requests shaders through requestShader(), calling initShaders() when all shaders have
-	 * been loaded.
-	 */
-	for(i = 0; i < shaderList.length; i++) {
-		this._requestShader(shaderList[i].url, shaderList[i].type);
+	function attachShaders(shaders) {
+		shaders.forEach((shader) => {
+			gl.attachShader(sm.program, shader);
+		});
 	}
 
-	return this;
+	sm.init = function(shaders) {
+		return new Promise((resolve, reject) => {
+			let promises = shaders.map((req) => requestShader(req), (err) => reject(err));
+			Promise.all(promises).then(
+				(shaders) => {
+					attachShaders(shaders); 
+					resolve();
+				},
+				(err) => reject(err)
+			);
+		});
+	}
+
+	return sm;
 }
 
-if(typeof(module) !== "undefined") module.exports = ShaderManager;
+if(typeof(module) !== "undefined") module.exports.factory = ShaderManagerFactory;

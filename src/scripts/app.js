@@ -1,11 +1,13 @@
 "use strict";
 /* global glMatrix */
-const ShaderManager = require("./voctworks.ShaderManager.js");
+const shaderManagerFactory = require("./voctworks.ShaderManager.js").factory;
+const inputManagerFactory = require("./voctworks.InputManager.js").factory;
+const keyCodes = require("./voctworks.InputManager.js").keyCodes;
 const vec3 = require("./gl-matrix-min.js").vec3;
 const bgID = "background";
 const mouseMultiplier = 0.00003;
 
-let gl, sm, renderMode, glCanvasElement, utilCanvas;
+let gl, sm, im, glCanvasElement, utilCanvasElement, utilCanvas, glCanvas;
 let offset = -10;
 let ticksPerSecond = 4;
 let tickInterval = 1000/ticksPerSecond;
@@ -26,8 +28,8 @@ let u_eye = [0, 1, -2];
 let u_camUp = [0, 1, 0];
 let u_camRight = [1, 0, 0];
 let u_camForward;
-let u_light0PositionRel = [0, 4, 0];
-let u_light0Position = [0, 4, 0];
+let u_light0PositionRel = [0, 0, 0];
+let u_light0Position = [0, 1, -2];
 let u_light0Color = [0.67, 0.87, 0.93, 1.0];
 let horizontalAngle = 0.0;
 let verticalAngle = 0.0;
@@ -41,6 +43,7 @@ function rgbaConvert(rgba) {
 
 const materials = [].concat.apply([], [color1,color2,color3,color4,color5].map((a) => rgbaConvert(a))); 
 const glClearColor = rgbaConvert(color1);
+
 const skyColor = rgbaConvert(color1);
 const ambientColor = rgbaConvert(color2);
 
@@ -69,6 +72,7 @@ function initBuffers() {
 }
 
 function initUniforms() {
+	console.log("Initializing uniforms.");
 	// set up uniforms
 	sm.program.resolutionUniform = gl.getUniformLocation(sm.program, "u_resolution");
 	sm.program.camUpUniform = gl.getUniformLocation(sm.program, "u_camUp");
@@ -107,21 +111,6 @@ function initCamera() {
 }
 
 function handleMouseMove(event) {
-/*
-	if(!capturing) {
-		mouseSpeedX = mouseSpeedY = 0;
-		return;
-	}
-*/
-	var mouseX = event.clientX;
-	var mouseY = event.clientY;
-
-	var rect = document.getElementById(bgID).getBoundingClientRect();
-	var dx = mouseX - (rect.left + rect.width / 2);
-	var dy = mouseY - (rect.top + rect.height / 2);
-
-	mouseSpeedX = dx * mouseMultiplier;
-	mouseSpeedY = dy * mouseMultiplier;
 }
 
 
@@ -164,86 +153,69 @@ function initCanvasMaterials(utilCanvas) {
 	}
 }
 
-/**
- * Initializes GL context
- */
-function initGL(canvas, err=function(){}, res=function(){}) {
-	try {
-		gl = canvas.getContext("experimental-webgl");
-		gl.clearColor.apply(gl, glClearColor);
-		renderMode = gl.TRIANGLES;
-	}
-	catch (e) {}
-	if (!gl) return err();
-	res(gl);
-}
-
-function handleKeyDown(event) {
-	currentKeys[event.keyCode] = true;
-}
-
-function handleKeyUp(event) {
-	currentKeys[event.keyCode] = false;
-}
-
-function handleInput() {
-	var moveSpeed = 0.05;
-	if(currentKeys[27]) capturing = false;
-	//if(!capturing) return;
-	if(currentKeys[87]) { // Forward
+function initControls() {
+	console.log("Initializing controls.");
+	im = inputManagerFactory();
+	let moveSpeed = 0.5;
+	im.onFrame(keyCodes.W, () => {
 		u_eye.forEach((el, i, arr) => {
 			u_eye[i] += u_camForward[i] * moveSpeed;
 			u_light0Position[i] = u_eye[i] + u_light0PositionRel[i];
 		});
-	}
-	if(currentKeys[83]) { // Backward
+	});
+	im.onFrame(keyCodes.S, () => {
 		u_eye.forEach((el, i, arr) => {
 			u_eye[i] -= u_camForward[i] * moveSpeed;
 			u_light0Position[i] = u_eye[i] + u_light0PositionRel[i];
 		});
-	}
-
-	if(currentKeys[68]) { // Right
-		u_eye.forEach((el, i, arr) => {
-			u_eye[i] += u_camRight[i] * moveSpeed;
-			u_light0Position[i] = u_eye[i] + u_light0PositionRel[i];
-		});
-	} 
-
-	if(currentKeys[65]) { // Left
+	});
+	im.onFrame(keyCodes.A, () => {
 		u_eye.forEach((el, i, arr) => {
 			u_eye[i] -= u_camRight[i] * moveSpeed;
 			u_light0Position[i] = u_eye[i] + u_light0PositionRel[i];
 		});
-	}
-
-	if(currentKeys[37]) { // Arrow left
+	}); 
+	im.onFrame(keyCodes.D, () => {
+		u_eye.forEach((el, i, arr) => {
+			u_eye[i] += u_camRight[i] * moveSpeed;
+			u_light0Position[i] = u_eye[i] + u_light0PositionRel[i];
+		});
+	});
+	im.onFrame(keyCodes.LEFT, () => {
 		u_light0Position.forEach((el, i, arr) => {
 			u_light0PositionRel[i] -= u_camRight[i] * moveSpeed;
+			u_light0Position[i] = u_eye[i] + u_light0PositionRel[i];
 		});
-	} 
-
-	if(currentKeys[39]) { // Arrow right
+	}); 
+	im.onFrame(keyCodes.RIGHT, () => {
 		u_light0Position.forEach((el, i, arr) => {
 			u_light0PositionRel[i] += u_camRight[i] * moveSpeed;
+			u_light0Position[i] = u_eye[i] + u_light0PositionRel[i];
 		});
-	}
-
-	if(currentKeys[38]) { // Arrow up
+	});
+	im.onFrame(keyCodes.UP, () => {
 		u_light0Position.forEach((el, i, arr) => {
 			u_light0PositionRel[i] += u_camUp[i] * moveSpeed;
+			u_light0Position[i] = u_eye[i] + u_light0PositionRel[i];
 		});
-	} 
-
-	if(currentKeys[40]) { // Arrow down
+	});
+	im.onFrame(keyCodes.DOWN, () => {
 		u_light0Position.forEach((el, i, arr) => {
 			u_light0PositionRel[i] -= u_camUp[i] * moveSpeed;
+			u_light0Position[i] = u_eye[i] + u_light0PositionRel[i];
 		});
-	}
+	});
+	im.onMouseMove((x, y) => {
+		let rect = document.getElementById(bgID).getBoundingClientRect();
+		let dx = x - (rect.left + rect.width / 2);
+		let dy = y - (rect.top + rect.height / 2);
+
+		mouseSpeedX = dx * mouseMultiplier;
+		mouseSpeedY = dy * mouseMultiplier;
+	});
 }
 
 function drawScene() {
-	handleInput();
 	updateCamera();
 	updateUniforms();
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
@@ -284,47 +256,58 @@ function animate() {
 
 function tick() {
 	requestAnimationFrame(tick);
+	im.frame();
 	animate();
 	drawScene();
 }
 
-function shadersDone() {
-	console.log("shader manager callback");
-	gl.linkProgram(sm.program);
-	if (!gl.getProgramParameter(sm.program, gl.LINK_STATUS)) {
-		alert("Could not initialise shaders");
+function linkShaders() {
+	try {
+		gl.linkProgram(sm.program);
+		if (!gl.getProgramParameter(sm.program, gl.LINK_STATUS)) {
+			throw new Error("Could not initialise shaders");
+		}
+		gl.useProgram(sm.program);
 	}
-	gl.useProgram(sm.program);
-	sm.program.vertexPositionAttribute = gl.getAttribLocation(sm.program, "aVertexPosition");
-	//initCanvasMaterials();
-	document.addEventListener("mousemove", handleMouseMove);
-	document.addEventListener("keyup", handleKeyUp);
-	document.addEventListener("keydown", handleKeyDown);
+	catch(err) {
+		console.log("Error using shader program:", err.message);
+		return;
+	}
+}
 
-	initBuffers();
-	initCamera();
-	initUniforms();
-	resizeCanvas();
-	tick();
+function initScene() {
+	sm.program.vertexPositionAttribute = gl.getAttribLocation(sm.program, "aVertexPosition");
+	gl.clearColor.apply(gl, glClearColor);
+}
+
+function initWindowListeners() {
+	window.addEventListener("resize", resizeCanvas);
+	console.log("Listeners initialized.");
 }
 
 window.addEventListener("load", function() {
-	console.log("loaded");
+	console.log("loaded page");
 	if(window.getComputedStyle(document.getElementById("background")).display == "none") return;
-	var utilCanvasElement = document.getElementById("utilCanvas");
-	utilCanvas = utilCanvasElement.getContext("2d");
-
+	utilCanvasElement = document.getElementById("utilCanvas");
 	glCanvasElement = document.getElementById("webglCanvas");
-	initGL(glCanvasElement, 
-		() => console.log("Could not initialise WebGL, sorry :-("),
-		(gl) => {
-			console.log("GL Initialized.")
-			sm = new ShaderManager(gl, [
-				{url:"/shaders/fs/main.c", type:gl.FRAGMENT_SHADER},
-				{url:"/shaders/vs/main.c", type:gl.VERTEX_SHADER}
-			], shadersDone); 
-		}
-	);
 
-	window.addEventListener("resize", resizeCanvas);
+	utilCanvas = utilCanvasElement.getContext("2d");
+	gl = glCanvasElement.getContext("experimental-webgl");
+
+	initWindowListeners();
+	// Initialize shader manager and wait until complete
+	sm = shaderManagerFactory(gl);
+	sm.init([
+		{url:"/shaders/fs/main.c", type:gl.FRAGMENT_SHADER},
+		{url:"/shaders/vs/main.c", type:gl.VERTEX_SHADER}
+	]).then(() => {
+		resizeCanvas();
+		linkShaders();
+		initBuffers();
+		initControls();
+		initCamera();
+		initUniforms();
+		initScene();
+		tick();
+	});
 });
