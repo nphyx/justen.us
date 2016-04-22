@@ -1,4 +1,4 @@
 node_modules
 letsencrypt.config
-public/scripts
-public/styles
+public/scripts/*
+public/styles/*
