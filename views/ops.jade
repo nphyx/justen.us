@@ -4,25 +4,26 @@ html
     link(rel="stylesheet" type="text/css" href="styles/ops.css")
     script(src="scripts/ops.js" type="text/javascript")
   body.scanlines
-    div#score
-      span#game Ops 
-      span.label level:
-      span#score-level 0
-      span.label.bright score:
-      span#score-hi 0
-      span.label ops:
-      span#score-ops 0
-      span.label.bright par:
-      span#score-par 6
-      span.label.bright#score-glitch
-    div#grid
-    div#controls
-      div.row
-        span.control.hidden.placeholder
-        span.control#up &#x25b2; 
-        span.control.hidden.placeholder
-      div.row
-        span.control.hidden#left &#x25c0;
-        span.control.hidden#down &#x25bc;
-        span.control.hidden#right &#x25b6;
-    div#log
+    div#wrap
+      div#score
+        span#game Ops 
+        span.label level:
+        span#score-level 0
+        span.label.bright score:
+        span#score-hi 0
+        span.label ops:
+        span#score-ops 0
+        span.label.bright par:
+        span#score-par 6
+        span.label.bright#score-glitch
+      div#grid
+      div#controls
+        div.row
+          span.control.hidden.placeholder
+          span.control#up &#x25b2; 
+          span.control.hidden.placeholder
+        div.row
+          span.control.hidden#left &#x25c0;
+          span.control.hidden#down &#x25bc;
+          span.control.hidden#right &#x25b6;
+      div#log

@@ -5,7 +5,7 @@ window.addEventListener("load", function() {
 	var glitches = [5];
 	var glitched = false;
 	var glitchesCleared = 0;
-	var glitchChars = [9632,9633,9600,9625,9622,9626,9630,9631,9628,9627];
+	var glitchChars = [9632,9600,9625,9622,9626,9630,9631,9628,9627];
 	var score = 0;
 
 	var levels = [
@@ -25,7 +25,7 @@ window.addEventListener("load", function() {
 		{par:3,width:4,height:1,target:0,register:3},
 		{par:1,width:4,height:1,target:6,register:7},
 		{par:6,width:4,height:1,target:9,register:15},
-		{par:2,width:4,height:2,target:32,register:8,keysOn:["up","left"]},
+		{par:3,width:4,height:2,target:34,register:8,keysOn:["up","left"]},
 	];
 
 	var grid = document.getElementById("grid");

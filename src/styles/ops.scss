@@ -3,12 +3,13 @@
 @import url(https://fonts.googleapis.com/css?family=VT323);
 html {overflow:hidden;}
 body {font-family:"VT323", monospace; width:100%; height:100%; background:black; color:green; overflow:hidden; position:fixed;}
-#score {width:100%; text-align:center; font-size:2rem; position:relative;
+#wrap {width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; position:relative;}
+#score {width:100%; text-align:center; font-size:2rem; position:relative; margin-top:-5rem;
 	span.label {padding-left:1rem;}
 	span.label.bright {padding-left:1rem;color:#0a0;}
 	span.label:first-child {padding-left:0;}
 	#game {color:#0f0; font-size:2.5rem;}
-	#score-glitch {font-size:1.3rem; letter-spacing:2rem; position:absolute; display:inline-block; width:100%; left:0; bottom:0;}
+	#score-glitch {font-size:1.3rem; word-wrap:break-word; letter-spacing:2rem; position:absolute; display:inline-block; width:100%; left:0; top:0;}
 }
 #controls {position:absolute; width:6rem; right:1em; text-align:center; font-size:3rem;
 	            line-height:3rem;
@@ -20,8 +21,7 @@ body {font-family:"VT323", monospace; width:100%; height:100%; background:black;
 	}
 }
 #log {position:absolute; right:0em; width:3em; overflow:hidden; top:6em;}
-#grid {position:absolute; top:5rem; width:calc(100% - 3rem); text-align:center; 
-	        height:calc(100% - 3rem);
+#grid {position:absolute; margin-top:2rem; width:calc(100% - 3rem); text-align:center; 
 	span.bit {display:inline-block; width:2em; height:2em; border:3px solid green; margin:-3px;outline:.5rem solid black; outline-offset:calc(-.5rem - 3px);}
 	span.bit.target {outline-color:green;}
 	span.bit.filled {background:green;}
@@ -31,8 +31,13 @@ body {font-family:"VT323", monospace; width:100%; height:100%; background:black;
 #grid #complete {font-size:3em;}
 
 @keyframes gridflash {
-	0% {outline-color:#0c0; background-color:#0c0;}
-	50% {outline-color:#0f0; background-color:#0f0;}
+	0% {outline-color:#0c0; background-color:#0c0; border-color:#0c0;}
+	50% {outline-color:#0f0; background-color:#0f0; border-color:#0f0;}
+}
+
+@keyframes borderflash {
+	0% {border-color:#0c0;}
+	50% {border-color:#0f0;}
 }
 
 @keyframes gridglitch {
@@ -43,10 +48,12 @@ body {font-family:"VT323", monospace; width:100%; height:100%; background:black;
 }
 
 #grid.complete {
+	span.bit {animation-name:borderflash; animation-duration:.1s; animation-iteration-count:infinite;}
 	span.bit.target.filled {outline-color:green; background-color:green; animation-name:gridflash; animation-duration:.1s; animation-iteration-count:infinite;}
 }
 
 #grid.crashed {
+	span.bit {animation-name:borderflash; animation-duration:.1s; animation-iteration-count:infinite;}
 	span.bit, 
 	span.bit.filled, 
 	span.bit.target, 
