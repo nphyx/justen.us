@@ -1,0 +1,37 @@
+@import 'reset';
+@import 'scanlines';
+@import url(https://fonts.googleapis.com/css?family=VT323);
+body {font-family:"VT323", monospace; width:100%; height:100%; background:black; color:green; overflow:hidden;}
+div#score {width:100%; text-align:center; font-size:2rem;
+	span.label {padding-left:1rem;}
+	span.label.bright {padding-left:1rem;color:#0a0;}
+	span.label:first-child {padding-left:0;}
+	#game {color:#0f0; font-size:2.5rem;}
+}
+div#controls {position:absolute; width:6rem; right:1em; text-align:center; font-size:3rem;
+	            line-height:3rem;
+	div.row {width:100%; text-align:center;
+		span.control {display:inline-block; width:2rem; text-align:center; color:#060;}
+		span.control:hover {color:#090; cursor:pointer;}
+		span.control.hidden {visibility:hidden;}
+		span.control.down {color:#0c0;}
+	}
+}
+div#log {position:absolute; right:0em; width:3em;overflow:hidden; top:6em;}
+div#grid {position:absolute; top:5rem; width:calc(100% - 3rem); text-align:center; 
+	        height:calc(100% - 3rem);
+	span.bit {display:inline-block; width:2em; height:2em; border:3px solid green; margin:-3px;outline:.5rem solid black; outline-offset:calc(-.5rem - 3px);}
+	span.bit.target {outline-color:green;}
+	span.bit.filled {background:green;}
+	span.bit.filled.target {outline-color:#0c0; background-color:#0c0;}
+}
+
+#grid #complete {font-size:3em;}
+
+@keyframes gridflash {
+	0% {outline-color:#0c0; background-color:#0c0;}
+	50% {outline-color:#0f0; background-color:#0f0;}
+}
+div#grid.complete {
+	span.bit, span.bit.filled, span.bit.target {outline-color:green; background-color:green; animation-name:gridflash; animation-duration:.1s; animation-iteration-count:infinite;}
+}
