@@ -16,8 +16,10 @@ body {font-family:"VT323", monospace; width:100%; height:100%; background:black;
 	div.row {width:100%; text-align:center;
 		span.control {display:inline-block; width:2rem; text-align:center;}
 		span.control:hover {color:#090; cursor:pointer;}
-		span.control.hidden {visibility:hidden;}
 		span.control.down {color:#0c0;}
+		#space.control {display:inline-block; width:90%; margin:0 auto; height:1.5rem; background-color:green;}
+		#space.control.down {background-color:#0c0;}
+		span.control.hidden {visibility:hidden !important;}
 	}
 }
 #log {position:absolute; right:0em; width:3em; overflow:hidden; top:6em;}
@@ -47,13 +49,19 @@ body {font-family:"VT323", monospace; width:100%; height:100%; background:black;
 	75% {border-color:#050; border-width:1px;}
 }
 
-@keyframes flash {
+@keyframes flashcolor {
 	0% {color:#0f0;}
 	50% {color:#0c0;}
 }
 
+@keyframes flashbg {
+	0% {background-color:#0f0;}
+	50% {background-color:#0c0;}
+}
+
 .flash {
-	animation-name:flash; animation-duration:.25s; animation-iteration-count:infinite;
+	animation-name:flashcolor; animation-duration:.25s; animation-iteration-count:infinite;
+	.control#space {animation-name:flashbg; animation-duration:.25s; animation-iteration-count:infinite;}
 }
 
 #grid.complete {

@@ -185,12 +185,10 @@ function createNoise() {
 
 
 function startSound(o, g, fadeIn) {
-	console.log("start", fadeIn);
 	if(fadeIn === undefined) {
 		g.gain.value = volume;
 	}
 	else {
-		console.log(fadeIn, ctx.currentTime);
 		g.gain.value = 0;
 		g.gain.exponentialRampToValueAtTime(volume, ctx.currentTime);// + fadeIn);
 	}
@@ -198,13 +196,11 @@ function startSound(o, g, fadeIn) {
 }
 
 function stopSound(o, g, fadeOut) {
-	console.log(fadeOut);
 	if(fadeOut === undefined) {
 		g.gain.value = 0;
 		setTimeout(o.stop.bind(o), 100);
 	}
 	else {
-		console.log(fadeOut, ctx.currentTime);
 		g.gain.value = volume;
 		g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + fadeOut);
 		o.stop(ctx.currentTime+fadeOut+0.01);
@@ -222,13 +218,11 @@ window.playNote = function(note, type, start, stop) {
 
 	var frq = notes[note];
 	if (frq) {
-		console.log("playing note "+note+" type "+type, start, stop);
 		o.type = type;
 		o.frequency.value = frq;
 		setTimeout(startSound.bind(null, o, g), start*1000);
 		setTimeout(stopSound.bind(null, o, g), (start+stop)*1000);	
 	}
-	else console.log("no frequency "+note);
 }
 
 window.playNoise = function(start, stop, fadeIn, fadeOut) {

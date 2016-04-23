@@ -2,7 +2,7 @@
 window.addEventListener("load", function() {
 	var state;
 
-	var glitches = [5];
+	var glitches = [5, 10];
 	var glitched = false;
 	var glitchesCleared = 0;
 	var glitchChars = [9632,9600,9625,9622,9626,9630,9631,9628,9627];
@@ -25,7 +25,14 @@ window.addEventListener("load", function() {
 		{par:3,width:4,height:1,target:0,register:3},
 		{par:1,width:4,height:1,target:6,register:7},
 		{par:6,width:4,height:1,target:9,register:15},
+
 		{par:3,width:4,height:2,target:34,register:8,keysOn:["up","left"]},
+		{par:2,width:4,height:2,target:96,register:194,keysOn:["down","right"]},
+		{par:2,width:4,height:2,target:153,register:76,keysOn:["left","right"]},
+		{par:3,width:4,height:4,target:27030,register:59799,keysOn:["up","down","left","right"]},
+		{par:5,width:4,height:4,target:1632,register:61543,keysOn:["up","down","left","right"]},
+
+		{par:1,width:4,height:4,target:240,register:61455,keysOn:["up","down","left","right","space"]},
 	];
 
 
@@ -45,6 +52,9 @@ window.addEventListener("load", function() {
 		rshift:function() {
 			playNote("A4", "triangle", 0, 0.05); 
 			playNote("A4", "triangle", 0.07, 0.12);
+		},
+		bump:function() {
+			playNote("C3", "square", 0, 0.1); 
 		},
 		crash:function() {
 			playNoise(0.0, 1.8, 0.2, 1.6);
@@ -75,9 +85,9 @@ window.addEventListener("load", function() {
 	}
 
 	function levelFlashes() {
-		flashElement(document.getElementById("score-level"), 1000);
-		setTimeout(() => flashElement(document.getElementById("score-par"), 1000), 1000);
-		setTimeout(() => flashElement(document.getElementById("controls"), 1000), 2000);
+		flashElement(document.getElementById("score-level"), 750);
+		setTimeout(() => flashElement(document.getElementById("score-par"), 750), 750);
+		setTimeout(() => flashElement(document.getElementById("controls"), 750), 1500);
 	}
 
 	function makeGlitchScore() {
@@ -90,7 +100,7 @@ window.addEventListener("load", function() {
 	}
 
 	function newState(level, number) {
-		var data = new Uint8Array(10);
+		var data = new Uint16Array(10);
 		var state = {
 			data:data
 		};
@@ -145,8 +155,12 @@ window.addEventListener("load", function() {
 		document.getElementById("score-glitch").innerHTML = makeGlitchScore();
 	}
 
+	function trimRegister() {
+		state.register &= Math.pow(2, state.width * state.height) - 1;
+	}
+
 	function keysOn(keys) {
-		["up","down","left","right"].forEach((key) => document.getElementById(key).classList.add("hidden"));
+		["up","down","left","right","space"].forEach((key) => document.getElementById(key).classList.add("hidden"));
 		keys.forEach((key) => document.getElementById(key).classList.remove("hidden"));
 	}
 
@@ -160,12 +174,17 @@ window.addEventListener("load", function() {
 		grid.classList.remove("glitching");
 		document.getElementsByTagName("body")[0].classList.add("glitched");
 		state = newState(level, number);
-		state.par = 7;
 		state.height = Math.min(8, state.height + state.width);
 		state.width = Math.min(8, state.width + state.par);
 		state.register ^= number & 241335244;
 		state.target |= number ^ 1324354657;
+		console.log(state.target.toString(2).split(""));
+		state.par = state.target.toString(2).split("").reduce((prev, cur) => {
+			return parseInt(prev + parseInt(cur));
+		}, 0) * 2;
+		console.log(state.par);
 		if(level.keysOn) keysOn(level.keysOn);
+		trimRegister();
 		updateScoreboard();
 		updateGrid();
 		levelFlashes();
@@ -264,10 +283,6 @@ window.addEventListener("load", function() {
 		document.getElementById(key).classList.remove("down");
 	}
 
-	function trimRegister() {
-		state.register &= Math.pow(2, state.width * state.height) - 1;
-	}
-
 	function opAdd() {
 		state.register++;
 		state.ops++;
@@ -298,6 +313,13 @@ window.addEventListener("load", function() {
 		sounds.rshift();
 	}
 
+	function opBump() {
+		state.register = state.register << state.width;
+		state.ops++;
+		trimRegister();
+		sounds.bump();
+	}
+
 	function bindKeys() {
 		window.addEventListener("keydown", function(event) {
 			if(!state.paused) switch(event.keyCode) {
@@ -316,6 +338,10 @@ window.addEventListener("load", function() {
 				case 39:
 					event.preventDefault();
 					controlDown("right");
+				break;
+				case 32:
+					event.preventDefault();
+					controlDown("space");
 				break;
 			}
 		});
@@ -341,6 +367,11 @@ window.addEventListener("load", function() {
 						event.preventDefault();
 						controlUp("right");
 						opRShift();
+					break;
+					case 32:
+						event.preventDefault();
+						controlUp("space");
+						opBump();
 					break;
 				}
 				updateScoreboard();
