@@ -28,8 +28,57 @@ window.addEventListener("load", function() {
 		{par:3,width:4,height:2,target:34,register:8,keysOn:["up","left"]},
 	];
 
+
+	var sounds = {
+		plus:function() {
+			playNote("A4", "triangle", 0, 0.05); 
+			playNote("E5", "triangle", 0.05, 0.1);
+		},
+		minus:function() {
+			playNote("E5", "triangle", 0, 0.05); 
+			playNote("A4", "triangle", 0.05, 0.1);
+		},
+		lshift:function() {
+			playNote("E5", "triangle", 0, 0.05);
+			playNote("E5", "triangle", 0.07, 0.12);
+		},
+		rshift:function() {
+			playNote("A4", "triangle", 0, 0.05); 
+			playNote("A4", "triangle", 0.07, 0.12);
+		},
+		crash:function() {
+			playNoise(0.0, 1.8, 0.2, 1.6);
+		},
+		complete:function() {
+			playNote("C3", "sawtooth", 0, 0.15);
+			playNote("C4", "square", 0, 0.06);
+			playNote("C4", "square", 0.08, 0.14);
+			playNote("E4", "sawtooth", 0.15, 0.34);
+			playNote("E5", "square", 0.16, 0.24);
+			playNote("F5", "square", 0.26, 0.34);
+		},
+		glitch:function() {
+			playNoise(0.0, 1.36, 0.1, 1.35);
+			playNote("F3", "sawtooth", 0, 0.15);
+			playNote("C4", "square", 0, 0.06);
+			playNote("E4", "square", 0.08, 0.14);
+			playNote("D#4", "sawtooth", 0.15, 0.34);
+			playNote("C5", "square", 0.16, 0.24);
+			playNote("F5", "square", 0.26, 0.34);
+		}
+	}
 	var grid = document.getElementById("grid");
 
+	function flashElement(el, time) {
+		el.classList.add("flash");
+		setTimeout(() => el.classList.remove("flash"), time);
+	}
+
+	function levelFlashes() {
+		flashElement(document.getElementById("score-level"), 1000);
+		setTimeout(() => flashElement(document.getElementById("score-par"), 1000), 1000);
+		setTimeout(() => flashElement(document.getElementById("controls"), 1000), 2000);
+	}
 
 	function makeGlitchScore() {
 		var i;
@@ -68,8 +117,6 @@ window.addEventListener("load", function() {
 		state.paused = 0;
 		return state;
 	}
-
-
 
 	function updateGrid() {
 		var i = 0, max = state.width*state.height, nodes = new Array(max),
@@ -113,29 +160,30 @@ window.addEventListener("load", function() {
 		grid.classList.remove("glitching");
 		document.getElementsByTagName("body")[0].classList.add("glitched");
 		state = newState(level, number);
-		tmp = state.width;
-		state.width = state.height;
-		state.height = tmp;
-		state.par *= number;
-		state.register ^= number;
-		state.target |= number;
+		state.par = 7;
+		state.height = Math.min(8, state.height + state.width);
+		state.width = Math.min(8, state.width + state.par);
+		state.register ^= number & 241335244;
+		state.target |= number ^ 1324354657;
 		if(level.keysOn) keysOn(level.keysOn);
 		updateScoreboard();
 		updateGrid();
+		levelFlashes();
 	}
 
 	function glitch() {
-		console.log("glitched!");
 		document.getElementById("grid").classList.remove("complete");
 		document.getElementById("grid").classList.add("glitching");
 		glitches.shift();
+		sounds.glitch();
 		setTimeout(setupGlitch, 1000);
 	}
 
 	function crash() {
 		state.paused = 1;
-		score -= 3;
+		if(!glitched) score -= 3;
 		document.getElementById("grid").classList.add("crashed");
+		sounds.crash();
 	}
 
 	function setupLevel(num) {
@@ -148,6 +196,7 @@ window.addEventListener("load", function() {
 		if(level.keysOn) keysOn(level.keysOn);
 		updateScoreboard();
 		updateGrid();
+		levelFlashes();
 	}
 
 	function nextLevel() {
@@ -181,8 +230,12 @@ window.addEventListener("load", function() {
 		else score += Math.max(0, (10 - (state.ops - state.par)));
 		if((glitches.length > 0) && score >= ((state.level) * 10 + glitches[0])) {
 			glitch();
+			sounds.glitch();
 		}
-		else setTimeout(nextLevel, 1000);
+		else {
+			setTimeout(nextLevel, 1000);
+			sounds.complete();
+		}
 		updateGrid();
 	}
 
@@ -195,9 +248,10 @@ window.addEventListener("load", function() {
 			return 1;
 		}
 		else if(state.ops > state.par + 10) {
-			glitched = false;
 			crash();
-			setTimeout(setupLevel.bind(null, state.level - 1), 2000); 
+			if(glitched) setTimeout(setupLevel.bind(null, state.level), 2000); 
+			else  setTimeout(setupLevel.bind(null, state.level - 1), 2000);
+			glitched = false;
 		}
 		return 0;
 	}
@@ -218,6 +272,7 @@ window.addEventListener("load", function() {
 		state.register++;
 		state.ops++;
 		trimRegister();
+		sounds.plus();
 	}
 
 	function opSub() {
@@ -226,18 +281,21 @@ window.addEventListener("load", function() {
 			trimRegister();
 		}
 		state.ops = state.ops + 1;
+		sounds.minus();
 	}
 
 	function opLShift() {
 		state.register = state.register << 1;
 		state.ops++;
 		trimRegister();
+		sounds.lshift();
 	}
 
 	function opRShift() {
 		state.register = state.register >> 1;
 		state.ops++;
 		trimRegister();
+		sounds.rshift();
 	}
 
 	function bindKeys() {
