@@ -1,8 +1,9 @@
 "use strict";
 const ops = {};
-const DEBUG = true;
+const DEBUG = false;
 window.ops = ops;
 window.addEventListener("load", function() {
+	const MAX_OVER_PAR = 5;
 	var state;
 	var sounds = window.ops.sounds, levels = window.ops.levels;
 	var levelsCleared = 0;
@@ -169,7 +170,7 @@ window.addEventListener("load", function() {
 			setTimeout(completeLevel, 500);
 			return 1;
 		}
-		else if(state.ops > state.par + 10) {
+		else if(state.ops > state.par + MAX_OVER_PAR) {
 			crash();
 		}
 		return 0;
