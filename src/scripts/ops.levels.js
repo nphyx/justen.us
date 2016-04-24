@@ -31,9 +31,9 @@ window.ops.levels = [
 	{par:2,width:4,height:2,target:96,register:194,keysOn:DR},
 	{par:4,width:4,height:4,target:32769,register:32766,keysOn:LRU}, // introvert 
 	{par:3,width:4,height:4,target:27030,register:59799,keysOn:UDLR}, // all keys revealed
-	{par:5,width:4,height:4,target:1632,register:61543,keysOn:UDLR}, // subpar
 	{par:4,width:5,height:5,target:33554431,register:8388608,keysOn:UDLR}, // fill me up!
 	{par:8,width:7,height:4,target:114139326,register:1783427,keysOn:UDLR}, // mr. hoppy
+	{par:5,width:4,height:4,target:1632,register:61543,keysOn:UDLR}, // subpar
 	{par:1,width:4,height:4,target:3840,register:61455,keysOn:UDLRS}, // spacebar introduced
 	{par:2,width:4,height:2,target:153,register:76,keysOn:LR}, // lies!
 ];
