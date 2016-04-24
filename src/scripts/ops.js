@@ -148,7 +148,7 @@ window.addEventListener("load", function() {
 			sounds.glitch();
 		}
 		else {
-			if(levels[0] !== undefined) {
+			if(levels[levelsCleared] !== undefined) {
 				complete = true;
 				currentLevel = levels[levelsCleared];
 				currentLevel.name = levelsCleared + 1;
