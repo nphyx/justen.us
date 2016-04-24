@@ -8,7 +8,8 @@ window.addEventListener("load", function() {
 	var sounds = window.ops.sounds, levels = window.ops.levels;
 	var levelsCleared = 0;
 	var glitchesCleared = 0;
-	var glitches = [3,5,8,13,21,24,55,89,144,233];
+	var glitchesFound = 0;
+	var glitchIntervals = [3,5,8,13,21,24,55,89,144,233];
 	var glitched = false;		
 	var glitchExponentBase = 1.5;
 	var score = 0;
@@ -26,7 +27,7 @@ window.addEventListener("load", function() {
 	}
 
 	function whichGlitch() {
-		return glitches[glitchesCleared % glitches.length];
+		return glitchIntervals[glitchesFound % glitchIntervals.length];
 	}
 
 	/**
@@ -81,13 +82,12 @@ window.addEventListener("load", function() {
 		var seed = parScoreDelta() + levelsCleared + glitchesCleared + whichGlitch();
 		var tmp = 0;
 		var width = Math.max(3, (seed & 5) + 1);
-		var height = Math.max(1, ((seed & 5) ^ (seed % 2)) + 1);
+		var height = Math.max(2, ((seed & 5) ^ (seed % 2)) + 1);
 
-		var register = trim(state.register ^ seed | (seed << 4) | (seed << 13) + seed, width, height);
-		var target = trim(state.target   | seed ^ (seed << 4) | (seed << 7) + seed, width, height);
+		var register = trim(state.register ^ seed | (seed << 4) | (seed << 9) + seed, width, height);
+		var target = trim(state.target   | seed ^ (seed << 6) | (seed << 16) + seed, width, height);
 		if(target == register) register &= 19029;
 		if(target == register) register = 0; // just in case that's somehow the same!
-		console.log(seed, width, height, target, register);
 		var level = {
 			width:width,
 			height:height,
@@ -143,8 +143,9 @@ window.addEventListener("load", function() {
 			levelsCleared++;
 			score += Math.max(0, (10 - (state.ops - state.par)));
 		}
-		if((glitches.length > 0) && parScoreDelta() > whichGlitch()) {
+		if(parScoreDelta() > whichGlitch()) {
 			glitched = true;
+			glitchesFound++;
 			currentLevel = createGlitchLevel();
 			sounds.glitch();
 		}
@@ -287,6 +288,7 @@ window.addEventListener("load", function() {
 			glitched,
 			levelsCleared,
 			glitchesCleared,
+			glitchesFound,
 			currentLevel,
 			gameOver,
 			crashed,
@@ -306,7 +308,7 @@ if(DEBUG) {
 			levelsCleared:levelsCleared, 
 			glitchesCleared:glitchesCleared,
 			glitched:glitched,
-			glitches:glitches,
+			glitchIntervals:glitchIntervals,
 			score:score,
 			parDelta:parScoreDelta(),
 			currentLevel

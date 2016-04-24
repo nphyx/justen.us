@@ -1,66 +1,151 @@
 @import 'reset';
 @import 'scanlines';
 @import url(https://fonts.googleapis.com/css?family=VT323);
-html {overflow:hidden;}
-body {font-family:"VT323", monospace; width:100%; height:100%; background:black; color:green; overflow:hidden; position:fixed; max-width:900px; margin:0 auto;}
+$dark: black;
+$empty: #021802;
+$mid: green;
+$dim: #060;
+$bright: #0c0;
+$vbright: #0f0;
 
-#wrap {width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; position:relative; top:-3.5rem;}
+@keyframes gridflash {
+	0% {outline-color:$bright; background-color:$bright; border-color:$bright;}
+	50% {outline-color:$vbright; background-color:$vbright; border-color:$vbright;}
+}
+
+@keyframes borderflash {
+	0% {border-color:$bright;}
+	50% {border-color:$vbright;}
+}
+
+@keyframes gridglitch {
+	0% {border-color:$vbright;outline-color:$bright; background-color:$bright;}
+	25% {border-color:$dark; border-width:5px;}
+	50% {border-color:$bright;outline-color:$vbright; background-color:$vbright;}
+	75% {border-color:$dim; border-width:1px;}
+}
+
+@keyframes flashcolor {
+	0% {color:$vbright;}
+	50% {color:$bright;}
+}
+
+@keyframes flashbg {
+	0% {background-color:$vbright;}
+	50% {background-color:$bright;}
+}
+
+@keyframes hole {
+	0% {outline-color:$empty; background-color:$dark;}
+	10% {outline-color:$dark;}
+	11% {outline-color:$empty;}
+	12% {outline-color:$dark;}
+	13% {outline-color:$empty;}
+	14% {outline-color:$dark;}
+	15% {outline-color:$empty; background-color:$empty;}
+	16% {outline-color:$dark;}
+	30% {outline-color:$empty;}
+	31% {outline-color:$dark;}
+	32% {background-color:$dark;}
+	39% {background-color:$empty; outline-color:$dark;}
+	40% {background-color:$dark;}
+	41% {background-color:$empty;}
+	42% {background-color:$dark;}
+	43% {background-color:$empty;}
+	44% {background-color:$dark;}
+	45% {background-color:$empty; outline-color:$empty;}
+	46% {background-color:$dark;}
+	70% {background-color:$empty;}
+	71% {background-color:$dark;}
+	72% {outline-color:$dark;}
+}
+
+@keyframes burn {
+	0% {outline-color:$dim; background-color:$bright;}
+	10% {outline-color:$bright;}
+	11% {outline-color:$dim;}
+	12% {outline-color:$bright;}
+	13% {outline-color:$dim;}
+	14% {outline-color:$bright;}
+	15% {outline-color:$dim; background-color:$dim;}
+	16% {outline-color:$bright;}
+	30% {outline-color:$dim;}
+	31% {outline-color:$bright;}
+	32% {background-color:$bright;}
+	39% {background-color:$dim; outline-color:$bright;}
+	40% {background-color:$bright;}
+	41% {background-color:$dim;}
+	42% {background-color:$bright;}
+	43% {background-color:$dim;}
+	44% {background-color:$bright;}
+	45% {background-color:$dim; outline-color:$dim;}
+	46% {background-color:$bright;}
+	70% {background-color:$dim;}
+	71% {background-color:$bright;}
+	72% {outline-color:$bright;}
+}
+
+@keyframes short {
+	0% {outline-color:$dim; outline-style:dashed;}
+	10% {outline-color:$bright;}
+	11% {outline-color:$dim;}
+	12% {outline-color:$bright;}
+	13% {outline-color:$dim;}
+	14% {outline-color:$bright;}
+	15% {outline-color:$dim; outline-style:double;}
+	16% {outline-color:$bright;}
+	30% {outline-color:$dim;}
+	31% {outline-color:$bright;}
+	32% {outline-color:$bright;}
+	39% {outline-color:$dim; outline-style:dotted;}
+	40% {outline-color:$bright;}
+	41% {outline-color:$dim;}
+	42% {outline-color:$bright;}
+	43% {outline-color:$dim;}
+	44% {outline-color:$bright;}
+	45% {outline-color:$dim; outline-color:solid;}
+	46% {outline-color:$bright;}
+	70% {outline-color:$dim;}
+	71% {outline-color:$bright;}
+	72% {outline-color:$bright;}
+}
+
+html {overflow:hidden;}
+body {font-family:"VT323", monospace; width:100%; height:100%; background:$empty; color:green; overflow:hidden; position:fixed; margin:0 auto;}
+
+#wrap {width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; position:relative; top:-3.5rem; max-width:900px; margin:0 auto;}
 
 #glitches {font-size: 1.5rem; word-wrap: break-word; letter-spacing: .5rem; position: absolute; display: flex; width: 100%; left: 0; top: -1.5rem; line-height: 1em; z-index: 10; text-align: center; flex-direction: column; justify-content: center; height: 100%;}
 
 #score {width:100%; text-align:center; font-size:2rem; position:relative; margin-top:-5rem;
 	span.label {padding-left:1rem;}
-	span.label.bright {padding-left:1rem;color:#0a0;}
+	span.label.bright {padding-left:1rem;color:$bright;}
 	span.label:first-child {padding-left:0;}
-	#game {color:#0f0; font-size:2.5rem;}
+	#game {color:$vbright; font-size:2.5rem; display:inline-block;}
 }
 #controls {position:absolute; width:6rem; right:1em; text-align:center; font-size:3rem;
-	            line-height:3rem; color:#060;
+	            line-height:3rem; color:$dim;
 	div.row {width:100%; text-align:center;
 		span.control {display:inline-block; width:2rem; text-align:center;}
-		span.control:hover {color:#090; cursor:pointer;}
-		span.control.down {color:#0c0;}
+		span.control:hover {color:$bright; cursor:pointer;}
+		span.control.down {color:$bright;}
 		#space.control {display:inline-block; width:90%; margin:0 auto; height:1.5rem; background-color:green;}
-		#space.control.down {background-color:#0c0;}
+		#space.control.down {background-color:$bright;}
 		span.control.hidden {visibility:hidden !important;}
 	}
 }
 #log {position:absolute; right:0em; width:3em; overflow:hidden; top:6em;}
 #grid {position:absolute; margin-top:2rem; width:calc(100% - 3rem); text-align:center; 
-	span.bit {display:inline-block; width:2em; height:2em; border:3px solid green; margin:-3px;outline:.5rem solid black; outline-offset:calc(-.5rem - 3px);}
+	span.bit {display:inline-block; width:2em; height:2em; border:3px solid green; margin:-3px;outline:.5rem solid $empty; outline-offset:calc(-.5rem - 3px);}
 	span.bit.target {outline-color:green;}
 	span.bit.filled {background:green;}
-	span.bit.filled.target {outline-color:#0c0; background-color:#0c0;}
+	span.bit.filled.target {outline-color:$bright; background-color:$bright;}
+	span.bit.hole {background:$dark; outline-color:$dark; animation-name:hole; animation-duration:3s; animation-iteration-count:infinite;}
+	span.bit.burn {background:$bright; outline-color:$mid; animation-name:burn; animation-duration:3s; animation-iteration-count:infinite;}
+	span.bit.short {background:$empty; outline-color:$dark; animation-name:short; animation-duration:3s; animation-iteration-count:infinite;}
 }
 
 #grid #complete {font-size:3em;}
-
-@keyframes gridflash {
-	0% {outline-color:#0c0; background-color:#0c0; border-color:#0c0;}
-	50% {outline-color:#0f0; background-color:#0f0; border-color:#0f0;}
-}
-
-@keyframes borderflash {
-	0% {border-color:#0c0;}
-	50% {border-color:#0f0;}
-}
-
-@keyframes gridglitch {
-	0% {border-color:#0f0;outline-color:#0c0; background-color:#0c0;}
-	25% {border-color:#000; border-width:5px;}
-	50% {border-color:#0c0;outline-color:#0f0; background-color:#0f0;}
-	75% {border-color:#050; border-width:1px;}
-}
-
-@keyframes flashcolor {
-	0% {color:#0f0;}
-	50% {color:#0c0;}
-}
-
-@keyframes flashbg {
-	0% {background-color:#0f0;}
-	50% {background-color:#0c0;}
-}
 
 .flash {
 	animation-name:flashcolor; animation-duration:.25s; animation-iteration-count:infinite;
@@ -81,11 +166,11 @@ body {font-family:"VT323", monospace; width:100%; height:100%; background:black;
 }
 
 body.glitched {
-	#glitches {color:black;}
+	#glitches {color:$empty;}
 	#score {
-		background-color:green; color:black;
-		#game {position:relative;
-			&::before {position:relative; right:-3rem; content:"spO"; color:black;}
+		background-color:green; color:$empty;
+		#game {position:relative; -webkit-transform:scaleX(-1); color:$empty;
+			//&::before {position:relative; right:-3rem; content:"spO"; color:$empty;}
 		}
 	}
 }
