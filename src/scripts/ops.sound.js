@@ -1,6 +1,8 @@
 "use strict";
 // Fix up prefixing
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
+var ctx = new AudioContext();
+var volume = 0.5;
 var notes = {
     "C0": 16.35,
     "C#0": 17.32,
@@ -141,26 +143,7 @@ var notes = {
     "C8": 4186.01
 }
 
-var ctx = new AudioContext();
-var volume = 0.5;
-var noiseBuffer;
-
-(function() {
-	var bufferSize = 2 * ctx.sampleRate, i = 0;
-	noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-	var output = noiseBuffer.getChannelData(0);
-	for(; i < bufferSize; i+=4) {
-		output[i] = Math.random() * 2 - 1;
-	}
-})();
-
 function createNoise() {
-/*
-	var noise = ctx.createBufferSource();
-	noise.buffer = noiseBuffer;
-	noise.loop = true;
-	return noise;
-	*/
 	var last = 0.0;
 	var bufferSize = 4096;
 	var noise = ctx.createScriptProcessor(bufferSize, 1, 1);
@@ -182,7 +165,6 @@ function createNoise() {
 	}
 	return noise;
 }
-
 
 function startSound(o, g, fadeIn) {
 	if(fadeIn === undefined) {
@@ -207,7 +189,7 @@ function stopSound(o, g, fadeOut) {
 	}
 }
 
-window.playNote = function(note, type, start, stop) {
+function playNote(note, type, start, stop) {
 	if(start === undefined) start = 0;
 	if(stop === undefined) stop = 1;
 	var o = ctx.createOscillator();
@@ -225,7 +207,7 @@ window.playNote = function(note, type, start, stop) {
 	}
 }
 
-window.playNoise = function(start, stop, fadeIn, fadeOut) {
+function playNoise(start, stop, fadeIn, fadeOut) {
 	if(start === undefined) start = 0;
 	if(stop === undefined) stop = 1;
 	var o = createNoise();
@@ -244,4 +226,79 @@ window.playNoise = function(start, stop, fadeIn, fadeOut) {
 	setTimeout(startSound.bind(null, o, g, fadeIn), start*1000);
 	setTimeout(stopSound.bind(null, o, g, fadeOut), (start+stop-fadeOut)*1000);	
 	*/
+}
+
+window.ops.sounds = {
+	plus:function() {
+		playNote("A4", "triangle", 0, 0.05); 
+		playNote("E5", "triangle", 0.05, 0.1);
+	},
+	minus:function() {
+		playNote("E5", "triangle", 0, 0.05); 
+		playNote("A4", "triangle", 0.05, 0.1);
+	},
+	lshift:function() {
+		playNote("E5", "triangle", 0, 0.05);
+		playNote("E5", "triangle", 0.07, 0.12);
+	},
+	rshift:function() {
+		playNote("A4", "triangle", 0, 0.05); 
+		playNote("A4", "triangle", 0.07, 0.12);
+	},
+	bump:function() {
+		playNote("C3", "square", 0, 0.1); 
+	},
+	crash:function() {
+		playNoise(0.0, 1.8, 0.2, 1.6);
+	},
+	complete:function() {
+		var i = 0.06; // interval
+		var g = 0.02; // gap between notes
+		var t = 0;    // time
+		playNote("C3", "sawtooth", t, t+i*3);
+		playNote("C4", "square", t, t+i);
+		playNote("C4", "square", t+i+g, t+i+i);
+		t += i+i+g;
+
+		playNote("E4", "sawtooth", t, t+i*3);
+		playNote("E5", "square", t, t+i);
+		playNote("F5", "square", t+i+g, t+i+i);
+	},
+	glitch:function() {
+		playNoise(0.0, 1.36, 0.1, 1.35);
+		var i = 0.06; // interval
+		var g = 0.02; // gap between notes
+		var t = 0;    // time
+		playNote("F3", "sawtooth", t, t+i*3);
+		playNote("C4", "square", t, t+i);
+		playNote("E4", "square", t+=i+g, t+=i);
+
+		playNote("D#4", "sawtooth", t, t+i*3);
+		playNote("C5", "square", t, t+i);
+		playNote("F5", "square", t+=i+g, t+=i);
+	},
+	endGame:function() {
+		var i = 0.06; // interval
+		var g = 0.04; // gap between notes
+		var t = 0;    // time
+		playNote("C3", "sawtooth", t, t+g+i*3);
+		playNote("C4", "square", t, t+i);
+		playNote("C4", "square", t+i+g, t+g+i+i);
+		t += (i*3+g);
+
+		playNote("E4", "sawtooth", t, t+g+i*3);
+		playNote("E5", "square", t, t+i);
+		playNote("F5", "square", t+i+g, t+g+i+i);
+		t += (i*4+g*4);
+
+		playNote("C3", "sawtooth", t, t+g+i*3);
+		playNote("C4", "square", t, t+i);
+		playNote("C4", "square", t+i+g, t+g+i+i);
+		t += (i*3+g);
+
+		playNote("E4", "sawtooth", t, t+g+i*3);
+		playNote("E5", "square", t, t+i);
+		playNote("F5", "square", t+i+g, t+g+i+i);
+		t += (i*4+g*4);
+	}
 }
