@@ -1,10 +1,13 @@
 "use strict";
 const ops = {};
-const DEBUG = false;
+const DEBUG = true;
 window.ops = ops;
 window.addEventListener("load", function() {
 	const MAX_OVER_PAR = 5;
+
 	var state;
+	var controls;
+	var validKeys;
 	var sounds = window.ops.sounds, levels = window.ops.levels;
 	var levelsCleared = 0;
 	var glitchesCleared = 0;
@@ -17,9 +20,10 @@ window.addEventListener("load", function() {
 	var levelStarting = true;
 	var complete = false;
 	var gameOver = false;
-	var currentLevel = levels[0];
+	var currentLevel = levels[0]; currentLevel.name = 1;
 	var crashed = false;
-	currentLevel.name = 1;
+	var modKey = false;
+
 
 	// finds the difference between the par score and the current score
 	function parScoreDelta() {
@@ -53,6 +57,13 @@ window.addEventListener("load", function() {
 		complete = false;
 		state.register = level.register;
 		state.target = level.target;
+		// apply special blocks to target to save level design headaches
+		if(level.holes) state.target ^= (state.target & level.holes);
+		if(level.burns) state.target |= level.burns;
+		if(level.shorts) {
+			if(state.target & 1) state.target |= currentLevel.shorts;
+			else state.target ^= (state.target & currentLevel.shorts);
+		}
 		state.par = level.par;
 		state.name = level.name;
 		state.width = level.width;
@@ -76,6 +87,15 @@ window.addEventListener("load", function() {
 	function trimStateFields() {
 		state.register = trim(state.register, currentLevel.width, currentLevel.height);
 		state.target = trim(state.target, currentLevel.width, currentLevel.height);
+	}
+
+	function applyFeatures() {
+		if(currentLevel.holes !== undefined) state.register ^= (state.register & currentLevel.holes);
+		if(currentLevel.burns !== undefined) state.register |= currentLevel.burns;
+		if(currentLevel.shorts !== undefined) {
+			if(state.register & 1) state.register |= currentLevel.shorts;
+			else state.register ^= (state.register & currentLevel.shorts);
+		}
 	}
 
 	function createGlitchLevel() {
@@ -106,6 +126,7 @@ window.addEventListener("load", function() {
 		crashed = false;
 		state = newState(currentLevel);
 		levelStarting = true;
+		applyFeatures();
 		ops.updateDisplay();
 		levelStarting = false;
 		setTimeout(unPause, 750);
@@ -185,101 +206,44 @@ window.addEventListener("load", function() {
 		document.getElementById(key).classList.remove("down");
 	}
 
-	function opAdd() {
-		state.register++;
-		state.ops++;
-		trimStateFields();
-		sounds.plus();
-	}
-
-	function opSub() {
-		if(state.register > 0) {
-			state.register = state.register - 1;
-			trimStateFields();
+	function opCall(control) {
+		if(paused) return;
+		var {code, id, op, mod, sound, modSound} = control;
+		controlUp(id);
+		if(modKey) {
+			mod(state);
+			modSound();
 		}
-		state.ops = state.ops + 1;
-		sounds.minus();
-	}
-
-	function opLShift() {
-		state.register = state.register << 1;
+		else {
+			op(state);
+			sound();
+		}
 		state.ops++;
+		applyFeatures();
 		trimStateFields();
-		sounds.lshift();
-	}
-
-	function opRShift() {
-		state.register = state.register >> 1;
-		state.ops++;
-		trimStateFields();
-		sounds.rshift();
-	}
-
-	function opBump() {
-		state.register = state.register << state.width;
-		state.ops++;
-		trimStateFields();
-		sounds.bump();
+		ops.updateDisplay();
+		checkComplete();
 	}
 
 	function bindKeys() {
 		window.addEventListener("keydown", function(event) {
-			if(!paused) switch(event.keyCode) {
-				case 38:
-					event.preventDefault();
-					controlDown("up");
-				break;
-				case 40:
-					event.preventDefault();
-					controlDown("down");
-				break;
-				case 37:
-					event.preventDefault();
-					controlDown("left");
-				break;
-				case 39:
-					event.preventDefault();
-					controlDown("right");
-				break;
-				case 32:
-					event.preventDefault();
-					controlDown("space");
-				break;
+			if(validKeys.indexOf(event.keyCode) !== -1) {
+				event.preventDefault();
+				var {id} = controls.filter((el) => el.code === event.keyCode)[0];
+				controlDown(id);
+				ops.updateDisplay();
+				return false;
 			}
-			ops.updateDisplay();
+			else if(event.keyCode === 16) modKey = true;
 		});
 		window.addEventListener("keyup", function(event) {
-			if(!paused) {
-				switch(event.keyCode) {
-					case 38:
-						event.preventDefault();
-						controlUp("up");
-						opAdd();
-					break;
-					case 40:
-						event.preventDefault();
-						controlUp("down");
-						opSub();
-					break;
-					case 37:
-						event.preventDefault();
-						controlUp("left");
-						opLShift();
-					break;
-					case 39:
-						event.preventDefault();
-						controlUp("right");
-						opRShift();
-					break;
-					case 32:
-						event.preventDefault();
-						controlUp("space");
-						opBump();
-					break;
-				}
-				ops.updateDisplay();
-				checkComplete();
+			if(validKeys.indexOf(event.keyCode) !== -1) {
+				event.preventDefault();
+				var control = controls.filter((el) => el.code === event.keyCode)[0];
+				opCall(control);
+				return false;
 			}
+			else if(event.keyCode === 16) modKey = false;
 		});
 	}
 
@@ -311,6 +275,7 @@ if(DEBUG) {
 			glitchIntervals:glitchIntervals,
 			score:score,
 			parDelta:parScoreDelta(),
+			modKey:modKey,
 			currentLevel
 		}
 	}
@@ -343,6 +308,9 @@ if(DEBUG) {
 		return score + Math.ceil(score * (Math.pow(glitchExponentBase, glitchesCleared) - 1));
 	}
 
+	ops.setupControls();
+	controls = ops.controls;
+	validKeys = ops.validKeys;
 	ops.setupDisplay();
 	setupLevel();
 	bindKeys();

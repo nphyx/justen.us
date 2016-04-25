@@ -1,17 +1,17 @@
 "use strict";
 const ops = window.ops;
-const U = ["up"];
-const D = ["down"];
-const L = ["left"];
-const R = ["right"];
-const UL = ["up","left"];
-const DR = ["down","right"];
-const LR = ["left","right"];
-const LRU = ["left","right","up"];
-const DLR = ["down","left","right"];
-const UDL = ["up","down","left"];
-const UDLR = ["up","down","left","right"];
-const UDLRS = ["up","down","left","right","space"];
+const U = ["opAdd"];
+const D = ["opSub"];
+const L = ["opLShift"];
+const R = ["opRShift"];
+const UL = ["opAdd","opLShift"];
+const DR = ["opSub","opRShift"];
+const LR = ["opLShift","opRShift"];
+const LRU = ["opLShift","opRShift","opAdd"];
+const DLR = ["opSub","opLShift","opRShift"];
+const UDL = ["opAdd","opSub","opLShift"];
+const UDLR = ["opAdd","opSub","opLShift","opRShift"];
+const UDLRS = ["opAdd","opSub","opLShift","opRShift","opBump"];
 ops.conditions = {
 	F_N:1,   // nightmare
 	F_P:2,   // picture
@@ -51,6 +51,10 @@ ops.levels = [
 	{par:2,width:4,height:2,target:153,register:76,keysOn:LR}, // lies!
 	{par:38,width:5,height:6,target:488293841,register:1058588223,keysOn:UDLRS}, // Cyclops!
 	{par:9,width:10,height:3,target:1006665696,register:61440,keysOn:UDLR}, // damn lies! 
+	{par:2,width:3,height:2,target:4,register:1,holes:2,keysOn:UDLRS}, // hole introduced
+	{par:8,width:4,height:5,target:266304,register:64,holes:50048,keysOn:UDLRS}, // DESIGNER
+	{par:6,width:5,height:5,target:4194335,register:28672,holes:655360,keysOn:UDLRS},
+	{par:11,width:3,height:8,target:1048580,register:16416,holes:9052947,keysOn:UDLRS}, // bubbles
 ];
 
 const disabled = [

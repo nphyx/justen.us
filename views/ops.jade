@@ -10,6 +10,7 @@ html(prefix="og: http://ogp.me/ns#")
     link(rel="stylesheet" type="text/css" href="styles/ops.css")
     script(src="scripts/ops.js" type="text/javascript")
     script(src="scripts/ops.levels.js" type="text/javascript")
+    script(src="scripts/ops.controls.js" type="text/javascript")
     script(src="scripts/ops.display.js" type="text/javascript")
     script(src="scripts/ops.sound.js" type="text/javascript")
   body.scanlines
@@ -28,13 +29,13 @@ html(prefix="og: http://ogp.me/ns#")
       div#grid
       div#controls
         div.row
-          span.control.hidden.placeholder
-          span.control#up &#x25b2; 
-          span.control.hidden.placeholder
+          span.control#opMod.hidden.placeholder
+          span.control#opAdd &#x25b2; 
+          span.control#opFlip.hidden.placeholder
         div.row
-          span.control.hidden#left &#x25c0;
-          span.control.hidden#down &#x25bc;
-          span.control.hidden#right &#x25b6;
+          span.control.hidden#opLShift &#x25c0;
+          span.control.hidden#opSub &#x25bc;
+          span.control.hidden#opRShift &#x25b6;
         div.row
-          span.control.hidden#space
+          span.control.hidden#opBump
       div#log

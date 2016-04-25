@@ -129,8 +129,8 @@ body {font-family:"VT323", monospace; width:100%; height:100%; background:$empty
 		span.control {display:inline-block; width:2rem; text-align:center;}
 		span.control:hover {color:$bright; cursor:pointer;}
 		span.control.down {color:$bright;}
-		#space.control {display:inline-block; width:90%; margin:0 auto; height:1.5rem; background-color:green;}
-		#space.control.down {background-color:$bright;}
+		#opBump.control {display:inline-block; width:90%; margin:0 auto; height:1.5rem; background-color:green;}
+		#opBump.control.down {background-color:$bright;}
 		span.control.hidden {visibility:hidden !important;}
 	}
 }
@@ -138,18 +138,18 @@ body {font-family:"VT323", monospace; width:100%; height:100%; background:$empty
 #grid {position:absolute; margin-top:2rem; width:calc(100% - 3rem); text-align:center; 
 	span.bit {display:inline-block; width:2em; height:2em; border:3px solid green; margin:-3px;outline:.5rem solid $empty; outline-offset:calc(-.5rem - 3px);}
 	span.bit.target {outline-color:green;}
-	span.bit.filled {background:green;}
-	span.bit.filled.target {outline-color:$bright; background-color:$bright;}
 	span.bit.hole {background:$dark; outline-color:$dark; animation-name:hole; animation-duration:3s; animation-iteration-count:infinite;}
 	span.bit.burn {background:$bright; outline-color:$mid; animation-name:burn; animation-duration:3s; animation-iteration-count:infinite;}
 	span.bit.short {background:$empty; outline-color:$dark; animation-name:short; animation-duration:3s; animation-iteration-count:infinite;}
+	span.bit.filled, span.bit.short.filled {background:green;}
+	span.bit.filled.target {outline-color:$bright; background-color:$bright;}
 }
 
 #grid #complete {font-size:3em;}
 
 .flash {
 	animation-name:flashcolor; animation-duration:.25s; animation-iteration-count:infinite;
-	.control#space {animation-name:flashbg; animation-duration:.25s; animation-iteration-count:infinite;}
+	.control#opBump {animation-name:flashbg; animation-duration:.25s; animation-iteration-count:infinite;}
 }
 
 #grid.complete {

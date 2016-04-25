@@ -23,22 +23,41 @@ function makeGlitches() {
 	return string;
 }
 
+function splitBits(val) {
+	return val.toString(2).split("").reverse().map((n) => n === "1");
+}
+
 function updateGrid() {
 	var width = info.currentLevel.width;
 	var height = info.currentLevel.height;
-	var register = info.register;
-	var target = info.currentLevel.target;
+	var holes, burns, shorts, feature;
 	var i = 0, max = width*height, nodes = new Array(max),
-			targets = target.toString(2).split("").reverse(),
-			registers = register.toString(2).split("").reverse(),
+			targets = splitBits(info.currentLevel.target),
+			registers = splitBits(info.register),
 			node;
+	if(info.currentLevel.holes) holes = splitBits(info.currentLevel.holes);
+	if(info.currentLevel.burns) burns = splitBits(info.currentLevel.burns);
+	if(info.currentLevel.shorts) shorts = splitBits(info.currentLevel.shorts);
 	grid.innerHTML = "";
 
 	for(; i < max; ++i) {
+		feature = false;
 		node = document.createElement("span");
 		node.classList.add("bit");
-		if(targets[i] === "1") node.classList.add("target");
-		if(registers[i] === "1") node.classList.add("filled");
+		if(targets[i]) node.classList.add("target");
+		if(holes && holes[i]) {
+			feature = true;
+			node.classList.add("hole");
+		}
+		if(burns && burns[i]) {
+			feature = true;
+			node.classList.add("burn");
+		}
+		if(shorts && shorts[i]) {
+			//feature = true;
+			node.classList.add("short");
+		}
+		if(registers[i] && !feature) node.classList.add("filled");
 		nodes.push(node);
 		if((i > 0) && ((i+1) % width === 0)) nodes.push(document.createElement("br"));
 	}
@@ -64,7 +83,8 @@ function clearEffects() {
 }
 
 function keysOn(keys) {
-	["up","down","left","right","space"].forEach((key) => document.getElementById(key).classList.add("hidden"));
+	ops.controls.map((control) => control.id)
+		.forEach((key) => document.getElementById(key).classList.add("hidden"));
 	keys.forEach((key) => document.getElementById(key).classList.remove("hidden"));
 }
 

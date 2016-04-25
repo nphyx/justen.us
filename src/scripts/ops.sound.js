@@ -166,27 +166,23 @@ function createNoise() {
 	return noise;
 }
 
-function startSound(o, g, fadeIn) {
-	if(fadeIn === undefined) {
-		g.gain.value = volume;
-	}
-	else {
-		g.gain.value = 0;
-		g.gain.exponentialRampToValueAtTime(volume, ctx.currentTime);// + fadeIn);
-	}
-	o.start(ctx.currentTime);
+function startSound(o, g, time) {
+	/*
+	g.gain.value = 0;
+	*/
+	o.start(0);
+	g.gain.value = volume;
+	//setTimeout(() => , time);
 }
 
-function stopSound(o, g, fadeOut) {
-	if(fadeOut === undefined) {
-		g.gain.value = 0;
-		setTimeout(o.stop.bind(o), 100);
-	}
-	else {
-		g.gain.value = volume;
-		g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + fadeOut);
-		o.stop(ctx.currentTime+fadeOut+0.01);
-	}
+function stopSound(o, g, time) {
+	/*
+	g.gain.value = volume;
+	g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + time);
+	*/
+	//setTimeout(() => , time);
+	g.gain.value = 0;
+	o.stop(0);
 }
 
 function playNote(note, type, start, stop) {
@@ -195,6 +191,7 @@ function playNote(note, type, start, stop) {
 	var o = ctx.createOscillator();
 	var g = ctx.createGain();
 	g.gain.value = 0;
+	g.gain.exponentialRampToValueAtTime(volume, ctx.currentTime + start);
 	o.connect(g);
 	g.connect(ctx.destination);
 
@@ -202,8 +199,10 @@ function playNote(note, type, start, stop) {
 	if (frq) {
 		o.type = type;
 		o.frequency.value = frq;
+		//startSound(o, g, start);
+		//stopSound(o, g, stop);
 		setTimeout(startSound.bind(null, o, g), start*1000);
-		setTimeout(stopSound.bind(null, o, g), (start+stop)*1000);	
+		setTimeout(stopSound.bind(null, o, g), (stop)*1000);	
 	}
 }
 
@@ -221,11 +220,6 @@ function playNoise(start, stop, fadeIn, fadeOut) {
 		g.gain.linearRampToValueAtTime(0.0, currentTime+fadeOut);
 		setTimeout(() => o.disconnect(), fadeOut*1000+100);
 	}, (fadeIn+(stop-fadeOut))*1000);
-	//setTimeout(() => g.gain.value = 0, 1000);
-	/*
-	setTimeout(startSound.bind(null, o, g, fadeIn), start*1000);
-	setTimeout(stopSound.bind(null, o, g, fadeOut), (start+stop-fadeOut)*1000);	
-	*/
 }
 
 window.ops.sounds = {
@@ -248,57 +242,77 @@ window.ops.sounds = {
 	bump:function() {
 		playNote("C3", "square", 0, 0.1); 
 	},
+	unbump:function() {
+		playNote("G2", "sawtooth", 0, 0.1);
+		playNote("G2", "square", 0, 0.1);
+	},
+	fill:function() {
+		playNoise(0.0, 0.6, 0.5, 0.6);
+		playNote("G2", "sawtooth", 0.2, 0.32);
+		playNote("A5", "sine", 0.2, 0.25); 
+		playNote("E6", "sine", 0.27, 0.32);
+	},
+	flush:function() {
+		playNoise(0.0, 0.6, 0.5, 0.6);
+		playNote("G2", "sawtooth", 0.2, 0.32);
+		playNote("E6", "sine", 0.2, 0.25); 
+		playNote("A5", "sine", 0.27, 0.32);
+	},
+
 	crash:function() {
 		playNoise(0.0, 1.8, 0.2, 1.6);
 	},
 	complete:function() {
-		var i = 0.06; // interval
-		var g = 0.02; // gap between notes
+		var i = 0.1; // interval
+		var g = 0.01; // gap between notes
 		var t = 0;    // time
-		playNote("C3", "sawtooth", t, t+i*3);
 		playNote("C4", "square", t, t+i);
-		playNote("C4", "square", t+i+g, t+i+i);
-		t += i+i+g;
+		playNote("C4", "square", t+i+g, t+i*2+g*2);
+		playNote("C3", "sawtooth", t, t+i*2+g*2);
+		t += i*2+g*2;
 
-		playNote("E4", "sawtooth", t, t+i*3);
 		playNote("E5", "square", t, t+i);
-		playNote("F5", "square", t+i+g, t+i+i);
+		playNote("F5", "square", t+i+g, t+i*3+g*2);
+		playNote("E4", "sawtooth", t, t+i*3+g*2);
 	},
 	glitch:function() {
 		playNoise(0.0, 1.36, 0.1, 1.35);
-		var i = 0.06; // interval
-		var g = 0.02; // gap between notes
+		var i = 0.1; // interval
+		var g = 0.01; // gap between notes
 		var t = 0;    // time
-		playNote("F3", "sawtooth", t, t+i*3);
-		playNote("C4", "square", t, t+i);
-		playNote("E4", "square", t+=i+g, t+=i);
+		playNote("F3", "square", t, t+i);
+		playNote("C4", "square", t+i+g, t+i*2+g*2);
+		playNote("E4", "sawtooth", t, t+i*2+g*2);
+		t += i*2+g*2;
 
-		playNote("D#4", "sawtooth", t, t+i*3);
-		playNote("C5", "square", t, t+i);
-		playNote("F5", "square", t+=i+g, t+=i);
+		playNote("D#4", "square", t, t+i);
+		playNote("C5", "square", t+i+g, t+i*3+g*2);
+		playNote("F5", "sawtooth", t, t+i*3+g*2);
 	},
 	endGame:function() {
-		var i = 0.06; // interval
-		var g = 0.04; // gap between notes
+		var i = 0.1; // interval
+		var g = 0.01; // gap between notes
 		var t = 0;    // time
-		playNote("C3", "sawtooth", t, t+g+i*3);
 		playNote("C4", "square", t, t+i);
-		playNote("C4", "square", t+i+g, t+g+i+i);
-		t += (i*3+g);
+		playNote("C4", "square", t+i+g, t+i*2+g*2);
+		playNote("C3", "sawtooth", t, t+i*2+g*2);
+		t += i*2+g*2;
 
-		playNote("E4", "sawtooth", t, t+g+i*3);
 		playNote("E5", "square", t, t+i);
-		playNote("F5", "square", t+i+g, t+g+i+i);
-		t += (i*4+g*4);
+		playNote("F5", "square", t+i+g, t+i*3+g*2);
+		playNote("E4", "sawtooth", t, t+i*3+g*2);
+		t += i*2+g*2;
 
-		playNote("C3", "sawtooth", t, t+g+i*3);
 		playNote("C4", "square", t, t+i);
-		playNote("C4", "square", t+i+g, t+g+i+i);
-		t += (i*3+g);
+		playNote("C4", "square", t+i+g, t+i*2+g*2);
+		playNote("C3", "sawtooth", t, t+i*2+g*2);
+		t += i*2+g*2;
 
-		playNote("E4", "sawtooth", t, t+g+i*3);
 		playNote("E5", "square", t, t+i);
-		playNote("F5", "square", t+i+g, t+g+i+i);
-		t += (i*4+g*4);
+		playNote("F5", "square", t+i+g, t+i*3+g*2);
+		playNote("E4", "sawtooth", t, t+i*3+g*2);
 	}
 }
+
+window.ops.playNote = playNote;
+window.ops.playNoise = playNoise;
