@@ -8,9 +8,31 @@ $dim: #060;
 $bright: #0c0;
 $vbright: #0f0;
 
+@mixin no-select() {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+@mixin bit-shadow($color) {
+	box-shadow:inset 0 0 0 0.25em $color;
+}
+
+@mixin bit-shadow-x($color) {
+	box-shadow:inset 0 0 0 0.25em $color;
+}
+
+@mixin bit-shadow-y($color) {
+	box-shadow:inset 0 0 0 0.25em $color;
+}
+
 @keyframes gridflash {
-	0% {outline-color:$bright; background-color:$bright; border-color:$bright;}
-	50% {outline-color:$vbright; background-color:$vbright; border-color:$vbright;}
+	0% {@include bit-shadow($bright); background-color:$bright; border-color:$bright;}
+	50% {@include bit-shadow($vbright); background-color:$vbright; border-color:$vbright;}
 }
 
 @keyframes borderflash {
@@ -19,10 +41,10 @@ $vbright: #0f0;
 }
 
 @keyframes gridglitch {
-	0% {border-color:$vbright;outline-color:$bright; background-color:$bright;}
-	25% {border-color:$dark; border-width:5px;}
-	50% {border-color:$bright;outline-color:$vbright; background-color:$vbright;}
-	75% {border-color:$dim; border-width:1px;}
+	0% {border-color:$vbright;@include bit-shadow($bright); background-color:$bright;}
+	25% {border-color:$dark; border-width:.5em;}
+	50% {border-color:$bright;@include bit-shadow($vbright); background-color:$vbright;}
+	75% {border-color:$dim; border-width:.1em;}
 }
 
 @keyframes flashcolor {
@@ -36,125 +58,167 @@ $vbright: #0f0;
 }
 
 @keyframes hole {
-	0% {outline-color:$empty; background-color:$dark;}
-	10% {outline-color:$dark;}
-	11% {outline-color:$empty;}
-	12% {outline-color:$dark;}
-	13% {outline-color:$empty;}
-	14% {outline-color:$dark;}
-	15% {outline-color:$empty; background-color:$empty;}
-	16% {outline-color:$dark;}
-	30% {outline-color:$empty;}
-	31% {outline-color:$dark;}
+	0% {@include bit-shadow($empty); background-color:$dark;}
+	10% {@include bit-shadow($dark);}
+	11% {@include bit-shadow($empty);}
+	12% {@include bit-shadow($dark);}
+	13% {@include bit-shadow($empty);}
+	14% {@include bit-shadow($dark);}
+	15% {@include bit-shadow($empty); background-color:$empty;}
+	16% {@include bit-shadow($dark);}
+	30% {@include bit-shadow($empty);}
+	31% {@include bit-shadow($dark);}
 	32% {background-color:$dark;}
-	39% {background-color:$empty; outline-color:$dark;}
+	39% {background-color:$empty; @include bit-shadow($dark);}
 	40% {background-color:$dark;}
 	41% {background-color:$empty;}
 	42% {background-color:$dark;}
 	43% {background-color:$empty;}
 	44% {background-color:$dark;}
-	45% {background-color:$empty; outline-color:$empty;}
+	45% {background-color:$empty; @include bit-shadow($empty);}
 	46% {background-color:$dark;}
 	70% {background-color:$empty;}
 	71% {background-color:$dark;}
-	72% {outline-color:$dark;}
+	72% {@include bit-shadow($dark);}
 }
 
 @keyframes burn {
-	0% {outline-color:$dim; background-color:$bright;}
-	10% {outline-color:$bright;}
-	11% {outline-color:$dim;}
-	12% {outline-color:$bright;}
-	13% {outline-color:$dim;}
-	14% {outline-color:$bright;}
-	15% {outline-color:$dim; background-color:$dim;}
-	16% {outline-color:$bright;}
-	30% {outline-color:$dim;}
-	31% {outline-color:$bright;}
+	0% {@include bit-shadow($dim); background-color:$bright;}
+	10% {@include bit-shadow($bright);}
+	11% {@include bit-shadow($dim);}
+	12% {@include bit-shadow($bright);}
+	13% {@include bit-shadow($dim);}
+	14% {@include bit-shadow($bright);}
+	15% {@include bit-shadow($dim); background-color:$dim;}
+	16% {@include bit-shadow($bright);}
+	30% {@include bit-shadow($dim);}
+	31% {@include bit-shadow($bright);}
 	32% {background-color:$bright;}
-	39% {background-color:$dim; outline-color:$bright;}
+	39% {background-color:$dim; @include bit-shadow($bright);}
 	40% {background-color:$bright;}
 	41% {background-color:$dim;}
 	42% {background-color:$bright;}
 	43% {background-color:$dim;}
 	44% {background-color:$bright;}
-	45% {background-color:$dim; outline-color:$dim;}
+	45% {background-color:$dim; @include bit-shadow($dim);}
 	46% {background-color:$bright;}
 	70% {background-color:$dim;}
 	71% {background-color:$bright;}
-	72% {outline-color:$bright;}
+	72% {@include bit-shadow($bright);}
 }
 
 @keyframes short {
-	0% {outline-color:$dim; outline-style:dashed;}
-	10% {outline-color:$bright;}
-	11% {outline-color:$dim;}
-	12% {outline-color:$bright;}
-	13% {outline-color:$dim;}
-	14% {outline-color:$bright;}
-	15% {outline-color:$dim; outline-style:double;}
-	16% {outline-color:$bright;}
-	30% {outline-color:$dim;}
-	31% {outline-color:$bright;}
-	32% {outline-color:$bright;}
-	39% {outline-color:$dim; outline-style:dotted;}
-	40% {outline-color:$bright;}
-	41% {outline-color:$dim;}
-	42% {outline-color:$bright;}
-	43% {outline-color:$dim;}
-	44% {outline-color:$bright;}
-	45% {outline-color:$dim; outline-color:solid;}
-	46% {outline-color:$bright;}
-	70% {outline-color:$dim;}
-	71% {outline-color:$bright;}
-	72% {outline-color:$bright;}
+	0% {@include bit-shadow($dim);}
+	10% {@include bit-shadow-x($dim);}
+	11% {@include bit-shadow-y($dim);}
+	12% {@include bit-shadow-x($dim);}
+	13% {@include bit-shadow-y($dim);}
+	14% {@include bit-shadow-x($dim);}
+	15% {@include bit-shadow-y($dim);}
+	16% {@include bit-shadow-x($dim);}
+	30% {@include bit-shadow-y($dim);}
+	31% {@include bit-shadow-x($dim);}
+	39% {@include bit-shadow-x($dim);}
+	45% {@include bit-shadow-y($dim);}
+	72% {@include bit-shadow($dim);}
 }
 
+@keyframes title-t1 {
+	0% {content:"O";}
+	50% {content:"P";}
+}
+
+@keyframes title-t2 {
+	10% {content:"P";}
+	60% {content:"L";}
+}
+
+@keyframes title-t3 {
+	20% {content:"S";}
+	70% {content:"A";}
+}
+
+@keyframes title-t4 {
+	30% {content:" ";}
+	80% {content:"Y";}
+}
 html {overflow:hidden;}
-body {font-family:"VT323", monospace; width:100%; height:100%; background:$empty; color:green; overflow:hidden; position:fixed; margin:0 auto;}
+body {font-family:"VT323", monospace; width:100%; height:100%; background-color:$empty; color:green; overflow:hidden; position:fixed; margin:0 auto; font-size:10px;}
+body.start {
+	#controls {display:none;}
+}
+body:fullscreen, body:full-screen, body:-ms-fullscreen, body:-webkit-full-screen, body:-moz-full-screen {background-color:$empty !important; font-size:20px;
+	#wrap {max-width:auto;}
+}
 
-#wrap {width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; position:relative; top:-3.5rem; max-width:900px; margin:0 auto;}
+body:not(.start) {cursor:none;}
 
-#glitches {font-size: 1.5rem; word-wrap: break-word; letter-spacing: .5rem; position: absolute; display: flex; width: 100%; left: 0; top: -1.5rem; line-height: 1em; z-index: 10; text-align: center; flex-direction: column; justify-content: center; height: 100%;}
+#wrap {width:95%; height:100%; display:flex; flex-direction:column; justify-content:center; position:relative; margin:0 auto; max-width:900px; background:$empty;}
 
-#score {width:100%; text-align:center; font-size:2rem; position:relative; margin-top:-5rem;
+#game-screen {position:relative; border:4px solid $dim; display:flex; flex-direction:row; flex-wrap:wrap; height:50%;}
+
+#glitches {font-size: 1.5rem; word-wrap: break-word; letter-spacing: .5rem; position: absolute; display: flex; width: 100%; left: 0; top: 0; line-height: 1em; z-index: 10; text-align: center; flex-direction: column; justify-content: center; height: 100%;}
+
+#score {position:absolute; top:0; width:100%; height:auto; padding-bottom:.3rem; text-align:center; font-size:2rem;
 	span.label {padding-left:1rem;}
 	span.label.bright {padding-left:1rem;color:$bright;}
 	span.label:first-child {padding-left:0;}
 	#game {color:$vbright; font-size:2.5rem; display:inline-block;}
 }
-#controls {position:absolute; width:6rem; right:1em; text-align:center; font-size:3rem;
-	            line-height:3rem; color:$dim;
+
+#controls {position:absolute; width:3em; height:100%; display:flex; flex-direction:column; justify-content:center; top:0em; right:1em; text-align:center; font-size:3rem; line-height:3rem; color:$dim; z-index:100;
 	div.row {width:100%; text-align:center;
-		span.control {display:inline-block; width:2rem; text-align:center;}
+		span.control {display:inline-block; width:1em; height:1em; text-align:center; @include no-select(); line-height:1em;}
 		span.control:hover {color:$bright; cursor:pointer;}
 		span.control.down {color:$bright;}
-		#opBump.control {display:inline-block; width:90%; margin:0 auto; height:1.5rem; background-color:green;}
+		#opBump.control {display:inline-block; width:90%; margin:.1em auto; height:.7em; background-color:green;}
+		#opBump.control:hover {background-color:$bright;}
 		#opBump.control.down {background-color:$bright;}
-		span.control.hidden {visibility:hidden !important;}
+		span.control.hidden {opacity:0 !important;}
+		#audio.control {font-size:1.8rem; display:none;}
 	}
 }
-#log {position:absolute; right:0em; width:3em; overflow:hidden; top:6em;}
-#grid {position:absolute; margin-top:2rem; width:calc(100% - 3rem); text-align:center; 
-	span.bit {display:inline-block; width:2em; height:2em; border:3px solid green; margin:-3px;outline:.5rem solid $empty; outline-offset:calc(-.5rem - 3px);}
-	span.bit.target {outline-color:green;}
-	span.bit.hole {background:$dark; outline-color:$dark; animation-name:hole; animation-duration:3s; animation-iteration-count:infinite;}
-	span.bit.burn {background:$bright; outline-color:$mid; animation-name:burn; animation-duration:3s; animation-iteration-count:infinite;}
-	span.bit.short {background:$empty; outline-color:$dark; animation-name:short; animation-duration:3s; animation-iteration-count:infinite;}
-	span.bit.filled, span.bit.short.filled {background:green;}
-	span.bit.filled.target {outline-color:$bright; background-color:$bright;}
+
+#grid-wrap {display:flex; flex-direction:column; justify-content:center; margin:4rem auto 0; width:100%; flex-shrink:5;}
+#grid {text-align:center; width:auto; height:auto; margin:0 auto; font-size:2rem;
+	span.bit {position:relative; display:inline-block; overflow:overlay; width:1em; height:1em; border:.2em solid green; @include bit-shadow($empty); flex-grow:1}
+	span.bit {border-left-width:.1em; border-bottom-width:.1em;}
+	br:first-of-type ~ span.bit {border-top-width:.2em;}
+	br + span.bit, span.bit:first-of-type {border-left-width:.2em;}
+	br:last-of-type ~ span.bit {border-bottom-width:.2em;}
+	
+	span.bit.target {@include bit-shadow($mid);}
+	span.bit.hole {background:$dark; @include bit-shadow($dark); animation-name:hole; animation-duration:3s; animation-iteration-count:infinite;}
+	span.bit.burn {background:$bright; @include bit-shadow($mid); animation-name:burn; animation-duration:3s; animation-iteration-count:infinite;}
+
+	// shorted bits
+	span.bit.short {animation-name:short; animation-duration:3s; animation-iteration-count:infinite; @include bit-shadow($dark);} 
+
+	// title screen
+	span.bit.title:before {content:""; top:0; left:0; width:1em; height:1em; position:absolute; overflow:hidden; animation-iteration-count:infinite; animation-duration:4s;}
+
+	span.bit.title.t1:before {content:"O"; animation-name:title-t1;}
+	span.bit.title.t2:before {content:"P"; animation-name:title-t2;}
+	span.bit.title.t3:before {content:"S"; animation-name:title-t3;}
+	span.bit.title.t4:before {content:" "; animation-name:title-t4;}
+
+	// filled and target bits overrides
+	span.bit.filled, span.bit.short.filled {background-color:$mid;}
+	span.bit.filled.target {@include bit-shadow($bright); background-color:$bright;}
 }
 
 #grid #complete {font-size:3em;}
 
 .flash {
-	animation-name:flashcolor; animation-duration:.25s; animation-iteration-count:infinite;
+	.control:not(.no-highlight) {
+		animation-name:flashcolor; animation-duration:.25s; animation-iteration-count:infinite;
+	}
 	.control#opBump {animation-name:flashbg; animation-duration:.25s; animation-iteration-count:infinite;}
 }
 
 #grid.complete {
 	span.bit {animation-name:borderflash; animation-duration:.1s; animation-iteration-count:infinite;}
-	span.bit.target.filled {outline-color:green; background-color:green; animation-name:gridflash; animation-duration:.1s; animation-iteration-count:infinite;}
+	span.bit.target.filled {@include bit-shadow($mid); background-color:$mid; animation-name:gridflash; animation-duration:.1s; animation-iteration-count:infinite;}
 }
 
 #grid.crashed {
@@ -162,7 +226,10 @@ body {font-family:"VT323", monospace; width:100%; height:100%; background:$empty
 	span.bit, 
 	span.bit.filled, 
 	span.bit.target, 
-	span.bit.target.filled {outline-color:green; background-color:green; animation-name:gridflash; animation-duration:.1s; animation-iteration-count:infinite;}
+	span.bit.short,
+	span.bit.burn,
+	span.bit.hole,
+	span.bit.target.filled {@include bit-shadow(green); background-color:green; animation-name:gridflash; animation-duration:.1s; animation-iteration-count:infinite;}
 }
 
 body.glitched {
@@ -170,7 +237,6 @@ body.glitched {
 	#score {
 		background-color:green; color:$empty;
 		#game {position:relative; -webkit-transform:scaleX(-1); color:$empty;
-			//&::before {position:relative; right:-3rem; content:"spO"; color:$empty;}
 		}
 	}
 }
@@ -179,8 +245,24 @@ body.glitched #grid.complete {
 	span.bit, 
 	span.bit.filled, 
 	span.bit.target, 
-	span.bit.target.filled {outline-color:green; background-color:green; animation-name:gridglitch; animation-iteration-count:infinite; 
+	span.bit.target.filled {@include bit-shadow(green); background-color:green; animation-name:gridglitch; animation-iteration-count:infinite; 
 		&:nth-child(even) {animation-delay:0; animation-duration:.1s;}
 		&:nth-child(odd) {animation-delay:.1s; animation-duration:.2s;}
 	}
 }
+
+@media screen and (max-height:600px) {
+	#game-screen {min-height:75%; max-height:590px;}
+}
+
+@media screen and (max-height:300px) {
+	#game-screen {height:95%;}
+}
+
+@media screen and (max-width:700px) {
+	#controls {position:static; margin:0 auto; height:auto; font-size:4rem; width:auto;
+		.control {margin:.2em; border:.1em solid $mid; border-radius:.2em;}
+	}
+	#game-screen {height:95%;}
+}
+

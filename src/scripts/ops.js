@@ -124,25 +124,25 @@ window.addEventListener("load", function() {
 
 	function setupLevel() {
 		crashed = false;
+		unPause();
 		state = newState(currentLevel);
 		levelStarting = true;
 		applyFeatures();
 		ops.updateDisplay();
 		levelStarting = false;
-		setTimeout(unPause, 750);
 	}
 
 	function crash() {
 		sounds.crash();
 		crashed = true;
 		pause();
-		if(glitched) {
+		score -= 3;
+		setTimeout(function() {
 			currentLevel = levels[levelsCleared];
 			currentLevel.name = levelsCleared + 1;
 			glitched = false;
-		}
-		else score -= 3;
-		setTimeout(setupLevel, 2000); 
+			setupLevel();
+		}, 2000); 
 		ops.updateDisplay();
 	}
 	
@@ -225,11 +225,23 @@ window.addEventListener("load", function() {
 		checkComplete();
 	}
 
+	function getControlForKeyCode(code) {
+		return controls.filter((el) => el.code === code)[0];
+	}
+
+	function getControlForId(id) {
+		return controls.filter((el) => el.id === id)[0];
+	}
+
+	function toggleMod() {
+		modKey ^= 1;
+	}
+
 	function bindKeys() {
 		window.addEventListener("keydown", function(event) {
 			if(validKeys.indexOf(event.keyCode) !== -1) {
 				event.preventDefault();
-				var {id} = controls.filter((el) => el.code === event.keyCode)[0];
+				var {id} = getControlForKeyCode(event.keyCode);
 				controlDown(id);
 				ops.updateDisplay();
 				return false;
@@ -239,12 +251,19 @@ window.addEventListener("load", function() {
 		window.addEventListener("keyup", function(event) {
 			if(validKeys.indexOf(event.keyCode) !== -1) {
 				event.preventDefault();
-				var control = controls.filter((el) => el.code === event.keyCode)[0];
+				var control = getControlForKeyCode(event.keyCode);
 				opCall(control);
 				return false;
 			}
 			else if(event.keyCode === 16) modKey = false;
 		});
+		document.getElementById("opAdd").addEventListener("click", opCall.bind(null, getControlForId("opAdd")));
+		document.getElementById("opSub").addEventListener("click", opCall.bind(null, getControlForId("opSub")));
+		document.getElementById("opLShift").addEventListener("click", opCall.bind(null, getControlForId("opLShift")));
+		document.getElementById("opRShift").addEventListener("click", opCall.bind(null, getControlForId("opRShift")));
+		document.getElementById("opBump").addEventListener("click", opCall.bind(null, getControlForId("opBump")));
+		document.getElementById("opFlip").addEventListener("click", opCall.bind(null, getControlForId("opFlip")));
+		document.getElementById("opMod").addEventListener("click", function() {toggleMod()});
 	}
 
 	ops.stateInfo = function() {
@@ -286,7 +305,7 @@ if(DEBUG) {
 		currentLevel.name = level;
 		score = levelsCleared * 10;
 		setupLevel();
-		ops.setupDisplay();
+		ops.updateDisplay();
 	}
 
 	ops.glitch = function(delta, lCleared, gCleared) {
@@ -299,19 +318,19 @@ if(DEBUG) {
 		setupLevel();
 		currentLevel = createGlitchLevel();
 		setupLevel();
-		ops.setupDisplay();
+		ops.updateDisplay();
 	}
-
 }
 
 	ops.calcFinalScore = function() {
 		return score + Math.ceil(score * (Math.pow(glitchExponentBase, glitchesCleared) - 1));
 	}
 
-	ops.setupControls();
-	controls = ops.controls;
-	validKeys = ops.validKeys;
-	ops.setupDisplay();
-	setupLevel();
-	bindKeys();
+	ops.setupGame = function() {
+		ops.setupControls();
+		controls = ops.controls;
+		validKeys = ops.validKeys;
+		setupLevel();
+		bindKeys();
+	}
 });

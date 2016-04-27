@@ -3,6 +3,32 @@ var grid, body, info;
 var ops = window.ops;
 var glitchChars = [9632,9600,9625,9622,9626,9630,9631,9628,9627];
 
+// from MDN
+function toggleFullScreen() {
+  if (!document.fullscreenElement &&    // alternative standard method
+      !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) {
+      document.documentElement.msRequestFullscreen();
+    } else if (document.documentElement.mozRequestFullScreen) {
+      document.documentElement.mozRequestFullScreen();
+    } else if (document.documentElement.webkitRequestFullscreen) {
+      document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  }
+}
+
 function flashElement(el, time) {
 	el.classList.add("flash");
 	setTimeout(() => el.classList.remove("flash"), time);
@@ -53,10 +79,7 @@ function updateGrid() {
 			feature = true;
 			node.classList.add("burn");
 		}
-		if(shorts && shorts[i]) {
-			//feature = true;
-			node.classList.add("short");
-		}
+		if(shorts && shorts[i]) node.classList.add("short");
 		if(registers[i] && !feature) node.classList.add("filled");
 		nodes.push(node);
 		if((i > 0) && ((i+1) % width === 0)) nodes.push(document.createElement("br"));
@@ -103,11 +126,6 @@ function updateScoreboard() {
 	document.getElementById("glitches").innerHTML = makeGlitches();
 }
 
-ops.setupDisplay = function() {
-	grid = document.getElementById("grid");
-	body = document.getElementsByTagName("body")[0];
-}
-
 ops.updateDisplay = function() {
 	info = ops.stateInfo();
 	clearEffects();
@@ -117,3 +135,16 @@ ops.updateDisplay = function() {
 	if(info.currentLevel.keysOn) keysOn(info.currentLevel.keysOn);
 	startEffects();
 }
+
+function startGame() {
+	ops.setupGame();
+	body.removeEventListener("click", startGame);
+	body.classList.remove("start");
+	toggleFullScreen();
+}
+
+window.addEventListener("load", function() {
+	grid = document.getElementById("grid");
+	body = document.getElementsByTagName("body")[0];
+	body.addEventListener("click", startGame);
+});
