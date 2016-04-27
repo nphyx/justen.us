@@ -161,7 +161,7 @@ body:not(.start) {cursor:none;}
 
 #score {position:absolute; top:0; width:100%; height:auto; padding-bottom:.3rem; text-align:center; font-size:2rem;
 	span.label {padding-left:1rem;}
-	span.label.bright {padding-left:1rem;color:$bright;}
+	span.label.bright {color:$bright;}
 	span.label:first-child {padding-left:0;}
 	#game {color:$vbright; font-size:2.5rem; display:inline-block;}
 }
@@ -260,9 +260,9 @@ body.glitched #grid.complete {
 }
 
 @media screen and (max-device-width:700px), screen and (orientation:portrait) {
-	#score {font-size:1.6rem;
+	#score {font-size:1.6rem; 
 		#game {display:block;}
-		span.label:first-of-type {margin-left:0;}
+		span:nth-child(2) {padding-left:0;}
 	}
 	#controls {position:static; margin:0 auto; height:auto; font-size:3.5rem; width:auto;
 		.control {margin:.2em; border:.1em solid $mid; border-radius:.2em;}
