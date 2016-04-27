@@ -1,9 +1,9 @@
 "use strict";
 const ops = {};
-const DEBUG = true;
 window.ops = ops;
 window.addEventListener("load", function() {
 	const MAX_OVER_PAR = 5;
+	const DEBUG = false;
 
 	var state;
 	var controls;
@@ -22,7 +22,7 @@ window.addEventListener("load", function() {
 	var gameOver = false;
 	var currentLevel = levels[0]; currentLevel.name = 1;
 	var crashed = false;
-	var modKey = false;
+	var modKey = 0;
 
 
 	// finds the difference between the par score and the current score
@@ -41,22 +41,24 @@ window.addEventListener("load", function() {
 	 * @return {object}
 	 */
 	function newState(level) {
-		var data = new Uint32Array(10);
+		var data = new Uint32Array(8);
 		var state = {
 			data:data
 		}
 		Object.defineProperties(state, {
 			register:{get:() => data[0], set:(val) => {val = val|0; data[0] = val}},
-			target:{get:() => data[1], set:(val) => {val = val|0; data[1] = val}},
+			flip:{get:() => data[1], set:(val) => {val = val|0; data[1] = val}},
 			ops:{get:() => data[2], set:(val) => {val = val|0; data[2] = val}},
 			par:{get:() => data[3], set:(val) => {val = val|0; data[3] = val}},
 			level:{get:() => data[4], set:(val) => {val = val|0; data[4] = val}},
 			width:{get:() => data[5], set:(val) => {val = val|0; data[5] = val}},
 			height:{get:() => data[6], set:(val) => {val = val|0; data[6] = val}},
+			target:{get:() => data[7], set:(val) => {val = val|0; data[7] = val}},
 		});
 		complete = false;
 		state.register = level.register;
 		state.target = level.target;
+		state.flip = 0;
 		// apply special blocks to target to save level design headaches
 		if(level.holes) state.target ^= (state.target & level.holes);
 		if(level.burns) state.target |= level.burns;
@@ -87,6 +89,7 @@ window.addEventListener("load", function() {
 	function trimStateFields() {
 		state.register = trim(state.register, currentLevel.width, currentLevel.height);
 		state.target = trim(state.target, currentLevel.width, currentLevel.height);
+		state.flip = trim(state.flip, currentLevel.width, currentLevel.height);
 	}
 
 	function applyFeatures() {
@@ -209,7 +212,7 @@ window.addEventListener("load", function() {
 	function opCall(control) {
 		if(paused) return;
 		var {code, id, op, mod, sound, modSound} = control;
-		controlUp(id);
+		var oldRegister = state.register;
 		if(modKey) {
 			mod(state);
 			modSound();
@@ -218,10 +221,14 @@ window.addEventListener("load", function() {
 			op(state);
 			sound();
 		}
+		controlUp(id);
 		state.ops++;
+		state.flip = (state.register ^ oldRegister);
 		applyFeatures();
 		trimStateFields();
 		ops.updateDisplay();
+		// clear the flips now so they don't flicker
+		state.flip = state.register;
 		checkComplete();
 		return false; // prevent bubbling for click events
 	}
@@ -234,12 +241,18 @@ window.addEventListener("load", function() {
 		return controls.filter((el) => el.id === id)[0];
 	}
 
+	function setMod(val) {
+		modKey = val;
+		ops.updateDisplay();
+	}
+
 	function toggleMod() {
-		modKey ^= 1;
+		setMod(modKey?0:1);
 	}
 
 	function bindKeys() {
 		window.addEventListener("keydown", function(event) {
+			if(event.keyCode === 16) setMod(1);
 			if(validKeys.indexOf(event.keyCode) !== -1) {
 				event.preventDefault();
 				var {id} = getControlForKeyCode(event.keyCode);
@@ -247,16 +260,15 @@ window.addEventListener("load", function() {
 				ops.updateDisplay();
 				return false;
 			}
-			else if(event.keyCode === 16) modKey = true;
 		});
 		window.addEventListener("keyup", function(event) {
+			if(event.keyCode === 16) setMod(0);
 			if(validKeys.indexOf(event.keyCode) !== -1) {
 				event.preventDefault();
 				var control = getControlForKeyCode(event.keyCode);
 				opCall(control);
 				return false;
 			}
-			else if(event.keyCode === 16) modKey = false;
 		});
 		document.getElementById("opAdd").addEventListener("click", opCall.bind(null, getControlForId("opAdd")));
 		document.getElementById("opSub").addEventListener("click", opCall.bind(null, getControlForId("opSub")));
@@ -281,7 +293,10 @@ window.addEventListener("load", function() {
 			ops:state.ops,
 			register:state.register,
 			complete:complete,
-			paused:paused
+			flip:state.flip,
+			paused:paused,
+			modKey:modKey
+
 		}
 	}
 

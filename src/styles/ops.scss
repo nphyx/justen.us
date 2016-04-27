@@ -2,9 +2,9 @@
 @import 'scanlines';
 @import url(https://fonts.googleapis.com/css?family=VT323);
 $dark: black;
-$empty: #021802;
-$mid: green;
+$empty: #042404;
 $dim: #060;
+$mid: green;
 $bright: #0c0;
 $vbright: #0f0;
 
@@ -30,19 +30,50 @@ $vbright: #0f0;
 	box-shadow:inset 0 0 0 0.25em $color;
 }
 
+@keyframes bit-filled {
+	0% {background-color:$mid;}
+	50% {background-color:$bright;}
+	99% {background-color:$mid;}
+
+}
+
+@keyframes bit-target {
+	0% {@include bit-shadow($dim);}
+	50% {@include bit-shadow($mid);}
+	99% {@include bit-shadow($dim);}
+}
+
+@keyframes bit-emptied {
+	0% {background-color:$mid;}
+	99% {background-color:$empty;}
+}
+
+@keyframes bit-newfill {
+	0% {background-color:$dim;}
+	99% {background-color:$bright;}
+}
+
+@keyframes bit-filled-target {
+	0% {@include bit-shadow($dim); background-color:$mid;}
+	50% {@include bit-shadow($mid); background-color:$bright;}
+	99% {@include bit-shadow($dim); background-color:$mid;}
+}
+
 @keyframes gridflash {
 	0% {@include bit-shadow($bright); background-color:$bright; border-color:$bright;}
 	50% {@include bit-shadow($vbright); background-color:$vbright; border-color:$vbright;}
+	99% {@include bit-shadow($bright); background-color:$bright; border-color:$bright;}
 }
 
 @keyframes borderflash {
 	0% {border-color:$bright;}
 	50% {border-color:$vbright;}
+	99% {border-color:$bright;}
 }
 
 @keyframes gridglitch {
 	0% {border-color:$vbright;@include bit-shadow($bright); background-color:$bright;}
-	25% {border-color:$dark; border-width:.5em;}
+	25% {border-color:$dark; border-width:.2em;}
 	50% {border-color:$bright;@include bit-shadow($vbright); background-color:$vbright;}
 	75% {border-color:$dim; border-width:.1em;}
 }
@@ -145,6 +176,7 @@ $vbright: #0f0;
 html {overflow:hidden;}
 body {font-family:"VT323", monospace; width:100%; height:100%; background-color:$empty; color:green; overflow:hidden; position:fixed; margin:0 auto; font-size:10px;}
 body.start {
+	#grid {font-size:2.5rem;}
 	#controls {display:none;}
 }
 body:fullscreen, body:full-screen, body:-ms-fullscreen, body:-webkit-full-screen, body:-moz-full-screen {background-color:$empty !important; font-size:20px;
@@ -155,7 +187,7 @@ body:not(.start) {cursor:none;}
 
 #wrap {width:95%; height:100%; display:flex; flex-direction:column; justify-content:center; position:relative; margin:0 auto; max-width:900px; background:$empty;}
 
-#game-screen {position:relative; border:4px solid $dim; display:flex; flex-direction:row; flex-wrap:wrap; height:50%;}
+#game-screen {position:relative; border:4px solid $dim; display:flex; flex-direction:row; flex-wrap:wrap; height:70%;}
 
 #glitches {font-size: 1.5rem; word-wrap: break-word; letter-spacing: .5rem; position: absolute; display:block; width: 100%; left: 0; top: 0; line-height: 1em; z-index: 10; text-align: center; height: 100%;}
 
@@ -171,30 +203,35 @@ body:not(.start) {cursor:none;}
 #controls {position:absolute; width:3em; height:100%; display:flex; flex-direction:column; justify-content:center; top:0em; right:1em; text-align:center; font-size:3rem; line-height:3rem; color:$dim; z-index:100;
 	div.row {width:100%; text-align:center;
 		span.control {display:inline-block; width:1em; height:1em; text-align:center; @include no-select(); line-height:1em;}
-		span.control:hover {color:$bright; cursor:pointer;}
-		span.control.down {color:$bright;}
-		#opBump.control {display:inline-block; width:90%; margin:.1em auto; height:.7em; background-color:green;}
-		#opBump.control:hover {background-color:$bright;}
+		span.control:active {color:$bright; cursor:pointer;}
+		span.control.down {color:$vbright;}
+		#opBump.control {display:inline-block; width:90%; margin:.1em auto; height:.7em; background-color:$dim;}
+		#opBump.control:active {background-color:$bright;}
 		#opBump.control.down {background-color:$bright;}
 		span.control.hidden {opacity:0 !important;}
 		#audio.control {font-size:1.8rem; display:none;}
 	}
 }
 
+#controls.mod {color:$bright;
+	#opBump.control {background-color:$bright;}
+}
+
 #grid-wrap {display:flex; flex-direction:column; justify-content:center; margin:4rem auto 0; width:100%; flex-shrink:5;}
 #grid {text-align:center; width:auto; height:auto; margin:0 auto; font-size:2rem;
-	span.bit {position:relative; display:inline-block; overflow:overlay; width:1em; height:1em; border:.2em solid green; @include bit-shadow($empty); flex-grow:1}
+	span.bit {position:relative; display:inline-block; overflow:overlay; width:1em; height:1em; border:.2em solid $mid; @include bit-shadow($empty); flex-grow:1}
 	span.bit {border-left-width:.1em; border-bottom-width:.1em;}
 	br:first-of-type ~ span.bit {border-top-width:.2em;}
 	br + span.bit, span.bit:first-of-type {border-left-width:.2em;}
 	br:last-of-type ~ span.bit {border-bottom-width:.2em;}
 	
-	span.bit.target {@include bit-shadow($mid);}
+	span.bit.target {@include bit-shadow($dim); animation-name:bit-target; animation-duration:2s; animation-iteration-count:infinite;}
+	span.bit.filled {animation-name:bit-filled; animation-duration:2s; animation-iteration-count:infinite; background-color:$bright;}
 	span.bit.hole {background:$dark; @include bit-shadow($dark); animation-name:hole; animation-duration:3s; animation-iteration-count:infinite;}
 	span.bit.burn {background:$bright; @include bit-shadow($mid); animation-name:burn; animation-duration:3s; animation-iteration-count:infinite;}
 
 	// shorted bits
-	span.bit.short {animation-name:short; animation-duration:3s; animation-iteration-count:infinite; @include bit-shadow($dark);} 
+	span.bit.short, span.bit.short.filled {animation-name:short; animation-duration:3s; animation-iteration-count:infinite; @include bit-shadow($dark);} 
 
 	// title screen
 	span.bit.title:before {content:""; top:0; left:0; width:1em; height:1em; position:absolute; overflow:hidden; animation-iteration-count:infinite; animation-duration:4s;}
@@ -206,7 +243,9 @@ body:not(.start) {cursor:none;}
 
 	// filled and target bits overrides
 	span.bit.filled, span.bit.short.filled {background-color:$mid;}
-	span.bit.filled.target {@include bit-shadow($bright); background-color:$bright;}
+	span.bit.filled.target {background:$mid; animation-name:bit-filled-target; animation-duration:2s; animation-iteration-count:infinite; animation-delay:.2s;}
+	span.bit.flipped:not(.filled) {background-color:$empty; animation-name:bit-emptied; animation-duration:.3s; animation-iteration-count:1;}
+	span.bit.flipped.filled {background-color:$dim; animation-name:bit-newfill; animation-duration:.3s; animation-iteration-count:1;}
 }
 
 #grid #complete {font-size:3em;}
@@ -219,14 +258,14 @@ body:not(.start) {cursor:none;}
 }
 
 #grid.complete {
-	span.bit {animation-name:borderflash; animation-duration:.1s; animation-iteration-count:infinite;}
-	span.bit.target.filled {@include bit-shadow($mid); background-color:$mid; animation-name:gridflash; animation-duration:.1s; animation-iteration-count:infinite;}
+	span.bit {animation-name:borderflash; animation-duration:.1s; animation-iteration-count:infinite; background-color:$empty;}
+	span.bit.target.filled {@include bit-shadow($bright); background-color:$bright; border-color:$bright; animation-name:gridflash; animation-duration:.1s; animation-iteration-count:infinite;}
 }
 
 #grid.crashed {
 	span.bit {animation-name:borderflash; animation-duration:.1s; animation-iteration-count:infinite;}
 	span.bit, 
-	span.bit.filled, 
+	span.bit.filled,
 	span.bit.target, 
 	span.bit.short,
 	span.bit.burn,
@@ -268,6 +307,10 @@ body.glitched #grid.complete {
 	}
 	#controls {position:static; margin:0 auto; height:auto; font-size:3.5rem; width:auto;
 		.control {margin:.2em; border:.1em solid $mid; border-radius:.2em;}
+	}
+	#controls.mod {
+		.control {border-color:$bright;}
+		#opBump {background-color:$bright;}
 	}
 	#game-screen {height:95%;}
 	#grid {font-size:1.5rem;}

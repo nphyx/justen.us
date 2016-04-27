@@ -1,5 +1,5 @@
 "use strict";
-var grid, body, info;
+var grid, body, info, controls;
 var ops = window.ops;
 var glitchChars = [9632,9600,9625,9622,9626,9630,9631,9628,9627];
 var fullscreen = false;
@@ -36,7 +36,6 @@ function fullscreenOff(ev) {
 	ev.preventDefault();
 	if(document.webkitIsFullScreen || document.mozIsFullScreen || document.msIsFullScreen) fullscreen = true;
 	else fullscreen = false;
-	console.log("full screen toggle", fullscreen);
 	return false;
 }
 
@@ -48,7 +47,7 @@ function flashElement(el, time) {
 function levelFlashes() {
 	flashElement(document.getElementById("score-level"), 750);
 	setTimeout(() => flashElement(document.getElementById("score-par"), 750), 750);
-	setTimeout(() => flashElement(document.getElementById("controls"), 750), 1500);
+	setTimeout(() => flashElement(controls, 750), 1500);
 }
 
 function makeGlitches() {
@@ -63,7 +62,7 @@ function makeGlitches() {
 function splitBits(val) {
 	return val.toString(2).split("").reverse().map((n) => n === "1");
 }
-
+var flipout;
 function updateGrid() {
 	var width = info.currentLevel.width;
 	var height = info.currentLevel.height;
@@ -71,6 +70,7 @@ function updateGrid() {
 	var i = 0, max = width*height, nodes = new Array(max),
 			targets = splitBits(info.currentLevel.target),
 			registers = splitBits(info.register),
+			flips = splitBits(info.flip),
 			node;
 	if(info.currentLevel.holes) holes = splitBits(info.currentLevel.holes);
 	if(info.currentLevel.burns) burns = splitBits(info.currentLevel.burns);
@@ -92,11 +92,28 @@ function updateGrid() {
 		}
 		if(shorts && shorts[i]) node.classList.add("short");
 		if(registers[i] && !feature) node.classList.add("filled");
+		if(flips[i]) node.classList.add("flipped");
 		nodes.push(node);
 		if((i > 0) && ((i+1) % width === 0)) nodes.push(document.createElement("br"));
 	}
 	nodes.reverse();
 	nodes.forEach((node, i) => grid.appendChild(node));
+
+	// now apply changed animations
+	if(flipout) {
+		clearTimeout(flipout);
+		flipout = undefined;
+	}
+	setTimeout(function() {
+		var nodes = document.querySelectorAll("#grid span.bit.flipped");
+		if(nodes.length) {
+		  nodes = Array.prototype.slice.call(nodes, 0);
+			nodes.reverse();
+			nodes.forEach(function(el, i) {
+				el.classList.remove("flipped");
+			});
+		}
+	}, 350);
 }
 
 function endScreen() {
@@ -114,6 +131,7 @@ function clearEffects() {
 	grid.classList.remove("glitching");
 	grid.classList.remove("complete");
 	body.classList.remove("glitched");
+	controls.classList.remove("mod");
 }
 
 function keysOn(keys) {
@@ -127,6 +145,7 @@ function startEffects() {
 	if(info.crashed) grid.classList.add("crashed");
 	if(info.complete) grid.classList.add("complete");
 	if(info.levelStarting) levelFlashes();
+	if(info.modKey) controls.classList.add("mod");
 }
 
 function updateScoreboard() {
@@ -154,10 +173,19 @@ function startGame() {
 	toggleFullScreen();
 }
 
+function pressEnter() {
+	if(event.keyCode === 13) {
+		document.removeEventListener("keyup", pressEnter);
+		startGame();
+	}
+}
+
 window.addEventListener("load", function() {
+	controls = document.getElementById("controls");
 	grid = document.getElementById("grid");
 	body = document.getElementsByTagName("body")[0];
 	body.addEventListener("click", startGame);
+	document.addEventListener("keyup", pressEnter);
 	body.addEventListener("click", toggleFullScreen);
 	document.addEventListener("fullscreenchange", fullscreenOff);
 	document.addEventListener("mozfullscreenchange", fullscreenOff);
