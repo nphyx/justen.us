@@ -223,6 +223,7 @@ window.addEventListener("load", function() {
 		trimStateFields();
 		ops.updateDisplay();
 		checkComplete();
+		return false; // prevent bubbling for click events
 	}
 
 	function getControlForKeyCode(code) {

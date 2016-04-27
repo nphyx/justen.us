@@ -2,9 +2,12 @@
 var grid, body, info;
 var ops = window.ops;
 var glitchChars = [9632,9600,9625,9622,9626,9630,9631,9628,9627];
+var fullscreen = false;
 
 // from MDN
 function toggleFullScreen() {
+	if(fullscreen) return;
+	fullscreen = true;
   if (!document.fullscreenElement &&    // alternative standard method
       !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
     if (document.documentElement.requestFullscreen) {
@@ -27,6 +30,14 @@ function toggleFullScreen() {
       document.webkitExitFullscreen();
     }
   }
+}
+
+function fullscreenOff(ev) {
+	ev.preventDefault();
+	if(document.webkitIsFullScreen || document.mozIsFullScreen || document.msIsFullScreen) fullscreen = true;
+	else fullscreen = false;
+	console.log("full screen toggle", fullscreen);
+	return false;
 }
 
 function flashElement(el, time) {
@@ -147,4 +158,9 @@ window.addEventListener("load", function() {
 	grid = document.getElementById("grid");
 	body = document.getElementsByTagName("body")[0];
 	body.addEventListener("click", startGame);
+	body.addEventListener("click", toggleFullScreen);
+	document.addEventListener("fullscreenchange", fullscreenOff);
+	document.addEventListener("mozfullscreenchange", fullscreenOff);
+	document.addEventListener("msfullscreenchange", fullscreenOff);
+	document.addEventListener("webkitfullscreenchange", fullscreenOff);
 });

@@ -259,18 +259,13 @@ body.glitched #grid.complete {
 	#game-screen {height:95%;}
 }
 
-@media screen and (max-width:700px), handheld {
-	#score {font-size:1.6rem;}
-	#controls {
-		.control {margin:.2em; border:.1em solid $mid; border-radius:.2em;}
-	}
-}
-
-@media handheld and (orientation:portrait) {
-	#score {
+@media screen and (max-device-width:700px), screen and (orientation:portrait) {
+	#score {font-size:1.6rem;
 		#game {display:block;}
 		span.label:first-of-type {margin-left:0;}
 	}
-	#controls {position:static; margin:0 auto; height:auto; font-size:3.5rem; width:auto;}
+	#controls {position:static; margin:0 auto; height:auto; font-size:3.5rem; width:auto;
+		.control {margin:.2em; border:.1em solid $mid; border-radius:.2em;}
+	}
 	#game-screen {height:95%;}
 }
