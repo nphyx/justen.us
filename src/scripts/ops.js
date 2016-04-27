@@ -159,6 +159,7 @@ window.addEventListener("load", function() {
 	}
 
 	function completeLevel() {
+		complete = true;
 		if(glitched) {
 			glitched = false;
 			glitchesCleared++;
@@ -170,12 +171,14 @@ window.addEventListener("load", function() {
 		if(parScoreDelta() > whichGlitch()) {
 			glitched = true;
 			glitchesFound++;
+		}
+		ops.updateDisplay();
+		if(glitched) {
 			currentLevel = createGlitchLevel();
 			sounds.glitch();
 		}
 		else {
 			if(levels[levelsCleared] !== undefined) {
-				complete = true;
 				currentLevel = levels[levelsCleared];
 				currentLevel.name = levelsCleared + 1;
 				sounds.complete();
@@ -184,7 +187,6 @@ window.addEventListener("load", function() {
 				return endGame();
 			}
 		}
-		ops.updateDisplay();
 		setTimeout(setupLevel, 1000);
 	}
 

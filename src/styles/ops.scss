@@ -192,9 +192,7 @@ body:not(.start) {cursor:none;}
 #glitches {font-size: 1.5rem; word-wrap: break-word; letter-spacing: .5rem; position: absolute; display:block; width: 100%; left: 0; top: 0; line-height: 1em; z-index: 10; text-align: center; height: 100%;}
 
 #score {position:absolute; top:0; width:calc(100% - 2em); height:auto; text-align:center; font-size:2rem; padding:0 1em .3em;
-	span.group {display:inline-block;}
-	span.group:nth-child(3) {padding-left:1rem;}
-	span.group span.label:not(:first-child) {padding-left:1rem;}
+	span.label:not(:first-child) {padding-left:1rem;}
 	span.label.bright {color:$bright;}
 	span.label:first-child {padding-left:0;}
 	#game {color:$vbright; font-size:2.5rem; display:inline-block; margin-right:1rem;}
@@ -301,9 +299,9 @@ body.glitched #grid.complete {
 }
 
 @media screen and (max-device-width:700px), screen and (orientation:portrait) {
-	#score {font-size:1.6rem; 
-		#game {display:block;}
-		span:nth-child(2) {padding-left:0;}
+	body {font-size:15px;}
+	#score {
+		#game {display:inline;}
 	}
 	#controls {position:static; margin:0 auto; height:auto; font-size:3.5rem; width:auto;
 		.control {margin:.2em; border:.1em solid $mid; border-radius:.2em;}

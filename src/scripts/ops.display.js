@@ -46,7 +46,7 @@ function flashElement(el, time) {
 
 function levelFlashes() {
 	flashElement(document.getElementById("score-level"), 750);
-	setTimeout(() => flashElement(document.getElementById("score-par"), 750), 750);
+	setTimeout(() => flashElement(document.getElementById("score-ops"), 750), 750);
 	setTimeout(() => flashElement(controls, 750), 1500);
 }
 
@@ -149,9 +149,8 @@ function startEffects() {
 }
 
 function updateScoreboard() {
-	document.getElementById("score-ops").innerHTML = info.ops.toString();
+	document.getElementById("score-ops").innerHTML = (info.currentLevel.par - info.ops).toString();
 	document.getElementById("score-hi").innerHTML = info.score;
-	document.getElementById("score-par").innerHTML = info.currentLevel.par;
 	document.getElementById("score-level").innerHTML = info.currentLevel.name;
 	document.getElementById("glitches").innerHTML = makeGlitches();
 }
