@@ -165,7 +165,7 @@ body:not(.start) {cursor:none;}
 	span.group span.label:not(:first-child) {padding-left:1rem;}
 	span.label.bright {color:$bright;}
 	span.label:first-child {padding-left:0;}
-	#game {color:$vbright; font-size:2.5rem; display:inline-block;}
+	#game {color:$vbright; font-size:2.5rem; display:inline-block; margin-right:1rem;}
 }
 
 #controls {position:absolute; width:3em; height:100%; display:flex; flex-direction:column; justify-content:center; top:0em; right:1em; text-align:center; font-size:3rem; line-height:3rem; color:$dim; z-index:100;
