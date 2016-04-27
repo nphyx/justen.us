@@ -300,8 +300,8 @@ body.glitched #grid.complete {
 
 @media screen and (max-device-width:700px), screen and (orientation:portrait) {
 	body {font-size:15px;}
-	#score {
-		#game {display:inline;}
+	#score {font-size:1.2rem; width:95%; margin:0; padding:0;
+		#game {display:inline; margin:0; font-size:1.5rem;}
 	}
 	#controls {position:static; margin:0 auto; height:auto; font-size:3.5rem; width:auto;
 		.control {margin:.2em; border:.1em solid $mid; border-radius:.2em;}
