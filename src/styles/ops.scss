@@ -182,6 +182,7 @@ body.start {
 body:fullscreen, body:full-screen, body:-ms-fullscreen, body:-webkit-full-screen, body:-moz-full-screen {background-color:$empty !important; font-size:20px;
 	#wrap {max-width:auto;}
 }
+body.designMode {#game-screen {@include bit-shadow($bright)}}
 
 body:not(.start) {cursor:none;}
 

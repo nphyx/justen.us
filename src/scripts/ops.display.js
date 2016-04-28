@@ -5,8 +5,35 @@ var glitchChars = [9632,9600,9625,9622,9626,9630,9631,9628,9627];
 var fullscreen = false;
 var flippin;
 var flipout;
-const AUTO_FULLSCREEN = true;
+const AUTO_FULLSCREEN = false;
 const FLIPTIME = 100;
+
+/**
+ * Generator for iterating though a list of bits.
+ */
+function *bitGenerator(bits) {
+	var i = 0;
+	while(i < bits.length) {
+		yield(bits[i]);
+		i++;
+	}
+}
+
+ops.bitGenTest = bitGenerator;
+
+function flashElement(el, time) {
+	el.classList.add("flash");
+	setTimeout(() => el.classList.remove("flash"), time);
+}
+
+/**
+ * Makes certain elements blink to highlight them at the beginning of a level.
+ */
+function levelFlashes() {
+	flashElement(document.getElementById("score-level"), 750);
+	setTimeout(() => flashElement(document.getElementById("score-ops"), 750), 750);
+	setTimeout(() => flashElement(controls, 750), 1500);
+}
 
 // from MDN
 function toggleFullScreen() {
@@ -41,6 +68,7 @@ function clearEffects() {
 	grid.classList.remove("glitching");
 	grid.classList.remove("complete");
 	body.classList.remove("glitched");
+	body.classList.remove("designMode");
 	controls.classList.remove("mod");
 }
 
@@ -56,6 +84,7 @@ function startEffects() {
 	if(info.complete) grid.classList.add("complete");
 	if(info.levelStarting) levelFlashes();
 	if(info.modKey) controls.classList.add("mod");
+	if(info.designMode) body.classList.add("designMode");
 }
 
 function fullscreenOff(ev) {
@@ -63,17 +92,6 @@ function fullscreenOff(ev) {
 	if(document.webkitIsFullScreen || document.mozIsFullScreen || document.msIsFullScreen) fullscreen = true;
 	else fullscreen = false;
 	return false;
-}
-
-function flashElement(el, time) {
-	el.classList.add("flash");
-	setTimeout(() => el.classList.remove("flash"), time);
-}
-
-function levelFlashes() {
-	flashElement(document.getElementById("score-level"), 750);
-	setTimeout(() => flashElement(document.getElementById("score-ops"), 750), 750);
-	setTimeout(() => flashElement(controls, 750), 1500);
 }
 
 /**
@@ -92,7 +110,7 @@ function updateScoreboard() {
 	document.getElementById("score-ops").innerHTML = (info.currentLevel.par - info.ops).toString();
 	document.getElementById("score-hi").innerHTML = info.score;
 	document.getElementById("score-level").innerHTML = info.currentLevel.name;
-	document.getElementById("glitches").innerHTML = makeGlitches();
+	if(!info.designMode) document.getElementById("glitches").innerHTML = makeGlitches();
 }
 
 function splitBits(val, max) {
@@ -189,16 +207,6 @@ ops.setupLevelDisplay = function() {
 	if(info.currentLevel.keysOn) keysOn(info.currentLevel.keysOn);
 	startEffects();
 }
-
-function *bitGenerator(bits) {
-	var i = 0;
-	while(i < bits.length) {
-		yield(bits[i]);
-		i++;
-	}
-}
-
-ops.bitGenTest = bitGenerator;
 
 function endScreen() {
 	grid.innerHTML = "";

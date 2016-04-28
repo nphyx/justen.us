@@ -24,6 +24,7 @@ window.addEventListener("load", function() {
 	var crashed = false;
 	var modKey = 0;
 	var lastOp = {code:false, id:""};
+	var designMode = false;
 
 
 	// finds the difference between the par score and the current score
@@ -44,7 +45,8 @@ window.addEventListener("load", function() {
 	function newState(level) {
 		var data = new Uint32Array(8);
 		var state = {
-			data:data
+			data:data,
+			currentLevel:currentLevel
 		}
 		Object.defineProperties(state, {
 			register:{get:() => data[0], set:(val) => {val = val|0; data[0] = val}},
@@ -128,6 +130,7 @@ window.addEventListener("load", function() {
 
 	function setupLevel() {
 		crashed = false;
+		modKey = 0;
 		unPause();
 		state = newState(currentLevel);
 		levelStarting = true;
@@ -192,6 +195,7 @@ window.addEventListener("load", function() {
 	}
 
 	function checkComplete() {
+		if(designMode) return;
 		if(state.register === state.target) {
 			pause();
 			complete = 1;
@@ -217,6 +221,8 @@ window.addEventListener("load", function() {
 		var {code, id, op, mod, sound, modSound} = control;
 		var oldRegister = state.register;
 		lastOp = control;
+		// design mode needs updating
+		state.designMode = designMode;
 		if(modKey) {
 			mod(state);
 			modSound();
@@ -227,15 +233,21 @@ window.addEventListener("load", function() {
 			sound();
 			lastOp.modded = false;
 		}
+		console.log(state.currentLevel.width, state.currentLevel.height);
 		controlUp(id);
-		state.ops++;
 		state.flip = (state.register ^ oldRegister);
 		applyFeatures();
 		trimStateFields();
-		ops.updateDisplay();
+		if(designMode) {
+			setupLevel();
+		}
+		else {
+			ops.updateDisplay();
+			state.ops++;
+			checkComplete();
+		}
 		// clear the flips now so they don't flicker
 		state.flip = state.register;
-		checkComplete();
 		return false; // prevent bubbling for click events
 	}
 
@@ -250,6 +262,16 @@ window.addEventListener("load", function() {
 	function setMod(val) {
 		modKey = val;
 		ops.updateDisplay();
+	}
+
+	function toggleDesignMode() {
+		console.log("toggling design mode", designMode);
+		if(designMode === true) {
+			designMode = false;
+			return;
+		}
+		designMode = true;
+		setupLevel();
 	}
 
 	function toggleMod() {
@@ -269,6 +291,7 @@ window.addEventListener("load", function() {
 		});
 		window.addEventListener("keyup", function(event) {
 			if(event.keyCode === 16) setMod(0);
+			if(event.keyCode === 68) toggleDesignMode();
 			if(validKeys.indexOf(event.keyCode) !== -1) {
 				event.preventDefault();
 				var control = getControlForKeyCode(event.keyCode);
@@ -302,7 +325,8 @@ window.addEventListener("load", function() {
 			flip:state.flip,
 			paused:paused,
 			modKey:modKey,
-			lastOp:lastOp
+			lastOp:lastOp,
+			designMode:designMode
 		}
 	}
 
@@ -342,6 +366,9 @@ window.addEventListener("load", function() {
 			setupLevel();
 			ops.updateDisplay();
 		}
+	}
+
+	ops.changeBit = function(bit, lastType) {
 	}
 
 	ops.calcFinalScore = function() {
