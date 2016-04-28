@@ -118,28 +118,33 @@ function splitBits(val, max) {
 	return string.split("").map((n) => n === "1");
 }
 
+function getBit(field, pos) {
+	return field >> pos & 1;
+}
+
 function updateGrid() {
 	var width = info.currentLevel.width;
 	var height = info.currentLevel.height;
-	var i = 0, max = width*height, holes = [], burns = [], shorts = [],
-			registers = splitBits(info.register, max).reverse(),
-			flips = splitBits(info.flip, max).reverse(),
-			node, elements, bits, gen;
-	var lastOp = info.lastOp.id;
+	var i = 0, max = width*height,
+			node, elements, bits, gen,
+	    lastOp = info.lastOp.id,
+	    holes = info.currentLevel.holes,
+	    shorts = info.currentLevel.shorts,
+	    burns = info.currentLevel.burns,
+	    flips = info.flip;
+
 	elements = document.querySelectorAll("#grid span.bit");
 	bits = Array.prototype.slice.call(elements, 0);
 	bits.reverse();
-if(info.currentLevel.holes) holes = splitBits(info.currentLevel.holes, max).reverse();
-		if(info.currentLevel.burns) burns = splitBits(info.currentLevel.burns, max).reverse();
-		if(info.currentLevel.shorts) shorts = splitBits(info.currentLevel.shorts, max).reverse();
 
 	bits.forEach(function(node, i) {
 		node.classList.remove("filled");
 		node.classList.remove("flipped");
-		if((registers[i] && !holes[i] && !burns[i]) ||
-			 (registers[0] && shorts[i])
+		var regBit = getBit(info.register, i);
+		if((regBit && !getBit(holes, i) && !getBit(burns, i)) ||
+			 (regBit && getBit(shorts, i))
 			) node.classList.add("filled");
-		if(flips[i]) node.classList.add("flipped");
+		if(getBit(flips, i)) node.classList.add("flipped");
 	});
 
 	if(flipout || flippin) {
@@ -150,22 +155,24 @@ if(info.currentLevel.holes) holes = splitBits(info.currentLevel.holes, max).reve
 
 	// now apply flipped animations
 	elements = document.querySelectorAll("#grid span.bit.flipped");
-	bits = Array.prototype.slice.call(elements, 0);
+	bits = Array.prototype.slice.call(elements, 0).reverse();
 	gen = bitGenerator(bits);
 	i = 0;
+	/*
 	if(lastOp === "opAdd" || 
 	   lastOp === "opLShift" ||
 		 lastOp === "opBump" && !lastOp.modded
 	) bits.reverse();
 	else flips.reverse();
+	*/
 	//else if(lastOp === "opSub") flips.reverse();
 	//flipout = setTimeout(function() {
-		flippin = setInterval(function() {
-			var next = gen.next();
-			if(next.done === true) clearInterval(flippin);
-			else next.value.classList.remove("flipped");
-			i++;
-		}, FLIPTIME);
+	flippin = setInterval(function() {
+		var next = gen.next();
+		if(next.done === true) clearInterval(flippin);
+		else next.value.classList.remove("flipped");
+		i++;
+	}, FLIPTIME);
 		//clearTimeout(flipout);
 	//}, 100);
 }
@@ -176,27 +183,22 @@ if(info.currentLevel.holes) holes = splitBits(info.currentLevel.holes, max).reve
 ops.setupLevelDisplay = function() {
 	clearEffects();
 	info = ops.stateInfo();
-	var width = info.currentLevel.width;
-	var height = info.currentLevel.height;
-	var holes = [], burns = [], shorts = [], feature;
+	var level = info.currentLevel;
+	var width = level.width;
+	var height = level.height;
+	var feature;
 	var i = 0, max = width*height, nodes = new Array(max),
-			targets = splitBits(info.currentLevel.target, max).reverse(),
-			registers = splitBits(info.register, max).reverse(),
-			flips = splitBits(info.flip, max).reverse(),
 			node;
-	if(info.currentLevel.holes) holes = splitBits(info.currentLevel.holes, max).reverse();
-	if(info.currentLevel.burns) burns = splitBits(info.currentLevel.burns, max).reverse();
-	if(info.currentLevel.shorts) shorts = splitBits(info.currentLevel.shorts, max).reverse();
+	var holes = level.holes || 0, shorts = level.shorts || 0, burns = level.burns || 0, register = info.register, target = level.target, flips = info.flip || 0;
 	grid.innerHTML = "";
 
 	for(; i < max; ++i) {
-		feature = false;
 		node = document.createElement("span");
 		node.classList.add("bit");
-		if(targets[i] && !holes[i] && !burns[i] && !shorts[i]) node.classList.add("target");
-		if(holes[i]) node.classList.add("hole");
-		if(burns[i]) node.classList.add("burn");
-		if(shorts[i]) node.classList.add("short");
+		if(getBit(holes, i)) node.classList.add("hole");
+		else if(getBit(burns, i)) node.classList.add("burn");
+		else if(getBit(shorts, i)) node.classList.add("short");
+		else if(getBit(target, i)) node.classList.add("target");
 		nodes.push(node);
 		if((i > 0) && ((i+1) % width === 0)) nodes.push(document.createElement("br"));
 	}
