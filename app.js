@@ -31,7 +31,12 @@ app.use(sassMiddleware({
     outputStyle: "compressed",
     prefix:  ""
 }));
-app.use("/scripts", babelify(path.join(__dirname, "src/scripts")));
+app.use("/scripts", babelify(
+	path.join(__dirname, "src/scripts"), {}, {
+		presets:["es2015"],
+		plugins:[["transform-runtime", {"regenerator":true,"polyfill":true}]] 
+	})
+);
 app.use(express.static(path.join(__dirname, "public")));
 
 

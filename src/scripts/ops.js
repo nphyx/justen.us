@@ -3,7 +3,7 @@ const ops = {};
 window.ops = ops;
 window.addEventListener("load", function() {
 	const MAX_OVER_PAR = 5;
-	const DEBUG = false;
+	const DEBUG = true;
 
 	var state;
 	var controls;
@@ -23,6 +23,7 @@ window.addEventListener("load", function() {
 	var currentLevel = levels[0]; currentLevel.name = 1;
 	var crashed = false;
 	var modKey = 0;
+	var lastOp = {code:false, id:""};
 
 
 	// finds the difference between the par score and the current score
@@ -131,7 +132,7 @@ window.addEventListener("load", function() {
 		state = newState(currentLevel);
 		levelStarting = true;
 		applyFeatures();
-		ops.updateDisplay();
+		ops.setupLevelDisplay();
 		levelStarting = false;
 	}
 
@@ -215,13 +216,16 @@ window.addEventListener("load", function() {
 		if(paused) return;
 		var {code, id, op, mod, sound, modSound} = control;
 		var oldRegister = state.register;
+		lastOp = control;
 		if(modKey) {
 			mod(state);
 			modSound();
+			lastOp.modded = true;
 		}
 		else {
 			op(state);
 			sound();
+			lastOp.modded = false;
 		}
 		controlUp(id);
 		state.ops++;
@@ -297,48 +301,48 @@ window.addEventListener("load", function() {
 			complete:complete,
 			flip:state.flip,
 			paused:paused,
-			modKey:modKey
-
-		}
-	}
-
-if(DEBUG) {
-	ops.debug = function() {
-		return {
-			state:state,
-			levelsCleared:levelsCleared, 
-			glitchesCleared:glitchesCleared,
-			glitched:glitched,
-			glitchIntervals:glitchIntervals,
-			score:score,
-			parDelta:parScoreDelta(),
 			modKey:modKey,
-			currentLevel
+			lastOp:lastOp
 		}
 	}
 
-	ops.skip = function(level) {
-		levelsCleared = level - 1;
-		currentLevel = levels[levelsCleared];
-		currentLevel.name = level;
-		score = levelsCleared * 10;
-		setupLevel();
-		ops.updateDisplay();
-	}
+	if(DEBUG) {
+		ops.debug = function() {
+			return {
+				state:state,
+				levelsCleared:levelsCleared, 
+				glitchesCleared:glitchesCleared,
+				glitched:glitched,
+				glitchIntervals:glitchIntervals,
+				score:score,
+				parDelta:parScoreDelta(),
+				modKey:modKey,
+				currentLevel
+			}
+		}
 
-	ops.glitch = function(delta, lCleared, gCleared) {
-		glitched = true;
-		levelsCleared = lCleared;
-		glitchesCleared = gCleared;
-		score = levelsCleared * 10 + delta;
-		currentLevel = levels[levelsCleared];
-		currentLevel.name = levelsCleared + 1;
-		setupLevel();
-		currentLevel = createGlitchLevel();
-		setupLevel();
-		ops.updateDisplay();
+		ops.skip = function(level) {
+			levelsCleared = level - 1;
+			currentLevel = levels[levelsCleared];
+			currentLevel.name = level;
+			score = levelsCleared * 10;
+			setupLevel();
+			ops.updateDisplay();
+		}
+
+		ops.glitch = function(delta, lCleared, gCleared) {
+			glitched = true;
+			levelsCleared = lCleared;
+			glitchesCleared = gCleared;
+			score = levelsCleared * 10 + delta;
+			currentLevel = levels[levelsCleared];
+			currentLevel.name = levelsCleared + 1;
+			setupLevel();
+			currentLevel = createGlitchLevel();
+			setupLevel();
+			ops.updateDisplay();
+		}
 	}
-}
 
 	ops.calcFinalScore = function() {
 		return score + Math.ceil(score * (Math.pow(glitchExponentBase, glitchesCleared) - 1));

@@ -141,16 +141,16 @@ $vbright: #0f0;
 @keyframes short {
 	0% {@include bit-shadow($dim);}
 	10% {@include bit-shadow-x($dim);}
-	11% {@include bit-shadow-y($dim);}
-	12% {@include bit-shadow-x($dim);}
+	11% {@include bit-shadow-y($mid);}
+	12% {@include bit-shadow-x($mid);}
 	13% {@include bit-shadow-y($dim);}
 	14% {@include bit-shadow-x($dim);}
-	15% {@include bit-shadow-y($dim);}
-	16% {@include bit-shadow-x($dim);}
+	15% {@include bit-shadow-y($mid);}
+	16% {@include bit-shadow-x($mid);}
 	30% {@include bit-shadow-y($dim);}
 	31% {@include bit-shadow-x($dim);}
-	39% {@include bit-shadow-x($dim);}
-	45% {@include bit-shadow-y($dim);}
+	39% {@include bit-shadow-x($mid);}
+	45% {@include bit-shadow-y($mid);}
 	72% {@include bit-shadow($dim);}
 }
 
@@ -242,8 +242,8 @@ body:not(.start) {cursor:none;}
 	// filled and target bits overrides
 	span.bit.filled, span.bit.short.filled {background-color:$mid;}
 	span.bit.filled.target {background:$mid; animation-name:bit-filled-target; animation-duration:2s; animation-iteration-count:infinite; animation-delay:.2s;}
-	span.bit.flipped:not(.filled) {background-color:$empty; animation-name:bit-emptied; animation-duration:.3s; animation-iteration-count:1;}
-	span.bit.flipped.filled {background-color:$dim; animation-name:bit-newfill; animation-duration:.3s; animation-iteration-count:1;}
+	span.bit.flipped:not(.filled) {background-color:$empty; animation-name:bit-emptied; animation-duration:1s; animation-iteration-count:1;}
+	span.bit.flipped.filled {background-color:$dim; animation-name:bit-newfill; animation-duration:1s; animation-iteration-count:1;}
 }
 
 #grid #complete {font-size:3em;}
@@ -256,19 +256,13 @@ body:not(.start) {cursor:none;}
 }
 
 #grid.complete {
-	span.bit {animation-name:borderflash; animation-duration:.1s; animation-iteration-count:infinite; background-color:$empty;}
-	span.bit.target.filled {@include bit-shadow($bright); background-color:$bright; border-color:$bright; animation-name:gridflash; animation-duration:.1s; animation-iteration-count:infinite;}
+	span.bit {animation-name:borderflash !important; animation-delay:0s !important; background-color:$empty !important; border-color:$bright !important; animation-duration: .1s !important; animation-iteration-count:infinite !important;}
+	span.bit.target.filled
+	{@include bit-shadow($bright !important); background-color:$bright !important; animation-name:gridflash !important;}
 }
 
 #grid.crashed {
-	span.bit {animation-name:borderflash; animation-duration:.1s; animation-iteration-count:infinite;}
-	span.bit, 
-	span.bit.filled,
-	span.bit.target, 
-	span.bit.short,
-	span.bit.burn,
-	span.bit.hole,
-	span.bit.target.filled {@include bit-shadow(green); background-color:green; animation-name:gridflash; animation-duration:.1s; animation-iteration-count:infinite;}
+	span.bit {animation-name:gridflash !important; animation-duration:.1s !important; animation-iteration-count:infinite !important; @include bit-shadow(green !important); background-color:green !important;}
 }
 
 body.glitched {
@@ -281,12 +275,9 @@ body.glitched {
 }
 
 body.glitched #grid.complete {
-	span.bit, 
-	span.bit.filled, 
-	span.bit.target, 
-	span.bit.target.filled {@include bit-shadow(green); background-color:green; animation-name:gridglitch; animation-iteration-count:infinite; 
-		&:nth-child(even) {animation-delay:0; animation-duration:.1s;}
-		&:nth-child(odd) {animation-delay:.1s; animation-duration:.2s;}
+	span.bit  {@include bit-shadow(green !important); background-color:green !important; animation-name:gridglitch !important; animation-iteration-count:infinite !important; 
+		&:nth-child(even) {animation-delay:0 !important; animation-duration:.1s !important;}
+		&:nth-child(odd) {animation-delay:.1s !important; animation-duration:.2s !important;}
 	}
 }
 
