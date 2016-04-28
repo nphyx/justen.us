@@ -2,3 +2,4 @@ node_modules
 letsencrypt.config
 public/scripts/*
 public/styles/*
+*.sw*
