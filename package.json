@@ -40,9 +40,7 @@
     "node": true,
     "worker": true,
     "globals": {
-      "playNote": false,
-      "playNoise": false,
-      "sounds": false,
+			"unused": true,
       "AudioContext": false,
       "mocha": false,
       "chai": false,

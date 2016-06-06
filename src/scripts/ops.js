@@ -1,14 +1,20 @@
 "use strict";
-const ops = {};
+import * as display from "./ops.display";
+import * as controls from "./ops.controls";
+import * as levels from "./ops.levels";
+import * as audio from "./ops.audio";
+export const ops = {
+	display:display,
+	controls:controls,
+	levels:levels.levelData,
+	audio:audio
+};
 window.ops = ops;
 window.addEventListener("load", function() {
 	const MAX_OVER_PAR = 5;
 	const DEBUG = true;
 
 	var state;
-	var controls;
-	var validKeys;
-	var sounds = window.ops.sounds, levels = window.ops.levels;
 	var levelsCleared = 0;
 	var glitchesCleared = 0;
 	var glitchesFound = 0;
@@ -20,12 +26,11 @@ window.addEventListener("load", function() {
 	var levelStarting = true;
 	var complete = false;
 	var gameOver = false;
-	var currentLevel = levels[0]; currentLevel.name = 1;
+	var currentLevel = levels.levelData[0]; currentLevel.name = 1;
 	var crashed = false;
 	var modKey = 0;
 	var lastOp = {code:false, id:""};
 	var designMode = false;
-
 
 	// finds the difference between the par score and the current score
 	function parScoreDelta() {
@@ -117,7 +122,7 @@ window.addEventListener("load", function() {
 		var level = {
 			width:width,
 			height:height,
-			name:"&#"+(seed + 160)+";",
+			name:(seed + 160),
 			target:target,
 			register:register,
 			par: 0
@@ -135,22 +140,22 @@ window.addEventListener("load", function() {
 		state = newState(currentLevel);
 		levelStarting = true;
 		applyFeatures();
-		ops.setupLevelDisplay();
+		controls.revealKeys(currentLevel.revealed);
+		display.setup();
 		levelStarting = false;
 	}
 
 	function crash() {
-		sounds.crash();
+		audio.sounds.crash();
 		crashed = true;
 		pause();
 		score -= 3;
 		setTimeout(function() {
-			currentLevel = levels[levelsCleared];
+			currentLevel = levels.levelData[levelsCleared];
 			currentLevel.name = levelsCleared + 1;
 			glitched = false;
 			setupLevel();
 		}, 2000); 
-		ops.updateDisplay();
 	}
 	
 	function endGame() {
@@ -158,8 +163,7 @@ window.addEventListener("load", function() {
 		currentLevel.par = 0;
 		currentLevel.name = "END";
 		gameOver = true;
-		sounds.endGame();
-		ops.updateDisplay();
+		audio.sounds.endGame();
 	}
 
 	function completeLevel() {
@@ -176,16 +180,15 @@ window.addEventListener("load", function() {
 			glitched = true;
 			glitchesFound++;
 		}
-		ops.updateDisplay();
 		if(glitched) {
 			currentLevel = createGlitchLevel();
-			sounds.glitch();
+			audio.sounds.glitch();
 		}
 		else {
-			if(levels[levelsCleared] !== undefined) {
-				currentLevel = levels[levelsCleared];
+			if(levels.levelData[levelsCleared] !== undefined) {
+				currentLevel = levels.levelData[levelsCleared];
 				currentLevel.name = levelsCleared + 1;
-				sounds.complete();
+				audio.sounds.complete();
 			}
 			else {
 				return endGame();
@@ -202,18 +205,11 @@ window.addEventListener("load", function() {
 			setTimeout(completeLevel, 500);
 			return 1;
 		}
-		else if(state.ops > state.par + MAX_OVER_PAR) {
+		else if(state.ops >= state.par + MAX_OVER_PAR) {
 			crash();
+			return 1;
 		}
 		return 0;
-	}
-
-	function controlDown(key) {
-		document.getElementById(key).classList.add("down");
-	}
-
-	function controlUp(key) {
-		document.getElementById(key).classList.remove("down");
 	}
 
 	function opCall(control) {
@@ -233,35 +229,18 @@ window.addEventListener("load", function() {
 			sound();
 			lastOp.modded = false;
 		}
-		console.log(state.currentLevel.width, state.currentLevel.height);
-		controlUp(id);
 		state.flip = (state.register ^ oldRegister);
 		applyFeatures();
 		trimStateFields();
-		if(designMode) {
-			setupLevel();
-		}
-		else {
-			ops.updateDisplay();
-			state.ops++;
-			checkComplete();
-		}
+		checkComplete(); // check before incrementing
+		state.ops++;
 		// clear the flips now so they don't flicker
 		state.flip = state.register;
 		return false; // prevent bubbling for click events
 	}
 
-	function getControlForKeyCode(code) {
-		return controls.filter((el) => el.code === code)[0];
-	}
-
-	function getControlForId(id) {
-		return controls.filter((el) => el.id === id)[0];
-	}
-
 	function setMod(val) {
 		modKey = val;
-		ops.updateDisplay();
 	}
 
 	function toggleDesignMode() {
@@ -279,33 +258,27 @@ window.addEventListener("load", function() {
 	}
 
 	function bindKeys() {
+		var btn;
 		window.addEventListener("keydown", function(event) {
 			if(event.keyCode === 16) setMod(1);
-			if(validKeys.indexOf(event.keyCode) !== -1) {
+			if(controls.validKeys.indexOf(event.keyCode) !== -1) {
 				event.preventDefault();
-				var {id} = getControlForKeyCode(event.keyCode);
-				controlDown(id);
-				ops.updateDisplay();
+				btn = controls.getControlByKeyCode(event.keyCode);
+				btn.active = true;
 				return false;
 			}
 		});
 		window.addEventListener("keyup", function(event) {
 			if(event.keyCode === 16) setMod(0);
 			if(event.keyCode === 68) toggleDesignMode();
-			if(validKeys.indexOf(event.keyCode) !== -1) {
+			if(controls.validKeys.indexOf(event.keyCode) !== -1) {
 				event.preventDefault();
-				var control = getControlForKeyCode(event.keyCode);
-				opCall(control);
+				btn = controls.getControlByKeyCode(event.keyCode);
+				opCall(btn);
+				btn.active = false;
 				return false;
 			}
 		});
-		document.getElementById("opAdd").addEventListener("click", opCall.bind(null, getControlForId("opAdd")));
-		document.getElementById("opSub").addEventListener("click", opCall.bind(null, getControlForId("opSub")));
-		document.getElementById("opLShift").addEventListener("click", opCall.bind(null, getControlForId("opLShift")));
-		document.getElementById("opRShift").addEventListener("click", opCall.bind(null, getControlForId("opRShift")));
-		document.getElementById("opBump").addEventListener("click", opCall.bind(null, getControlForId("opBump")));
-		document.getElementById("opFlip").addEventListener("click", opCall.bind(null, getControlForId("opFlip")));
-		document.getElementById("opMod").addEventListener("click", function() {toggleMod()});
 	}
 
 	ops.stateInfo = function() {
@@ -347,11 +320,10 @@ window.addEventListener("load", function() {
 
 		ops.skip = function(level) {
 			levelsCleared = level - 1;
-			currentLevel = levels[levelsCleared];
+			currentLevel = levels.levelData[levelsCleared];
 			currentLevel.name = level;
 			score = levelsCleared * 10;
 			setupLevel();
-			ops.updateDisplay();
 		}
 
 		ops.glitch = function(delta, lCleared, gCleared) {
@@ -359,12 +331,11 @@ window.addEventListener("load", function() {
 			levelsCleared = lCleared;
 			glitchesCleared = gCleared;
 			score = levelsCleared * 10 + delta;
-			currentLevel = levels[levelsCleared];
+			currentLevel = levels.levelData[levelsCleared];
 			currentLevel.name = levelsCleared + 1;
 			setupLevel();
 			currentLevel = createGlitchLevel();
 			setupLevel();
-			ops.updateDisplay();
 		}
 	}
 
@@ -375,11 +346,9 @@ window.addEventListener("load", function() {
 		return score + Math.ceil(score * (Math.pow(glitchExponentBase, glitchesCleared) - 1));
 	}
 
-	ops.setupGame = function() {
-		ops.setupControls();
-		controls = ops.controls;
-		validKeys = ops.validKeys;
+	ops.startGame = function() {
 		setupLevel();
 		bindKeys();
 	}
+	display.init(ops);
 });

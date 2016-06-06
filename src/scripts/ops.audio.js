@@ -185,7 +185,7 @@ function stopSound(o, g, time) {
 	o.stop(0);
 }
 
-function playNote(note, type, start, stop) {
+export function playNote(note, type, start, stop) {
 	if(start === undefined) start = 0;
 	if(stop === undefined) stop = 1;
 	var o = ctx.createOscillator();
@@ -206,7 +206,7 @@ function playNote(note, type, start, stop) {
 	}
 }
 
-function playNoise(start, stop, fadeIn, fadeOut) {
+export function playNoise(start, stop, fadeIn, fadeOut) {
 	if(start === undefined) start = 0;
 	if(stop === undefined) stop = 1;
 	var o = createNoise();
@@ -222,7 +222,7 @@ function playNoise(start, stop, fadeIn, fadeOut) {
 	}, (fadeIn+(stop-fadeOut))*1000);
 }
 
-window.ops.sounds = {
+export const sounds = {
 	plus:function() {
 		playNote("A4", "triangle", 0, 0.05); 
 		playNote("E5", "triangle", 0.05, 0.1);
@@ -313,6 +313,3 @@ window.ops.sounds = {
 		playNote("E4", "sawtooth", t, t+i*3+g*2);
 	}
 }
-
-window.ops.playNote = playNote;
-window.ops.playNoise = playNoise;

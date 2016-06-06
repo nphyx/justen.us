@@ -182,13 +182,15 @@ body.start {
 body:fullscreen, body:full-screen, body:-ms-fullscreen, body:-webkit-full-screen, body:-moz-full-screen {background-color:$empty !important; font-size:20px;
 	#wrap {max-width:auto;}
 }
+
 body.designMode {#game-screen {@include bit-shadow($bright)}}
 
 body:not(.start) {cursor:none;}
 
+
 #wrap {width:95%; height:100%; display:flex; flex-direction:column; justify-content:center; position:relative; margin:0 auto; max-width:900px; background:$empty;}
 
-#game-screen {position:relative; border:4px solid $dim; display:flex; flex-direction:row; flex-wrap:wrap; height:70%;}
+body:not(.2d) #game-screen {position:relative; border:4px solid $dim; display:flex; flex-direction:row; flex-wrap:wrap; height:70%;}
 
 #glitches {font-size: 1.5rem; word-wrap: break-word; letter-spacing: .5rem; position: absolute; display:block; width: 100%; left: 0; top: 0; line-height: 1em; z-index: 10; text-align: center; height: 100%;}
 
@@ -283,11 +285,11 @@ body.glitched #grid.complete {
 }
 
 @media screen and (max-height:600px) {
-	#game-screen {min-height:75%; max-height:590px;}
+	body:not(.2d) #game-screen {min-height:75%; max-height:590px;}
 }
 
 @media screen and (max-height:300px) {
-	#game-screen {height:95%;}
+	body:not(.2d) #game-screen {height:95%;}
 }
 
 @media screen and (max-device-width:700px), screen and (orientation:portrait) {
@@ -302,6 +304,9 @@ body.glitched #grid.complete {
 		.control {border-color:$bright;}
 		#opBump {background-color:$bright;}
 	}
-	#game-screen {height:95%;}
+	body:not(.2d) #game-screen {height:95%;}
 	#grid {font-size:1.5rem;}
 }
+
+body.2d canvas#game-screen {width:100%; height:100%;}
+
