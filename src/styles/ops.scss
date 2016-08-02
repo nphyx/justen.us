@@ -1,8 +1,8 @@
 @import 'reset';
-@import 'scanlines';
+//@import 'scanlines';
 @import url(https://fonts.googleapis.com/css?family=VT323);
 $dark: black;
-$empty: #042404;
+$empty: rgb(2/256,17/256,2/256);
 $dim: #060;
 $mid: green;
 $bright: #0c0;

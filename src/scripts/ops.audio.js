@@ -1,8 +1,9 @@
 "use strict";
 // Fix up prefixing
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
+const SILENT = 0.000001;
 var ctx = new AudioContext();
-var volume = 0.5;
+var volume = 0.3;
 var notes = {
     "C0": 16.35,
     "C#0": 17.32,
@@ -167,30 +168,19 @@ function createNoise() {
 }
 
 function startSound(o, g, time) {
-	/*
-	g.gain.value = 0;
-	*/
 	o.start(0);
 	g.gain.value = volume;
-	//setTimeout(() => , time);
 }
 
 function stopSound(o, g, time) {
-	/*
-	g.gain.value = volume;
-	g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + time);
-	*/
-	//setTimeout(() => , time);
-	g.gain.value = 0;
+	g.gain.value = SILENT;
 	o.stop(0);
 }
 
-export function playNote(note, type, start, stop) {
-	if(start === undefined) start = 0;
-	if(stop === undefined) stop = 1;
+export function playNote(note, type, start = 0, stop = 1) {
 	var o = ctx.createOscillator();
 	var g = ctx.createGain();
-	g.gain.value = 0;
+	g.gain.value = SILENT;
 	g.gain.exponentialRampToValueAtTime(volume, ctx.currentTime + start);
 	o.connect(g);
 	g.connect(ctx.destination);
@@ -199,8 +189,6 @@ export function playNote(note, type, start, stop) {
 	if (frq) {
 		o.type = type;
 		o.frequency.value = frq;
-		//startSound(o, g, start);
-		//stopSound(o, g, stop);
 		setTimeout(startSound.bind(null, o, g), start*1000);
 		setTimeout(stopSound.bind(null, o, g), (stop)*1000);	
 	}

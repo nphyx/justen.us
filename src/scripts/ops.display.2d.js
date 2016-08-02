@@ -1,20 +1,23 @@
 "use strict";
 const AUTO_FULLSCREEN = false;
 const FLIPTIME = 100;
+var PAUSE = false;
 function color(r=0,g=0,b=0,a=1) {
-	var c = Uint8Array.of(r,g,b,a);
+	var c = Uint8Array.of(r,g,b,~~(a*255));
 	c.toString = function() {
-		return "rgba("+this[0]+","+this[1]+","+this[2]+","+this[3]+")";
+		return "rgba("+this[0]+","+this[1]+","+this[2]+","+(this[3]/255)+")";
 	}
 	return c;
 }
 // colors
 const C_DARK = color(0,0,0);
-const C_EMPTY = color(4,31,4);
+const C_EMPTY = color(2,17,2,0.1);
 const C_DIM = color(4,91,4);
 const C_MID = color(4,127,4);
 const C_BRIGHT = color(4,195,4);
 const C_VBRIGHT = color(4,255,4);
+const C_INTER_A = color(C_VBRIGHT[0],C_VBRIGHT[1],C_VBRIGHT[2],0.7);
+const C_INTER_B = color(C_EMPTY[0],C_EMPTY[1],C_EMPTY[2],0.2);
 
 // bit types
 const TYPE_R = 0; // register
@@ -26,8 +29,13 @@ const TYPE_G = 5; // gap
 
 const LINE_WIDTH = 2; // relative width of lines
 
-const FPS = 30;
-const FPS_INTERVAL = 1000/30;
+const FPS = 60;
+const FPS_INTERVAL = 1000/FPS;
+
+function evenNumber(n) {
+return n >> 1 << 1;
+}
+
 function pulse(a, b, seconds = 1) {
 	var len = FPS*seconds;
 	return {length:len, timing:[0,len/2,len],colors:[a,b,a]};
@@ -46,7 +54,7 @@ const GRAD_TARGET = pulse(C_DIM, C_MID, 2);
 const GRAD_REGISTER = pulse(C_BRIGHT, C_VBRIGHT, 2);
 const GRAD_COMPLETE = pulse(C_MID, C_VBRIGHT, 0.1);
 
-var ctx, ops, body, grid, canvas, gameScreen, info, controls;
+var ctx, ops, body, grid, canvas, gameScreen, info, controls, interlacePatterns = [], cathodeRay;
 var fullscreen = false;
 var lastFrame = new Date().getTime();
 var PX = 1; // pixel size
@@ -54,9 +62,39 @@ var LW = PX*LINE_WIDTH; // line width
 var OR = 0; // orientation (0 = landscape, 1 = portrait)
 var W = 0; // screen width
 var H = 0; // screen height
+var RAY = PX; // diameter of ray blip
 var frameCount = 0;
-var {floor, ceil, abs, pow} = Math;
+const {floor, ceil, abs, pow, min, max} = Math;
 var animating = false;
+
+function createTextures() {
+	var interlaceGrad, interlaceCtx, interlaceCanvases = [];
+	interlaceGrad = ctx.createLinearGradient(0,0,0,PX);
+	interlaceGrad.addColorStop(0.0, C_INTER_A.toString());
+	interlaceGrad.addColorStop(0.25, C_INTER_B.toString());
+	interlaceGrad.addColorStop(0.75, C_INTER_B.toString());
+	interlaceGrad.addColorStop(1.0, C_INTER_A.toString());
+	interlaceCanvases[0] = document.createElement("canvas");
+	interlaceCanvases[0].width = 1;
+	interlaceCanvases[0].height = PX;
+	interlaceCanvases[1] = document.createElement("canvas");
+	interlaceCanvases[1].width = 1;
+	interlaceCanvases[1].height = PX;
+	interlaceCtx = interlaceCanvases[0].getContext("2d");
+	interlaceCtx.fillStyle = interlaceGrad;
+	interlaceCtx.fillRect(0,0,1,PX);
+	interlaceGrad = ctx.createLinearGradient(0,0,0,PX);
+	interlaceGrad.addColorStop(0.0, C_INTER_B.toString());
+	interlaceGrad.addColorStop(0.25, C_INTER_A.toString());
+	interlaceGrad.addColorStop(0.75, C_INTER_A.toString());
+	interlaceGrad.addColorStop(1.0, C_INTER_B.toString());
+	interlaceCtx = interlaceCanvases[1].getContext("2d");
+	interlaceCtx.fillStyle = interlaceGrad;
+	interlaceCtx.fillRect(0,0,1,PX);
+	interlacePatterns[0] = ctx.createPattern(interlaceCanvases[0], "repeat");
+	interlacePatterns[1] = ctx.createPattern(interlaceCanvases[1], "repeat");
+
+}
 
 function lerpColor(a, b, t) {
 	var lerpCol = color(0,0,0,1);
@@ -102,7 +140,7 @@ function startGame() {
 	if(AUTO_FULLSCREEN) toggleFullScreen();
 }
 
-function pressEnter() {
+function pressEnter(event) {
 	if(event.keyCode === 13) {
 		document.removeEventListener("keyup", pressEnter);
 		startGame();
@@ -122,8 +160,10 @@ function updateRatio() {
 	OR = W > H?0:1;
 	gameScreen.width = W;
 	gameScreen.height = H;
-	PX = floor((OR?W:H) / 120);
+	PX = evenNumber((OR?W:H) / 120);
+	RAY = PX*2;
 	LW = PX*LINE_WIDTH;
+	createTextures();
 }
 
 function calcNextFrameTime() {
@@ -247,7 +287,7 @@ function drawScoreboard() {
 	ctx.fillStyle = C_MID.toString();
 	ctx.font = fontSize+"px 'Pixel Operator 8'";
 	text = makeScoreboardText();
-	scoreboardOffset = floor((W-text.length*fontWidth)/2);
+	scoreboardOffset = evenNumber((W-text.length*fontWidth)/2);
 	ctx.fillText(text, (PX*8)+scoreboardOffset, PX*8);
 }
 
@@ -309,8 +349,8 @@ function drawBit(bit, xOff, yOff, border, bitSize, type) {
 
 function drawGrid() {
 	var bitSize = LW*5, width = info.currentLevel.width, height = info.currentLevel.height;
-	var gridOffsetX = floor((W-width*bitSize)/2);
-	var gridOffsetY = floor((H-height*bitSize)/2);
+	var gridOffsetX = evenNumber((W-width*bitSize)/2);
+	var gridOffsetY = evenNumber((H-height*bitSize)/2);
 	var gridMaxX = bitSize*width;
 	var gridMaxY = bitSize*height;
 	var numBits = width*height
@@ -337,8 +377,30 @@ function drawGrid() {
 	}
 }
 
+
+function drawEffects() {
+	var w = gameScreen.width, h = gameScreen.height, rx, ry, fr, pixels; 
+	ctx.fillStyle = interlacePatterns[frameCount%2];
+	ctx.globalCompositeOperation = "multiply";
+	ctx.fillRect(0,0,w,h);
+	ctx.globalCompositeOperation = "source-over";
+	/*
+	pixels = w * h;
+	fr = frameCount % pixels; // frame ratio
+	rx = fr % w;
+	ry = fr / h % w;
+	ctx.fillStyle = cathodeRay;
+	ctx.globalCompositeOperation = "source-over";
+	cathodeRay = ctx.createRadialGradient(rx,ry,1,rx,ry,RAY);
+	cathodeRay.addColorStop(0.0,C_INTER_A.toString());
+	cathodeRay.addColorStop(1.0,C_INTER_B.toString());
+	ctx.fillRect(0,0,w,h);
+	*/
+}
+
 function animate() {
 	var now = Date.now();
+	if(PAUSE) return;
 	if((now - lastFrame) < FPS_INTERVAL) {
 		requestAnimationFrame(animate);
 		return;
@@ -351,6 +413,7 @@ function animate() {
 	drawScoreboard();
 	drawGrid();
 	drawControls();
+	drawEffects();
 	lastFrame = now;
 	requestAnimationFrame(animate);
 }
