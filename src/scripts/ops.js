@@ -13,6 +13,7 @@ window.ops = ops;
 window.addEventListener("load", function() {
 	const MAX_OVER_PAR = 5;
 	const DEBUG = true;
+	const LEVEL_END_DELAY = 2000;
 
 	var state;
 	var levelsCleared = 0;
@@ -144,6 +145,14 @@ window.addEventListener("load", function() {
 		display.setup();
 		levelStarting = false;
 	}
+	
+	function endGame() {
+		state.ops = 0;
+		currentLevel.par = 0;
+		currentLevel.name = "END";
+		gameOver = true;
+		audio.sounds.endGame();
+	}
 
 	function crash() {
 		audio.sounds.crash();
@@ -155,19 +164,12 @@ window.addEventListener("load", function() {
 			currentLevel.name = levelsCleared + 1;
 			glitched = false;
 			setupLevel();
-		}, 2000); 
-	}
-	
-	function endGame() {
-		state.ops = 0;
-		currentLevel.par = 0;
-		currentLevel.name = "END";
-		gameOver = true;
-		audio.sounds.endGame();
+		}, LEVEL_END_DELAY); 
 	}
 
 	function completeLevel() {
 		complete = true;
+		pause();
 		if(glitched) {
 			glitched = false;
 			glitchesCleared++;
@@ -179,30 +181,32 @@ window.addEventListener("load", function() {
 		if(parScoreDelta() > whichGlitch()) {
 			glitched = true;
 			glitchesFound++;
-		}
-		if(glitched) {
-			currentLevel = createGlitchLevel();
 			audio.sounds.glitch();
 		}
 		else {
 			if(levels.levelData[levelsCleared] !== undefined) {
-				currentLevel = levels.levelData[levelsCleared];
-				currentLevel.name = levelsCleared + 1;
 				audio.sounds.complete();
 			}
 			else {
 				return endGame();
 			}
 		}
-		setTimeout(setupLevel, 1000);
+		setTimeout(function() {
+			if(glitched) {
+				currentLevel = createGlitchLevel();
+			}
+			else {
+				currentLevel = levels.levelData[levelsCleared];
+				currentLevel.name = levelsCleared + 1;
+			}
+			setupLevel();
+		}, LEVEL_END_DELAY); 
 	}
 
 	function checkComplete() {
 		if(designMode) return;
 		if(state.register === state.target) {
-			pause();
-			complete = 1;
-			setTimeout(completeLevel, 500);
+			completeLevel();
 			return 1;
 		}
 		else if(state.ops >= state.par + MAX_OVER_PAR) {
@@ -232,8 +236,8 @@ window.addEventListener("load", function() {
 		state.flip = (state.register ^ oldRegister);
 		applyFeatures();
 		trimStateFields();
-		checkComplete(); // check before incrementing
 		state.ops++;
+		checkComplete(); // check before incrementing
 		// clear the flips now so they don't flicker
 		state.flip = state.register;
 		return false; // prevent bubbling for click events

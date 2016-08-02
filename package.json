@@ -31,7 +31,7 @@
     "newcap": true,
     "quotmark": "double",
     "undef": true,
-    "unused": false,
+    "unused": true,
     "globalstrict": true,
     "asi": true,
     "esnext": true,

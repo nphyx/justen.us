@@ -1,6 +1,6 @@
 @import 'reset';
 //@import 'scanlines';
-@import url(https://fonts.googleapis.com/css?family=VT323);
+@import url(https://fonts.googleapis.com/css?family=Press+Start+2P);
 $dark: black;
 $empty: rgb(2/256,17/256,2/256);
 $dim: #060;
@@ -174,7 +174,7 @@ $vbright: #0f0;
 	80% {content:"Y";}
 }
 html {overflow:hidden;}
-body {font-family:"VT323", monospace; width:100%; height:100%; background-color:$empty; color:green; overflow:hidden; position:fixed; margin:0 auto; font-size:10px;}
+body {font-family:"Press Start 2P", monospace; width:100%; height:100%; background-color:$empty; color:green; overflow:hidden; position:fixed; margin:0 auto; font-size:10px;}
 body.start {
 	#grid {font-size:2.5rem;}
 	#controls {display:none;}

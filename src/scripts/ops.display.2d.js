@@ -1,7 +1,41 @@
 "use strict";
+
+// useful global constants
+const {floor} = Math;
 const AUTO_FULLSCREEN = false;
-const FLIPTIME = 100;
-var PAUSE = false;
+const SCALE = 1;
+const LW = 4; // relative width of lines
+
+// global variables
+var screenCtx; // current rendering context
+var curCtx; // current draw buffer
+var tmpBuffer; // temporary draw buffer
+var tmpCtx; // temporary context
+var ops; // game data object
+var info; // game info object
+var controls; // game controls object
+var body; // html document body
+var gameScreen; // game screen canvas
+var bufferCanvases = Array(2); // canvases for alternating draw bufferContexts
+var bufferContexts = Array(2); // draw buffer contexts
+var bufferMasks = Array(2); // draw buffer masks
+var fullscreen = false; // whether game is in fullscreen mode
+var lastFrame = new Date().getTime(); // time of last draw frame
+var frameCount = 0; // running total of drawn frames
+var animating = false; // whether game is currently running animation loop
+var scanlinePattern;
+
+// display state variables
+var PX = 1; // pixel size
+var OR = 0; // orientation (0 = landscape, 1 = portrait)
+var W = 0; // screen width
+var H = 0; // screen height
+var BW = 0; // draw buffer width
+var BH = 0; // draw buffer height
+var RAY = PX; // diameter of ray blip
+var PAUSE = false; // whether game is paused
+
+// creates a color object
 function color(r=0,g=0,b=0,a=1) {
 	var c = Uint8Array.of(r,g,b,~~(a*255));
 	c.toString = function() {
@@ -9,25 +43,23 @@ function color(r=0,g=0,b=0,a=1) {
 	}
 	return c;
 }
+
 // colors
 const C_DARK = color(0,0,0);
-const C_EMPTY = color(2,17,2,0.1);
+const C_EMPTY = color(2,17,2,0.9);
 const C_DIM = color(4,91,4);
 const C_MID = color(4,127,4);
 const C_BRIGHT = color(4,195,4);
 const C_VBRIGHT = color(4,255,4);
-const C_INTER_A = color(C_VBRIGHT[0],C_VBRIGHT[1],C_VBRIGHT[2],0.7);
-const C_INTER_B = color(C_EMPTY[0],C_EMPTY[1],C_EMPTY[2],0.2);
 
-// bit types
+/* bit types
 const TYPE_R = 0; // register
 const TYPE_T = 1; // target
 const TYPE_H = 2; // hole
 const TYPE_B = 3; // burn
 const TYPE_S = 4; // short
 const TYPE_G = 5; // gap
-
-const LINE_WIDTH = 2; // relative width of lines
+*/
 
 const FPS = 60;
 const FPS_INTERVAL = 1000/FPS;
@@ -36,15 +68,29 @@ function evenNumber(n) {
 return n >> 1 << 1;
 }
 
+// nearest power of two
+function npot(n) {
+	var x = 1;
+	if(n === 1) return n;
+	n--;
+	while(x < 16) {
+		n |= n >> x;
+		x <<= 1;
+	}
+	n++;
+	return n;
+}
+
+// pulse and flicker effects
 function pulse(a, b, seconds = 1) {
 	var len = FPS*seconds;
 	return {length:len, timing:[0,len/2,len],colors:[a,b,a]};
 }
 
-function flicker(a, b, c, seconds = 1) {
+function flicker(a, b, c) {
 	return {length:FPS, timing: [0,FPS/8,FPS/7,FPS/5,FPS/3,FPS], colors:[a, b, c, a, c, a]};
 }
-const GRAD_FLICKER = flicker(C_DIM, C_MID, C_BRIGHT, 3);
+//const GRAD_FLICKER = flicker(C_DIM, C_MID, C_BRIGHT, 3);
 const GRAD_HOLE = flicker(C_DIM, C_EMPTY, C_DARK);
 const GRAD_HOLE_FILL = flicker(C_DARK, C_DIM, C_EMPTY);
 const GRAD_BURN = flicker(C_BRIGHT, C_VBRIGHT, C_MID);
@@ -54,46 +100,64 @@ const GRAD_TARGET = pulse(C_DIM, C_MID, 2);
 const GRAD_REGISTER = pulse(C_BRIGHT, C_VBRIGHT, 2);
 const GRAD_COMPLETE = pulse(C_MID, C_VBRIGHT, 0.1);
 
-var ctx, ops, body, grid, canvas, gameScreen, info, controls, interlacePatterns = [], cathodeRay;
-var fullscreen = false;
-var lastFrame = new Date().getTime();
-var PX = 1; // pixel size
-var LW = PX*LINE_WIDTH; // line width
-var OR = 0; // orientation (0 = landscape, 1 = portrait)
-var W = 0; // screen width
-var H = 0; // screen height
-var RAY = PX; // diameter of ray blip
-var frameCount = 0;
-const {floor, ceil, abs, pow, min, max} = Math;
-var animating = false;
-
 function createTextures() {
-	var interlaceGrad, interlaceCtx, interlaceCanvases = [];
-	interlaceGrad = ctx.createLinearGradient(0,0,0,PX);
-	interlaceGrad.addColorStop(0.0, C_INTER_A.toString());
-	interlaceGrad.addColorStop(0.25, C_INTER_B.toString());
-	interlaceGrad.addColorStop(0.75, C_INTER_B.toString());
-	interlaceGrad.addColorStop(1.0, C_INTER_A.toString());
-	interlaceCanvases[0] = document.createElement("canvas");
-	interlaceCanvases[0].width = 1;
-	interlaceCanvases[0].height = PX;
-	interlaceCanvases[1] = document.createElement("canvas");
-	interlaceCanvases[1].width = 1;
-	interlaceCanvases[1].height = PX;
-	interlaceCtx = interlaceCanvases[0].getContext("2d");
-	interlaceCtx.fillStyle = interlaceGrad;
-	interlaceCtx.fillRect(0,0,1,PX);
-	interlaceGrad = ctx.createLinearGradient(0,0,0,PX);
-	interlaceGrad.addColorStop(0.0, C_INTER_B.toString());
-	interlaceGrad.addColorStop(0.25, C_INTER_A.toString());
-	interlaceGrad.addColorStop(0.75, C_INTER_A.toString());
-	interlaceGrad.addColorStop(1.0, C_INTER_B.toString());
-	interlaceCtx = interlaceCanvases[1].getContext("2d");
-	interlaceCtx.fillStyle = interlaceGrad;
-	interlaceCtx.fillRect(0,0,1,PX);
-	interlacePatterns[0] = ctx.createPattern(interlaceCanvases[0], "repeat");
-	interlacePatterns[1] = ctx.createPattern(interlaceCanvases[1], "repeat");
+	var maskCanvas, maskCtx, scanCanvas, scanCtx, i = 0;
+	var maskStyles = [
+		"rgba(255,255,255,0.01)",
+		"rgba(255,255,255,0.99)"
+	];
+	for(i = 0; i < 2; ++i) {
+		maskCanvas = document.createElement("canvas");
+		maskCanvas.width = 1;
+		maskCanvas.height = 2;
+		maskCtx = maskCanvas.getContext("2d");
+		maskCtx.fillStyle = maskStyles[i];
+		maskCtx.fillRect(0,0,1,1);
+		maskCtx.fillStyle = maskStyles[i==1?0:1];
+		maskCtx.fillRect(0,1,1,1);
+		bufferMasks[i] = maskCtx.createPattern(maskCanvas, "repeat");
+	}
+	scanCanvas = document.createElement("canvas");
+	scanCanvas.width = 1;
+	scanCanvas.height = LW;
+	scanCtx = scanCanvas.getContext("2d");
+	var color = [C_EMPTY[0],C_EMPTY[1],C_EMPTY[2],0.4];
+	scanCtx.fillStyle = "rgba("+color.join(",")+")";
+	scanCtx.fillRect(0,LW-1,1,1);
+	color[3] = 0.1;
+	scanCtx.fillStyle = "rgba("+color.join(",")+")";
+	scanCtx.fillRect(0,LW-2,1,1);
+	scanCtx.fillRect(0,0,1,1);
+	scanlinePattern = scanCtx.createPattern(scanCanvas, "repeat");
+}
 
+function setAliasing(ctx, state) {
+	if(ctx.imageSmoothingEnabled !== undefined) {
+		ctx.imageSmoothingEnabled = state;
+		return;
+	}
+	else if(ctx.mozImageSmoothingEnabled !== undefined) {
+		ctx.mozImageSmoothingEnabled = state;
+	}
+	else if(ctx.webkitImageSmoothingEnabled !== undefined) {
+		ctx.webkitImageSmoothingEnabled = state;
+	}
+	else if(ctx.msImageSmoothingEnabled !== undefined) {
+		ctx.msImageSmoothingEnabled = state;
+	}
+}
+
+function createBuffers() {
+	for(let i = 0; i < 2; ++i) {
+		bufferCanvases[i] = document.createElement("canvas");
+		bufferCanvases[i].width = BW;
+		bufferCanvases[i].height = BH;
+		bufferContexts[i] = bufferCanvases[i].getContext("2d");
+	}
+	tmpBuffer = document.createElement("canvas");
+	tmpBuffer.width = BW;
+	tmpBuffer.height = BH;
+	tmpCtx = tmpBuffer.getContext("2d");
 }
 
 function lerpColor(a, b, t) {
@@ -155,18 +219,18 @@ function fullscreenOff(ev) {
 }
 
 function updateRatio() {
-	W = document.body.clientWidth;
-	H = document.body.clientHeight;
+	W = evenNumber(document.body.clientWidth);
+	H = evenNumber(document.body.clientHeight);
 	OR = W > H?0:1;
 	gameScreen.width = W;
 	gameScreen.height = H;
-	PX = evenNumber((OR?W:H) / 120);
+	PX = npot((OR?W:H) / 240);
+	BW = ~~(W/PX);
+	BH = ~~(H/PX);
 	RAY = PX*2;
-	LW = PX*LINE_WIDTH;
 	createTextures();
-}
-
-function calcNextFrameTime() {
+	createBuffers();
+	console.log(PX,W,H,BW,BH);
 }
 
 function getBit(field, pos) {
@@ -177,6 +241,7 @@ function calcOps() {
 	return (info.currentLevel.par - info.ops).toString();
 }
 
+/*
 function lPad(string, len) {
 	return ((" ").repeat(len)+string).slice(-len);
 }
@@ -184,7 +249,7 @@ function lPad(string, len) {
 function rPad(string, len) {
 	return (string+(" ").repeat(len)).slice(0, len);
 }
-
+*/
 function colorAtTime(colorSet) {
 	var {length, timing, colors} = colorSet, setSize = timing.length - 1;
 	var offset = frameCount % length, i = 0, t, c, p, nextT, nextC; 
@@ -203,11 +268,11 @@ function colorAtTime(colorSet) {
 
 function drawBorder() {
 	var WMOD, HMOD;
-	WMOD = W % 2;
-	HMOD = W % 2;
-	ctx.strokeStyle = C_MID; //colorAtTime(GRAD_FLICKER).toString();
-	ctx.lineWidth = PX;
-	ctx.strokeRect(LW, LW, W-LW*2 - WMOD, H-LW*2 - HMOD);
+	WMOD = BW % 2;
+	HMOD = BW % 2;
+	curCtx.strokeStyle = C_MID; //colorAtTime(GRAD_FLICKER).toString();
+	curCtx.lineWidth = 2;
+	curCtx.strokeRect(LW, LW, BW-LW*2 - WMOD, BH-LW*2 - HMOD);
 }
 
 /**
@@ -219,13 +284,13 @@ function drawBorder() {
  * @param {color|false} fill 
  */
 function drawTriangle(a, b, c, fill) {
-	ctx.lineWidth = LW;
-	ctx.beginPath();
-	ctx.moveTo(a[0],a[1]);
-	ctx.lineTo(b[0],b[1]);
-	ctx.lineTo(c[0],c[1]);
-	ctx.fillStyle = fill.toString();
-	ctx.fill();
+	curCtx.lineWidth = LW;
+	curCtx.beginPath();
+	curCtx.moveTo(a[0],a[1]);
+	curCtx.lineTo(b[0],b[1]);
+	curCtx.lineTo(c[0],c[1]);
+	curCtx.fillStyle = fill.toString();
+	curCtx.fill();
 }
 
 const drawButton = {
@@ -259,14 +324,15 @@ const drawButton = {
 	},
 	"opBump":function(cols, rows, size, fill) {
 		var x = cols[0], y = rows[2], w = LW*size*3+LW*2, h = LW*size/2;
-		ctx.fillRect(x, y, w, h);
+		curCtx.fillStyle = fill;
+		curCtx.fillRect(x, y, w, h);
 	}
 }
 
 function drawControls() {
-	var size = 3, btn, fill,
-	    cols = [W-LW*size*4-LW*2, W-LW*size*3-LW, W-LW*size*2],
-	    rows = [H-LW*size*3-LW*3, H-LW*size*2-LW*2, H-LW*size-LW];
+	var size = (OR?6:5), fill, off = (OR?(BW+LW*size*5)/2:BW),
+	    cols = [off-LW*size*4-LW*2, off-LW*size*3-LW, off-LW*size*2],
+	    rows = [BH-LW*size*3-LW*3, BH-LW*size*2-LW*2, BH-LW*size-LW];
 	controls.buttons.forEach((btn) => {
 		if(btn.revealed && typeof(drawButton[btn.id]) !== "undefined") {
 			fill = (btn.active?C_BRIGHT:C_MID);
@@ -277,31 +343,32 @@ function drawControls() {
 
 function makeScoreboardText() {
 	var name = info.currentLevel.name;
-	return "score: "+rPad(info.score, 6)+
-	       "level: "+rPad((info.glitched?String.fromCharCode(name):name), 5)+
-				 "ops: "+calcOps();
+	return "score:"+info.score+
+	       " level:"+(info.glitched?String.fromCharCode(name):name)+
+				 " ops:"+calcOps();
 }
 
 function drawScoreboard() {
-	var text, scoreboardOffset, fontSize = 4*PX, fontWidth = 2.5*(PX+1);
-	ctx.fillStyle = C_MID.toString();
-	ctx.font = fontSize+"px 'Pixel Operator 8'";
-	text = makeScoreboardText();
-	scoreboardOffset = evenNumber((W-text.length*fontWidth)/2);
-	ctx.fillText(text, (PX*8)+scoreboardOffset, PX*8);
+	var text = makeScoreboardText(), fontSize = 8;
+	curCtx.font = fontSize+"px 'Press Start 2P'";
+	curCtx.fillStyle = C_MID.toString();
+	curCtx.textAlign = "center";
+	setAliasing(curCtx, false);
+	curCtx.fillText(text, evenNumber(BW/2), LW*3+fontSize);
+	setAliasing(curCtx, true);
 }
 
 function drawBitOutline(bit, xOff, yOff, bitSize, color) {
-	ctx.strokeStyle = color.toString();
-	ctx.strokeRect(xOff-LW, yOff-LW, -bitSize+LW*2, -bitSize+LW*2);
+	curCtx.strokeStyle = color.toString();
+	curCtx.strokeRect(xOff-LW, yOff-LW, -bitSize+LW*2, -bitSize+LW*2);
 }
 
 function drawBitFill(bit, xOff, yOff, bitSize, color) {
-	ctx.strokeStyle = color.toString();
-	ctx.strokeRect(xOff-LW*2, yOff-LW*2, -bitSize+LW*4, -bitSize+LW*4);
+	curCtx.strokeStyle = color.toString();
+	curCtx.strokeRect(xOff-LW*2, yOff-LW*2, -bitSize+LW*4, -bitSize+LW*4);
 }
 
-function drawBit(bit, xOff, yOff, border, bitSize, type) {
+function drawBit(bit, xOff, yOff, border, bitSize) {
 	var target = getBit(info.currentLevel.target, bit);
 	var burn = getBit(info.currentLevel.burns, bit);
 	var hole = getBit(info.currentLevel.holes, bit);
@@ -310,18 +377,18 @@ function drawBit(bit, xOff, yOff, border, bitSize, type) {
 	var outline = C_EMPTY;
 	var fill = C_EMPTY;
 	var glitchMod = 0;
-	ctx.lineWidth = LW;
-	ctx.strokeStyle = border;
+	curCtx.lineWidth = LW;
+	curCtx.strokeStyle = border;
 	// handle glitch mode
 	if(info.glitched && info.complete) {
 		glitchMod = (bit % 2)*2*(frameCount % (FPS/4+(bit % 2)*2) % 2?-1:1);
-		ctx.strokeStyle =  colorAtTime(GRAD_BURN);
-		ctx.fillStyle = colorAtTime(GRAD_COMPLETE);
-		ctx.fillRect(xOff+glitchMod, yOff+glitchMod, -bitSize+glitchMod, -bitSize+glitchMod);
-		ctx.strokeRect(xOff+glitchMod, yOff+glitchMod, -bitSize+glitchMod, -bitSize+glitchMod);
+		curCtx.strokeStyle =  colorAtTime(GRAD_BURN);
+		curCtx.fillStyle = colorAtTime(GRAD_COMPLETE);
+		curCtx.fillRect(xOff+glitchMod, yOff+glitchMod, -bitSize+glitchMod, -bitSize+glitchMod);
+		curCtx.strokeRect(xOff+glitchMod, yOff+glitchMod, -bitSize+glitchMod, -bitSize+glitchMod);
 	}
 	else {
-		ctx.strokeRect(xOff, yOff, -bitSize, -bitSize);
+		curCtx.strokeRect(xOff, yOff, -bitSize, -bitSize);
 		if(register) fill = colorAtTime(GRAD_REGISTER);
 		if(hole) {
 			outline = colorAtTime(GRAD_HOLE);
@@ -349,21 +416,20 @@ function drawBit(bit, xOff, yOff, border, bitSize, type) {
 
 function drawGrid() {
 	var bitSize = LW*5, width = info.currentLevel.width, height = info.currentLevel.height;
-	var gridOffsetX = evenNumber((W-width*bitSize)/2);
-	var gridOffsetY = evenNumber((H-height*bitSize)/2);
+	var gridOffsetX = evenNumber((BW-width*bitSize)/2);
+	var gridOffsetY = evenNumber((BH-height*bitSize)/2);
 	var gridMaxX = bitSize*width;
 	var gridMaxY = bitSize*height;
 	var numBits = width*height
 	var xOff = 0, yOff = 0, x = 0, y = 0;
 	var border = C_MID;
-	var targets = info.targets, register = info.register; 
 	if(info.crashed) {
 		border = colorAtTime(GRAD_COMPLETE);
-		ctx.strokeStyle = border;
-		ctx.fillStyle = border;
-		ctx.lineWidth = LW;
-		ctx.strokeRect(gridOffsetX, gridOffsetY, gridMaxX, gridMaxY);
-		ctx.fillRect(gridOffsetX, gridOffsetY, gridMaxX, gridMaxY);
+		curCtx.strokeStyle = border;
+		curCtx.fillStyle = border;
+		curCtx.lineWidth = LW;
+		curCtx.strokeRect(gridOffsetX, gridOffsetY, gridMaxX, gridMaxY);
+		curCtx.fillRect(gridOffsetX, gridOffsetY, gridMaxX, gridMaxY);
 	}
 	else {
 		if(info.complete) border = colorAtTime(GRAD_COMPLETE);
@@ -377,25 +443,11 @@ function drawGrid() {
 	}
 }
 
-
 function drawEffects() {
-	var w = gameScreen.width, h = gameScreen.height, rx, ry, fr, pixels; 
-	ctx.fillStyle = interlacePatterns[frameCount%2];
-	ctx.globalCompositeOperation = "multiply";
-	ctx.fillRect(0,0,w,h);
-	ctx.globalCompositeOperation = "source-over";
-	/*
-	pixels = w * h;
-	fr = frameCount % pixels; // frame ratio
-	rx = fr % w;
-	ry = fr / h % w;
-	ctx.fillStyle = cathodeRay;
-	ctx.globalCompositeOperation = "source-over";
-	cathodeRay = ctx.createRadialGradient(rx,ry,1,rx,ry,RAY);
-	cathodeRay.addColorStop(0.0,C_INTER_A.toString());
-	cathodeRay.addColorStop(1.0,C_INTER_B.toString());
-	ctx.fillRect(0,0,w,h);
-	*/
+	screenCtx.fillStyle = scanlinePattern;
+	screenCtx.globalCompositeOperation = "multiply";
+	screenCtx.fillRect(0,0,W,H);
+	screenCtx.globalCompositeOperation = "source-over";
 }
 
 function animate() {
@@ -407,13 +459,32 @@ function animate() {
 	}
 	info = ops.stateInfo();
 	frameCount++;
-	ctx.fillStyle = C_EMPTY.toString();
-	ctx.fillRect(0, 0, W, H);
+	var which = ~~((frameCount)%2);
+	curCtx = tmpCtx;
+	curCtx.fillStyle = C_EMPTY.toString();
+	curCtx.globalCompositeOperation = "source-over";
+	curCtx.fillRect(0,0, BW, BH);
 	drawBorder();
 	drawScoreboard();
 	drawGrid();
 	drawControls();
-	drawEffects();
+
+	curCtx = bufferContexts[which];
+	curCtx.fillStyle = bufferMasks[which];
+	curCtx.fillRect(0, 0, BW, BH);
+	curCtx.globalCompositeOperation = "source-in";
+	curCtx.drawImage(tmpBuffer, 0, 0);
+
+	if(SCALE) {
+		setAliasing(screenCtx, false);
+		screenCtx.globalCompositeOperation = "source-over";
+		screenCtx.drawImage(bufferCanvases[which],0,0,W,H);
+		drawEffects(which);
+		setAliasing(screenCtx, true);
+		screenCtx.globalCompositeOperation = "screen";
+		screenCtx.drawImage(bufferCanvases[which],0,0,W,H);
+	}
+	else screenCtx.drawImage(bufferCanvases[which],(W-BW)/2,(H-BH)/2);
 	lastFrame = now;
 	requestAnimationFrame(animate);
 }
@@ -432,7 +503,7 @@ export function init(env) {
 	body.classList.add("2d");
 	gameScreen = document.createElement("canvas");
 	gameScreen.id = "game-screen";
-	ctx = gameScreen.getContext("2d");
+	screenCtx = gameScreen.getContext("2d");
 	body.addEventListener("click", startGame);
 	document.addEventListener("keyup", pressEnter);
 	window.addEventListener("resize", updateRatio);
