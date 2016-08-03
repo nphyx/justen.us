@@ -19,11 +19,11 @@ var users = require("./routes/users");
 var app = express();
 
 var browserifyOptions = {
-	precompile:true,
-	minify:false,
+	precompile:false,
+	minify:true,
 	gzip:true,
 	debug:true,
-	cache:"dynamic",
+	cache:false,
 	production:{
 		precompile:true,
 		minify:true,
