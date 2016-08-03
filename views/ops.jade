@@ -9,55 +9,6 @@ html(prefix="og: http://ogp.me/ns#")
     link(rel="icon" href="media/ops.ico?v2" type="image/x-icon")
     link(rel="stylesheet" type="text/css" href="styles/ops.css")
     script(src="scripts/ops.js" type="text/javascript")
-    //- script(src="scripts/ops.levels.js" type="text/javascript")
-    //- script(src="scripts/ops.controls.js" type="text/javascript")
-    //- script(src="scripts/ops.display.html.js" type="text/javascript")
-    //- script(src="scripts/ops.sound.js" type="text/javascript")
-  body.scanlines.start
+  body.start
     div#wrap
       div#game-screen
-        div#glitches
-        div#score
-          span#game Ops
-          span.label.bright score:
-          span#score-hi 0
-          span.label level:
-          span#score-level 0
-          span.label ops:
-          span#score-ops 0
-        div#grid-wrap
-          div#grid
-            span.bit.filled
-            span.bit.target.filled
-            span.bit.burn
-            span.bit.hole
-            br
-            span.bit.target.filled
-            span.bit.title.t1
-            span.bit.title.t2
-            span.bit.short.filled
-            br
-            span.bit.short
-            span.bit.title.t3
-            span.bit.title.t4
-            span.bit.target.filled
-            br
-            span.bit.hole
-            span.bit.burn
-            span.bit.target.filled
-            span.bit.filled
-
-        div#controls
-          div.row
-            span.control#opMod.hidden &#x21eb;
-            span.control#opAdd &#x25b2; 
-            span.control#opFlip.hidden &#x2297;
-          div.row
-            span.control.hidden#opLShift &#x25c0;
-            span.control.hidden#opSub &#x25bc;
-            span.control.hidden#opRShift &#x25b6;
-          div.row
-            span.control.hidden#opBump
-          div.row
-            span.control.hidden.no-highlight#audio &#x1f50a;
-            span.hidden#opDesign

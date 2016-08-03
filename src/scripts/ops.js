@@ -142,7 +142,6 @@ window.addEventListener("load", function() {
 		levelStarting = true;
 		applyFeatures();
 		controls.revealKeys(currentLevel.revealed);
-		display.setup();
 		levelStarting = false;
 	}
 	
@@ -169,7 +168,6 @@ window.addEventListener("load", function() {
 
 	function completeLevel() {
 		complete = true;
-		pause();
 		if(glitched) {
 			glitched = false;
 			glitchesCleared++;
@@ -206,7 +204,8 @@ window.addEventListener("load", function() {
 	function checkComplete() {
 		if(designMode) return;
 		if(state.register === state.target) {
-			completeLevel();
+			pause();
+			setTimeout(completeLevel, LEVEL_END_DELAY/4);
 			return 1;
 		}
 		else if(state.ops >= state.par + MAX_OVER_PAR) {
@@ -257,10 +256,6 @@ window.addEventListener("load", function() {
 		setupLevel();
 	}
 
-	function toggleMod() {
-		setMod(modKey?0:1);
-	}
-
 	function bindKeys() {
 		var btn;
 		window.addEventListener("keydown", function(event) {
@@ -284,6 +279,37 @@ window.addEventListener("load", function() {
 			}
 		});
 	}
+
+	ops.logoInfo = function() {
+		return {
+			glitched:false,
+			levelsCleared:0,
+			glitchesCleared:0,
+			glitchesFound:0,
+			currentLevel: {
+				par:5,width:4,height:4,
+				target:0b0100100000010010,
+				holes: 0b0001000000001000,
+				shorts:0b0000000110000000,
+				burns: 0b0010000000000100,
+				register:0,
+				revealed:0
+			},
+			gameOver:0,
+			crashed:0,
+			levelStarting:0,
+			score:0,
+			ops:0,
+			register:0b1100100100010011,
+			complete:0,
+			flip:0,
+			paused:false,
+			modKey:false,
+			lastOp:undefined,
+			designMode:false
+		}
+	}
+
 
 	ops.stateInfo = function() {
 		return {
@@ -352,7 +378,9 @@ window.addEventListener("load", function() {
 
 	ops.startGame = function() {
 		setupLevel();
+		console.log("ops set up level");
 		bindKeys();
 	}
 	display.init(ops);
+	display.setup();
 });
