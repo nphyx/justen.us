@@ -183,7 +183,6 @@ function toggleFullScreen() {
 function startGame() {
 	console.log("STARTING GAME");
 	GAME_STARTED = true;
-	updateRatio(); // we do this because logo screen is double size
 	ops.startGame();
 	body.removeEventListener("click", startGame);
 	body.classList.remove("start");
@@ -209,7 +208,6 @@ function updateRatio() {
 	H = evenNumber(document.body.clientHeight);
 	OR = W > H?0:1;
 	PX = npot((OR?W:H) / 240);
-	if(!GAME_STARTED) PX <<= 1;
 	W = W - (W%PX);
 	H = H - (H%PX);
 	gameScreen.width = W;
