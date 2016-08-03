@@ -2,7 +2,7 @@
 
 // useful global constants
 const {floor} = Math;
-import {Color, Palette, Gradients, colorAtTime} from "./ops.display.2d.color";
+import {Color, Palette, Gradients, GradientTexture, colorAtTime} from "./ops.display.2d.color";
 const AUTO_FULLSCREEN = false;
 const SCALE = 1;
 
@@ -25,6 +25,7 @@ var fullscreen = false; // whether game is in fullscreen mode
 var lastFrame = new Date().getTime(); // time of last draw frame
 var frameCount = 0; // running total of drawn frames
 var animating = false; // whether game is currently running animation loop
+var gradients; // GradientTexture object
 var scanlinePattern;
 
 // display state variables
@@ -68,17 +69,26 @@ function npot(n) {
 	return n;
 }
 
-//const GRAD_FLICKER = flicker(pal.stringDim, pal.stringMid, pal.stringBright, 3);
-var GRAD_HOLE, GRAD_HOLE_FILL, GRAD_BURN, GRAD_BURN_FILL, GRAD_SHORT, GRAD_TARGET, GRAD_REGISTER, GRAD_COMPLETE;
+const GRAD_HOLE = 0;
+const GRAD_HOLE_FILL = 1;
+const GRAD_BURN = 2;
+const GRAD_BURN_FILL = 3;
+const GRAD_SHORT = 4;
+const GRAD_TARGET = 5;
+const GRAD_REGISTER = 6;
+const GRAD_COMPLETE = 7;
+
 function makeGradients() {
-	GRAD_HOLE = Gradients.flicker(pal.colorDim, pal.colorEmpty, pal.colorDark, FPS);
-	GRAD_HOLE_FILL = Gradients.flicker(pal.colorDark, pal.colorDim, pal.colorEmpty, FPS);
-	GRAD_BURN = Gradients.flicker(pal.colorBright, pal.colorBlinding, pal.colorMid, FPS);
-	GRAD_BURN_FILL = Gradients.flicker(pal.colorMid, pal.colorBright, pal.colorBlinding, FPS);
-	GRAD_SHORT = Gradients.flicker(pal.colorMid, pal.colorBright, pal.colorBlinding, FPS);
-	GRAD_TARGET = Gradients.pulse(pal.colorDim, pal.colorMid, 2, FPS);
-	GRAD_REGISTER = Gradients.pulse(pal.colorBright, pal.colorBlinding, 2, FPS);
-	GRAD_COMPLETE = Gradients.pulse(pal.colorMid, pal.colorBlinding, 0.1, FPS);
+	gradients = new GradientTexture({frames:FPS*2, gradients:[
+		{type:"flicker", colors:[pal.colorDim, pal.colorEmpty, pal.colorDark]},
+		{type:"flicker", colors:[pal.colorDark, pal.colorDim, pal.colorEmpty]},
+		{type:"flicker", colors:[pal.colorBright, pal.colorBlinding, pal.colorMid]},
+		{type:"flicker", colors:[pal.colorMid, pal.colorBright, pal.colorBlinding]},
+		{type:"flicker", colors:[pal.colorMid, pal.colorBright, pal.colorBlinding]},
+		{type:"pulse", colors:[pal.colorDim, pal.colorMid]},
+		{type:"pulse", colors:[pal.colorBright, pal.colorBlinding]},
+		{type:"pulse", colors:[pal.colorMid, pal.colorBlinding]}
+	]});
 }
 
 function createTextures() {
@@ -181,7 +191,6 @@ function toggleFullScreen() {
 }
 
 function startGame() {
-	console.log("STARTING GAME");
 	GAME_STARTED = true;
 	ops.startGame();
 	body.removeEventListener("click", startGame);
@@ -335,38 +344,39 @@ function drawBit(bit, xOff, yOff, border, bitSize) {
 	var register = getBit(info.register, bit);
 	var outline = pal.stringEmpty;
 	var fill = pal.stringEmpty;
+	var colorAt = gradients.getColorAtTime.bind(gradients);
 	var glitchMod = 0;
 	curCtx.lineWidth = LW;
 	curCtx.strokeStyle = border;
 	// handle glitch mode
 	if(info.glitched && info.complete) {
 		glitchMod = (bit % 2)*2*(frameCount % (FPS/4+(bit % 2)*2) % 2?-1:1);
-		curCtx.strokeStyle =  colorAtTime(GRAD_BURN, frameCount);
-		curCtx.fillStyle = colorAtTime(GRAD_COMPLETE, frameCount);
+		curCtx.strokeStyle =  colorAt(GRAD_BURN, frameCount);
+		curCtx.fillStyle = colorAt(GRAD_BURN, frameCount);
 		curCtx.fillRect(xOff+glitchMod, yOff+glitchMod, -bitSize+glitchMod, -bitSize+glitchMod);
 		curCtx.strokeRect(xOff+glitchMod, yOff+glitchMod, -bitSize+glitchMod, -bitSize+glitchMod);
 	}
 	else {
 		curCtx.strokeRect(xOff, yOff, -bitSize, -bitSize);
-		if(register) fill = colorAtTime(GRAD_REGISTER, frameCount);
+		if(register) fill = colorAt(GRAD_REGISTER, frameCount);
 		if(hole) {
-			outline = colorAtTime(GRAD_HOLE, frameCount);
-			fill = colorAtTime(GRAD_HOLE_FILL, frameCount);
+			outline = colorAt(GRAD_HOLE, frameCount);
+			fill = colorAt(GRAD_HOLE_FILL, frameCount);
 		}
 		else if(burn) {
-			outline = colorAtTime(GRAD_BURN, frameCount);
-			fill = colorAtTime(GRAD_BURN_FILL, frameCount);
+			outline = colorAt(GRAD_BURN, frameCount);
+			fill = colorAt(GRAD_BURN_FILL, frameCount);
 		}
 		else if(shorted) {
-			outline = colorAtTime(GRAD_SHORT, frameCount);
-			if(register) fill = colorAtTime(GRAD_TARGET, frameCount);
+			outline = colorAt(GRAD_SHORT, frameCount);
+			if(register) fill = colorAt(GRAD_TARGET, frameCount);
 		}
 		else if(target) {
 			if(info.complete) {
-				let color = colorAtTime(GRAD_COMPLETE, frameCount);
+				let color = colorAt(GRAD_COMPLETE, frameCount);
 				outline = fill = color;
 			}
-			else outline = colorAtTime(GRAD_TARGET, frameCount);
+			else outline = colorAt(GRAD_TARGET, frameCount);
 		}
 		if(outline !== pal.stringEmpty) drawBitOutline(bit, xOff, yOff, bitSize, outline);
 		if(fill !== pal.stringEmpty) drawBitFill(bit, xOff, yOff, bitSize, fill);
@@ -382,8 +392,9 @@ function drawGrid() {
 	var numBits = width*height;
 	var xOff = 0, yOff = 0, x = 0, y = 0;
 	var border = pal.stringMid;
+	var colorAt = gradients.getColorAtTime.bind(gradients);
 	if(info.crashed) {
-		border = colorAtTime(GRAD_COMPLETE, frameCount);
+		border = colorAt(GRAD_COMPLETE, frameCount);
 		curCtx.strokeStyle = border;
 		curCtx.fillStyle = border;
 		curCtx.lineWidth = LW;
@@ -391,7 +402,7 @@ function drawGrid() {
 		curCtx.fillRect(gridOffsetX, gridOffsetY, gridMaxX, gridMaxY);
 	}
 	else {
-		if(info.complete) border = colorAtTime(GRAD_COMPLETE, frameCount);
+		if(info.complete) border = colorAt(GRAD_COMPLETE, frameCount);
 		for(var i = 0; i < numBits; ++i) {
 			x = i % width;
 			y = floor(i/width);
@@ -540,6 +551,10 @@ export function init(env) {
 	gameScreen = document.createElement("canvas");
 	gameScreen.id = "game-screen";
 	screenCtx = gameScreen.getContext("2d");
+	/*
+	screenCtx.drawImage(gradients.texture, 0,0);
+	return;
+	*/
 	body.addEventListener("click", startGame);
 	document.addEventListener("keyup", pressEnter);
 	window.addEventListener("resize", updateRatio);

@@ -2,7 +2,6 @@
 var express = require("express");
 var babelify = require("express-babelify-middleware");
 var path = require("path");
-var favicon = require("serve-favicon");
 var logger = require("express-bunyan-logger")({
 	name:"justen.us",
 	streams: [{
@@ -12,7 +11,6 @@ var logger = require("express-bunyan-logger")({
 });
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
-var lex = require("letsencrypt-express");
 var sassMiddleware = require("node-sass-middleware");
 
 var routes = require("./routes/index");
@@ -20,12 +18,30 @@ var users = require("./routes/users");
 
 var app = express();
 
+var browserifyOptions = {
+	precompile:true,
+	minify:false,
+	gzip:true,
+	debug:true,
+	cache:"dynamic",
+	production:{
+		precompile:true,
+		minify:true,
+		gzip:true,
+		debug:true
+	},
+	development:{
+		precompile:true,
+		minify:true,
+		gzip:true,
+		debug:true
+	}
+}
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 app.use(logger);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -38,11 +54,13 @@ app.use(sassMiddleware({
     prefix:  ""
 }));
 app.use("/scripts", babelify(
-	path.join(__dirname, "src/scripts"), {}, {
+	path.join(__dirname, "src/scripts"), 
+	browserifyOptions,
+	{
 		presets:["es2015"],
 		plugins:[["transform-runtime", {"regenerator":true,"polyfill":true}]] 
-	})
-);
+	}
+));
 app.use(express.static(path.join(__dirname, "public")));
 
 

@@ -1,5 +1,5 @@
 "use strict";
-import * as html from "./ops.display.2d";
-export const init = html.init;
-export const setup = html.setup;
-export const render = html.render;
+import * as display from "./ops.display.2d";
+export const init = display.init;
+export const setup = display.setup;
+export const render = display.render;

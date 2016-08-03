@@ -247,7 +247,6 @@ window.addEventListener("load", function() {
 	}
 
 	function toggleDesignMode() {
-		console.log("toggling design mode", designMode);
 		if(designMode === true) {
 			designMode = false;
 			return;
@@ -369,16 +368,12 @@ window.addEventListener("load", function() {
 		}
 	}
 
-	ops.changeBit = function(bit, lastType) {
-	}
-
 	ops.calcFinalScore = function() {
 		return score + Math.ceil(score * (Math.pow(glitchExponentBase, glitchesCleared) - 1));
 	}
 
 	ops.startGame = function() {
 		setupLevel();
-		console.log("ops set up level");
 		bindKeys();
 	}
 	display.init(ops);

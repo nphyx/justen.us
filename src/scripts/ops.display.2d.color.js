@@ -10,15 +10,6 @@ export function Color(r=0,g=0,b=0,a=1) {
 		updateString();
 	}
 
-	buf.lerp = function(b, t) {
-		var out = new Array(4);
-		var i = 0, len = buf.length;
-		for(; i < len; ++i) {
-			out[i] = buf[i] + t*(b[i] - buf[i]);
-		}
-		return new Color(out[0], out[1], out[2], out[3]);
-	}
-
 	buf.copy = function() {
 		return new Color(buf[0],buf[1],buf[2],buf[3]);
 	}
@@ -63,32 +54,76 @@ export function Palette(source) {
 }
 
 // pulse and flicker effects
-function pulse(a, b, FPS, seconds = 1) {
-	var len = FPS*seconds;
-	return {length:len, timing:[0,len/2,len],colors:[a,b,a]};
+const gradientGenerators = {
+	pulse:function(frames, a, b) {
+		return {timing:[0,frames/2,frames],colorSet:[a,b,a]};
+	},
+	flicker:function(frames, a, b, c) {
+		return {timing: [0,frames/8,frames/7,frames/5,frames/3,frames], colorSet:[a, b, c, a, c, a]};
+	}
 }
 
-function flicker(a, b, c, FPS) {
-	return {length:FPS, timing: [0,FPS/8,FPS/7,FPS/5,FPS/3,FPS], colors:[a, b, c, a, c, a]};
-}
+export function GradientTexture(opts = {gradients:[],frames:60}) {
+	var canvas, ctx, gradStyles, data, strings;
+	var frames = opts.frames, gradients = opts.gradients;
 
-export function colorAtTime(gradient, frameCount) {
-	var {length, timing, colors} = gradient, setSize = timing.length - 1;
-	var offset = frameCount % length, i = 0, t, c, p, nextT, nextC; 
-	for(i = 0; i < setSize; ++i) {
-		t = timing[i];
-		c = colors[i];
-		nextT = (i < setSize)?timing[i+1]:length;
-		nextC = (i < setSize)?colors[i+1]:colors[0];
-		if(offset < nextT) {
-			p = (nextT - offset) / (nextT - t);
-			return c.lerp(nextC, p).asRGBA;
+	this.generate = function() {
+		var i, n, gradientsLength = gradients.length, gradientStops, style, dataLength;
+		gradStyles = [];
+		canvas = document.createElement("canvas");
+		canvas.width = frames;
+		canvas.height = gradientsLength;
+		ctx = canvas.getContext("2d");
+		for(i = 0; i < gradientsLength; ++i) {
+			let {type, colors} = gradients[i];
+			let {timing, colorSet} = gradientGenerators[type].apply(null, [frames].concat(colors));
+			style = ctx.createLinearGradient(0,0,frames,1);
+			gradientStops = timing.length;
+			for(n = 0; n < gradientStops; n++) {
+				style.addColorStop(timing[n]/frames, colorSet[n].asRGBA);
+			}
+			gradStyles.push(style);
+			ctx.fillStyle = style;
+			ctx.fillRect(0,i,frames,1);
+		}
+		data = ctx.getImageData(0,0,frames,gradientsLength).data;
+		dataLength = data.length;
+		console.log(dataLength);
+		strings = new Array(dataLength/4);
+		// now pregenerate color strings because stupid canvas is stupid
+		for(i = 0; i < dataLength; i+=4) {
+			strings[i/4] = "rgba("+data[i]+","+data[i+1]+","+data[i+2]+","+(data[i+3]/255)+")";
 		}
 	}
-	//return colors[setSize];
-}
 
-export const Gradients = {
-	pulse:pulse,
-	flicker:flicker
+	Object.defineProperties(this, {
+		texture:{get:() => canvas},
+		context:{get:() => ctx}
+	});
+
+	this.addGradient = function(gradient) {
+		gradients.push(gradient);
+		this.generate();
+	}
+
+	function colorAt(y, x) {
+		var offset = ((y*frames)+x);
+		return strings[offset];
+	}
+
+	this.getGradient = function(grad) {
+		return gradients[grad];
+	}
+
+	this.getColorAtTime = function(grad, frameCount) {
+		return colorAt(grad, ~~(frameCount % frames));
+	}
+
+	this.getColorAtPosition = function(grad, pos) {
+		return colorAt(grad, ~~(pos % frames));
+	}
+
+	this.generate();
+
+	return this;
 }
