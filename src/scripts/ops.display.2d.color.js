@@ -31,11 +31,12 @@ export function Color(r=0,g=0,b=0,a=1) {
 export function Palette(source) {
 	var colors = new Array(6);
 	colors[0] = new Color(source.r*0.05, source.g*0.05, source.b*0.05, 1.0);
-	colors[1] = new Color(source.r*0.125, source.g*0.125, source.b*0.125, 0.9);
+	colors[1] = new Color(source.r*0.15, source.g*0.15, source.b*0.15, 0.7);
 	colors[2] = new Color(source.r*0.33, source.g*0.33, source.b*0.33, 1.0);
 	colors[3] = new Color(source.r, source.g, source.b, 1.0);
 	colors[4] = new Color(source.r*1.15, source.g*1.15, source.b*1.15, 1.0);
 	colors[5] = new Color(source.r*2.0, source.g*2.0, source.b*2.0, 1.0);
+	colors[6] = new Color(source.r*0.125, source.g*0.125, source.b*0.125, 0.25);
 	Object.defineProperties(colors,{
 		"stringDark":{get:() => colors[0].asRGBA},
 		"stringEmpty":{get:() => colors[1].asRGBA},
@@ -43,23 +44,46 @@ export function Palette(source) {
 		"stringMid":{get:() => colors[3].asRGBA},
 		"stringBright":{get:() => colors[4].asRGBA},
 		"stringBlinding":{get:() => colors[5].asRGBA},
+		"stringWipe":{get:() => colors[6].asRGBA},
 		"colorDark":{get:() => colors[0]},
 		"colorEmpty":{get:() => colors[1]},
 		"colorDim":{get:() => colors[2]},
 		"colorMid":{get:() => colors[3]},
 		"colorBright":{get:() => colors[4]},
 		"colorBlinding":{get:() => colors[5]},
+		"colorWipe":{get:() => colors[6]},
 	});
 	return colors;
 }
 
+export function repeatGrad(speed, timing, colorSet) {
+	var i = 1;
+	var rTiming = timing;
+	var rColorSet = colorSet;
+	if(speed > 1) {
+		timing = timing.map((val) => val/speed);
+		rTiming = timing.slice(0);
+		rColorSet = colorSet.slice(0);
+		var calcTime = (val) => val+(timing[timing.length-1]*i);
+		for(; i < speed; ++i) {
+			rTiming = rTiming.concat(timing.map(calcTime));
+			rColorSet = rColorSet.concat(colorSet);
+		}
+	} 
+	return {timing:rTiming,colorSet:rColorSet};
+}
+
 // pulse and flicker effects
 const gradientGenerators = {
-	pulse:function(frames, a, b) {
-		return {timing:[0,frames/2,frames],colorSet:[a,b,a]};
+	pulse:function(speed, a, b) {
+		var timing = [0,1/2,1];
+		var colorSet = [a,b,a];
+		return repeatGrad(speed, timing, colorSet);
 	},
-	flicker:function(frames, a, b, c) {
-		return {timing: [0,frames/8,frames/7,frames/5,frames/3,frames], colorSet:[a, b, c, a, c, a]};
+	flicker:function(speed, a, b, c) {
+		var timing = [0,1/8,1/7,1/5,1/3,1]; 
+		var colorSet = [a, b, c, a, c, a];
+		return repeatGrad(speed, timing, colorSet);
 	}
 }
 
@@ -75,12 +99,12 @@ export function GradientTexture(opts = {gradients:[],frames:60}) {
 		canvas.height = gradientsLength;
 		ctx = canvas.getContext("2d");
 		for(i = 0; i < gradientsLength; ++i) {
-			let {type, colors} = gradients[i];
-			let {timing, colorSet} = gradientGenerators[type].apply(null, [frames].concat(colors));
+			let {type, colors, speed} = gradients[i];
+			let {timing, colorSet} = gradientGenerators[type].apply(null, [speed].concat(colors));
 			style = ctx.createLinearGradient(0,0,frames,1);
 			gradientStops = timing.length;
 			for(n = 0; n < gradientStops; n++) {
-				style.addColorStop(timing[n]/frames, colorSet[n].asRGBA);
+				style.addColorStop(timing[n], colorSet[n].asRGBA);
 			}
 			gradStyles.push(style);
 			ctx.fillStyle = style;
@@ -88,7 +112,6 @@ export function GradientTexture(opts = {gradients:[],frames:60}) {
 		}
 		data = ctx.getImageData(0,0,frames,gradientsLength).data;
 		dataLength = data.length;
-		console.log(dataLength);
 		strings = new Array(dataLength/4);
 		// now pregenerate color strings because stupid canvas is stupid
 		for(i = 0; i < dataLength; i+=4) {
