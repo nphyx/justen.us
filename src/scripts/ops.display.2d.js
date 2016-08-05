@@ -1,32 +1,26 @@
 "use strict";
 
 // useful global constants
-const {floor, random} = Math;
+const {floor, random, max} = Math;
 import {Color, Palette, GradientTexture} from "./ops.display.2d.color";
+import {prerollText} from "./ops.display.2d.text";
 const AUTO_FULLSCREEN = false;
 const SCALE = 1;
+const FPS = 60;
 
 // global variables
 var pal; // color palette
-var screenCtx; // current rendering context
-var compositeCanvas; // temporary draw buffer for compositing
-var compositeCtx; // temporary context for compositing
 var ops; // game data object
 var info; // game info object
 var controls; // game controls object
 var body; // html document body
-var gameScreen; // game screen canvas
-var interlaceBufferCanvases = Array(2); // canvases for alternating draw interlaceBufferContexts
-var interlaceBufferContexts = Array(2); // draw buffer contexts
-var interlaceBufferMasks = Array(2); // draw buffer masks
 var fullscreen = false; // whether game is in fullscreen mode
-//var lastFrame = new Date().getTime(); // time of last draw frame
 var frameCount = 0; // running total of drawn frames
 var animating = false; // whether game is currently running animation loop
-var gradients; // GradientTexture object
-var scanTexture;
-var startTime;
-var gridData = {};
+var prerollStage = 0;
+var prerollStep = -1;
+var prerollLine = "";
+var prerollLinePos = 1;
 
 // display state variables
 var PX = 1; // pixel size
@@ -39,6 +33,27 @@ var BH = 0; // draw buffer height
 var RAY = PX; // diameter of ray blip
 var PAUSE = false; // whether game is paused
 var GAME_STARTED = false; // whether game has started (otherwise display splash)
+var TEXT_MODE = true; // preroll mode
+var TEXT_FINAL_ROLL = 0; // final rolloff of preroll text
+
+// canvases
+var compositeCanvas; // temporary draw buffer for compositing
+var gameScreen; // game screen canvas
+var interlaceBufferCanvases = Array(2); // canvases for alternating draw interlaceBufferContexts
+
+// patterns and gradients
+var interlaceBufferMasks = Array(2); // draw buffer masks
+var gradients; // GradientTexture object
+var effectsTexture;
+
+// rendering contexts
+var screenCtx; // current rendering context
+var compositeCtx; // temporary context for compositing
+var interlaceBufferContexts = Array(2); // draw buffer contexts
+
+var startTime;
+var gridData = {};
+
 
 /* bit types
 const TYPE_R = 0; // register
@@ -49,7 +64,6 @@ const TYPE_S = 4; // short
 const TYPE_G = 5; // gap
 */
 
-const FPS = 60;
 //const FPS_INTERVAL = 1000/FPS;
 
 function evenNumber(n) {
@@ -112,11 +126,11 @@ function makeTextures() {
 	scanCanvas = document.createElement("canvas");
 	scanCanvas.width = 1;
 	scanCanvas.height = LW;
-	scanTexture = document.createElement("canvas");
-	scanTexture.width = W;
-	scanTexture.height = H;
+	effectsTexture = document.createElement("canvas");
+	effectsTexture.width = W;
+	effectsTexture.height = H;
 	scanCtx = scanCanvas.getContext("2d");
-	scanTexCtx = scanTexture.getContext("2d");
+	scanTexCtx = effectsTexture.getContext("2d");
 	// vingette pattern
 	vingette = scanTexCtx.createRadialGradient(W*0.5, H*0.5, (OR?H:W)*0.25,W*0.5,H*0.5,(OR?H:W));
 	vingColors = [
@@ -250,13 +264,13 @@ function calcOps() {
 /**
  * Draws the border around the game screen.
  */
-function drawBorder(ctx, w, h) {
+function drawBorder(ctx, w, h, yStart) {
 	var WMOD, HMOD;
 	WMOD = w % 2;
 	HMOD = h % 2;
 	ctx.strokeStyle = pal.stringMid;
 	ctx.lineWidth = LW;
-	ctx.strokeRect(LW, LW, w-LW*2 - WMOD, h-LW*2 - HMOD);
+	ctx.strokeRect(LW, yStart+LW, w-LW*2 - WMOD, yStart+h-LW*2 - HMOD);
 }
 
 /**
@@ -446,7 +460,7 @@ function calcGridData(w, h) {
  * Draws the "PLAY/OPS" logo screen text.
  * @param {CanvasRenderingContext2D} ctx framebuffer being drawn to
  */
-function drawTitleText(ctx) {
+function drawTitleText(ctx, yStart) {
 	var {bitSize,gridOffsetX,gridOffsetY} = gridData;
 	// need to calculate location of grid
 	var fontSize = 16;
@@ -463,13 +477,13 @@ function drawTitleText(ctx) {
 	ctx.fillStyle = pal.stringBright;
 	ctx.font = fontSize+"px 'Press Start 2P'";
 	ctx.textAlign = "left";
-	ctx.fillText(text[0], gridOffsetX+bitSize+LW-1,gridOffsetY+bitSize*2-1);
-	ctx.fillText(text[1], gridOffsetX+bitSize*2+LW-1,gridOffsetY+bitSize*2-1);
-	ctx.fillText(text[2], gridOffsetX+bitSize+LW-1,gridOffsetY+bitSize*3-1);
-	ctx.fillText(text[3], gridOffsetX+bitSize*2+LW-1,gridOffsetY+bitSize*3-1);
+	ctx.fillText(text[0], gridOffsetX+bitSize+LW-1,yStart+gridOffsetY+bitSize*2-1);
+	ctx.fillText(text[1], gridOffsetX+bitSize*2+LW-1,yStart+gridOffsetY+bitSize*2-1);
+	ctx.fillText(text[2], gridOffsetX+bitSize+LW-1,yStart+gridOffsetY+bitSize*3-1);
+	ctx.fillText(text[3], gridOffsetX+bitSize*2+LW-1,yStart+gridOffsetY+bitSize*3-1);
 }
 
-function drawGrid(ctx) {
+function drawGrid(ctx, yStart) {
 	var {bitSize,bitsX,numBits,gridOffsetX,gridOffsetY,gridMaxX,gridMaxY} = gridData;
 	var xOff = 0, yOff = 0, x = 0, y = 0;
 	var border = pal.stringMid;
@@ -479,8 +493,8 @@ function drawGrid(ctx) {
 		ctx.strokeStyle = border;
 		ctx.fillStyle = border;
 		ctx.lineWidth = LW;
-		ctx.strokeRect(gridOffsetX, gridOffsetY, gridMaxX, gridMaxY);
-		ctx.fillRect(gridOffsetX, gridOffsetY, gridMaxX, gridMaxY);
+		ctx.strokeRect(gridOffsetX, yStart+gridOffsetY, gridMaxX, yStart+gridMaxY);
+		ctx.fillRect(gridOffsetX, yStart+gridOffsetY, gridMaxX, yStart+gridMaxY);
 	}
 	else {
 		if(info.complete) border = colorAt(GRAD_COMPLETE, frameCount);
@@ -488,7 +502,7 @@ function drawGrid(ctx) {
 			x = i % bitsX;
 			y = floor(i/bitsX);
 			xOff = gridOffsetX+gridMaxX - bitSize*x;
-			yOff = gridOffsetY+gridMaxY - bitSize*y;
+			yOff = yStart+gridOffsetY+gridMaxY - bitSize*y;
 			drawBit(ctx, i, xOff, yOff, border, bitSize, 0);
 		}
 	}
@@ -500,7 +514,7 @@ function drawGrid(ctx) {
  * @param {int} w framebuffer width
  * @param {int} w framebuffer height
  */
-function drawTitleGrid(ctx) {
+function drawTitleGrid(ctx, yStart) {
 	var {bitsX,numBits,bitSize,gridOffsetX,gridOffsetY,gridMaxX,gridMaxY} = gridData;
 	var xOff = 0, yOff = 0, x = 0, y = 0;
 	var border = pal.stringMid;
@@ -508,7 +522,7 @@ function drawTitleGrid(ctx) {
 		x = i % bitsX;
 		y = floor(i/bitsX);
 		xOff = gridOffsetX+gridMaxX - bitSize*x;
-		yOff = gridOffsetY+gridMaxY - bitSize*y;
+		yOff = yStart+gridOffsetY+gridMaxY - bitSize*y;
 		drawBit(ctx, i, xOff, yOff, border, bitSize, 0);
 	}
 }
@@ -545,17 +559,17 @@ function drawFill(ctx, w, h, style, operation="source-over") {
  * Draws post-processing effects
  */
 function drawPostEffects(ctx, w, h) {
-	composite(ctx, scanTexture, w, h, "overlay");
+	composite(ctx, effectsTexture, w, h, "overlay");
 }
 
-function drawGameScreen(ctx, w, h) {
+function drawGameScreen(ctx, w, h, yStart) {
 	calcGridData(w,h);
 	drawFill(ctx, w, h, pal.stringWipe);
-	drawBorder(ctx, w, h);
-	drawScoreboard(ctx, w, h);
-	drawGrid(ctx, w, h);
-	drawControls(ctx, w, h);
-	drawGlitches(ctx, w, h);
+	drawBorder(ctx, w, h, yStart);
+	drawScoreboard(ctx, w, h, yStart);
+	drawGrid(ctx, yStart);
+	drawControls(ctx, yStart);
+	drawGlitches(ctx, w, h, yStart);
 }
 
 /**
@@ -564,26 +578,16 @@ function drawGameScreen(ctx, w, h) {
  * @param int w width of framebuffer
  * @param int h height of framebuffer
  */
-function drawTitleScreen(ctx, w, h) {
+function drawTitleScreen(ctx, w, h, yStart) {
 	calcGridData(w,h);
 	drawFill(ctx, w, h, pal.stringWipe);
-	drawBorder(ctx, w, h);
-	drawTitleGrid(ctx, w, h);
-	drawTitleText(ctx, w, h);
+	drawBorder(ctx, w, h, yStart);
+	drawTitleGrid(ctx, yStart);
+	drawTitleText(ctx, yStart);
 }
 
 /**
- * Draws the vingette effect.
- * @param CanvasRenderingContext2D ctx framebuffer being drawn to
- * @param int w width of framebuffer
- * @param int h height of framebuffer
- */
-function drawVingette(ctx, w, h) {
-	composite(ctx, vingCanvas, w, h, "overlay");
-}
-
-/**
- * Draws the vingette effect.
+ * Draws the interlace mask.
  * @param CanvasRenderingContext2D ctx framebuffer being drawn to
  * @param int w width of framebuffer
  * @param int h height of framebuffer
@@ -593,16 +597,86 @@ function drawInterlaceMask(ctx, mask, w, h) {
 	drawFill(ctx, w, h, mask, "source-in");
 }
 
+function drawPrerollStage(ctx, text, pauseTime, startLine, scrollOff) {
+	var sub, lineCount, i = 0, stop = prerollStep+startLine, yStart = 0;
+	lineCount = text.length - 1;
+	if(scrollOff && stop > lineCount) yStart = -8*(stop - lineCount);
+	for(; i < stop; ++i) {
+		if(i >= lineCount) {
+			prerollLine = text[lineCount];
+			sub = prerollLine + ".".repeat(stop - lineCount);
+			ctx.fillText(sub, LW, (i*8+LW)+LW*2+yStart);
+			break;
+		}
+		else {
+			prerollLine = text[i];
+			if(i+1 == stop) sub = prerollLine.substr(0, ~~(prerollLine.length / prerollLinePos));
+			else sub = prerollLine;
+			ctx.fillText(sub, LW, (i*8+LW)+LW*2+yStart);
+		}
+	}
+	return lineCount+pauseTime;
+}
+
+function drawPrerollText(ctx, w, h) {
+	var fontSize = 8, speed = 4, lines = 0;
+
+	drawFill(ctx, w, h, pal.stringWipe);
+	ctx.font = fontSize+"px 'Press Start 2P'";
+	ctx.fillStyle = pal.stringMid;
+
+	switch(prerollStage) {
+		case 0:
+			lines = drawPrerollStage(ctx, prerollText.post, FPS/2, 0, false); 
+		break;
+		case 1:
+			lines = drawPrerollStage(ctx, prerollText.memcheck, FPS/3, prerollText.post.length, true);
+		break;
+		case 2:
+			lines = drawPrerollStage(ctx, prerollText.startup, FPS/3, 0, false);
+		break;
+		case 3:
+			lines = drawPrerollStage(ctx, prerollText.errors, 0, prerollText.startup.length, false); 
+		break;
+		case 4:
+			lines = drawPrerollStage(ctx, prerollText.overwrite, 0, prerollText.startup.length, false); 
+		break;
+		case 5:
+			lines = drawPrerollStage(ctx, prerollText.display, FPS/2, 2, false); 
+		break;
+		case 6:
+			lines = drawPrerollStage(ctx, prerollText.dmi, FPS/2, 2, true); 
+			TEXT_FINAL_ROLL = max(0, prerollStep - prerollText.dmi.length)*8;
+
+		break;
+		default: TEXT_MODE = 0;
+	}
+
+	if(prerollStep >= lines) {
+		prerollStep = 0;
+		prerollLinePos = 1;
+		prerollStage++;
+		prerollLinePos = 1;
+	}
+	else if(frameCount % speed === 0) {
+		prerollStep++;
+		prerollLinePos = speed-frameCount%speed;
+	}
+}
+
 function animate() {
 	var curCtx, curCanvas;
 	if(PAUSE) return;
+	if(TEXT_MODE) {
+		drawPrerollText(compositeCtx, BW, BH, 0);
+	}
 	if(GAME_STARTED) {
 		info = ops.stateInfo();
-		drawGameScreen(compositeCtx, BW, BH);
+		drawGameScreen(compositeCtx, BW, BH, 0);
 	}
-	else {
+	else if(TEXT_FINAL_ROLL) {
 		info = ops.logoInfo();
-		drawTitleScreen(compositeCtx, BW, BH);
+		drawTitleScreen(compositeCtx, BW, BH, BH - TEXT_FINAL_ROLL);
 	}
 	//drawVingette(compositeCtx, BW, BH);
 
