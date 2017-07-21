@@ -3,10 +3,11 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,700,300italic,400italic,700italic);
 
 $content-padding: 1em;
-html, body {height:100%; margin:0; padding:0;}
-body {font-family:'Roboto', sans-serif; color:rgba(11,19,43,1);}
+$textshadow: 0 0.01em 0.02em rgba(19,23,40,0.5);
+html, body {margin:0; padding:0;}
+body {font-family:'Roboto', sans-serif; color:rgba(235,240,255,1);}
 
-h1,h2,h3,h4,h5,h6 {font-weight:bold; font-family:'Oswald', sans-serif; margin:.5em 0 .5em 0;}
+h1,h2,h3,h4,h5,h6 {font-weight:bold; font-family:'Oswald', sans-serif; margin:.5em 0 .5em 0; text-shadow:$textshadow;}
 h1 {font-size:2.5em;}
 h2 {font-size:2.0em;}
 h3 {font-size:1.5em;}
@@ -16,24 +17,32 @@ h6 {font-size:0.8em;}
 p {line-height:1.2em; margin:1em;}
 a {color: rgba(50,80,107,1);}
 
-#background {position:absolute; top:0px; left:0px; z-index:-1; width:100%; height:100%; background:rgba(72,72,72,1); margin:0; padding:0; overflow:hidden;
-	#webglCanvas {width:100%; height:100%; display:block; position:absolute; top:0; left:0;}
+canvas#background {width:100%; height:100vh; top:0; left:0; background-color:red; position:fixed; z-index:-1;}
+
+header {width:100%; height:67vh; text-align:center; padding-top:33vh;
+	h1 {font-size:8em;}
+	p {font-size:3em;text-shadow:$textshadow;}
 }
-#content {box-sizing:border-box; width:50%; padding:$content-padding; background:rgba(256,256,256,0.9); height:100%;
-	.inner {position:relative; top:50%; transform:translateY(-50%); text-align:center;}
-	#networks {
-		a {font-family:'Oswald', sans-serif; font-size:1.35em; text-decoration:none; text-transform:uppercase;
-			img {width:1em; height:1em; margin-left:1em; margin-right:.2em;}
+nav {
+	position:fixed; width:100%; text-align:center; top:0; left:0;
+	ul {list-style-type:none; padding:0 4em 0.5em 4em; height:1.5em; width:auto; display:inline-block;
+		background:white;
+		background:
+			linear-gradient(45deg, transparent 2em, white 0) bottom left,
+			linear-gradient(315deg, transparent 2em, white 0) bottom right;
+		background-size: 51% 100%;
+		background-repeat:no-repeat;
+
+		li {display:inline-block; padding:.5em; text-align:center;
+			a {text-decoration:none; text-transform:uppercase;}
 		}
 	}
-	hr {width:95%; height:2px; border:0; margin:1em auto; display:block; background:rgba(50,80,107,1);}
+}
+section#about {
+	p {height:40vh; margin-top:60vh; font-size:4em; text-align:right; vertical-align:center;text-shadow:$textshadow;}
 }
 
 @media screen and (max-width:1280px) {
-	.extra {display:none;}
-	#content {width:100%;}
-	#networks a {display:block;}
-	#networks a img {margin-left:0;}
 }
 
 @media screen and (min-resolution:192dpi) {
