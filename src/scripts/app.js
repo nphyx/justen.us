@@ -50,8 +50,8 @@ function drawClouds() {
 function generateMountains() {
 	for(let i = 0; i < MOUNTAIN_COUNT; ++i) {
 		mountains.push({
-			width:(0.5+(random()/2)),
-			height:(0.5+(random()/2))*0.3,
+			width:(0.5+(random()*0.5))*0.75,
+			height:(0.25+(random()*0.75))*0.7,
 			x:random(),
 			y:random(),
 			z:random(),
