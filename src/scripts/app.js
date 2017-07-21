@@ -1,8 +1,10 @@
 "use strict";
 const CLOUD_COUNT = 30;
+const MOUNTAIN_COUNT = 7;
 let body, canvas, ctx, W, H, scrollPercent, R, G, B;
 let {random, abs, min} = Math;
 let clouds = [];
+let mountains = [];
 
 function generateClouds() {
 	for(let i = 0; i < CLOUD_COUNT; ++i) {
@@ -38,7 +40,42 @@ function drawClouds() {
 		G = ~~(63*z)+192;
 		B = ~~(16*z)+239;
 		ctx.fillStyle = "rgba("+R+","+G+","+B+","+a+")";
-		ctx.fillRect(x*W, y*H, width*z*W, height*z*W);
+		let ypos = y * (
+			H - (H*scrollPercent*0.5)
+		) - H*scrollPercent*0.25;
+		ctx.fillRect(x*W, ypos, width*z*W, height*z*W);
+	}
+}
+
+function generateMountains() {
+	for(let i = 0; i < MOUNTAIN_COUNT; ++i) {
+		mountains.push({
+			width:(0.5+(random()/2)),
+			height:(0.5+(random()/2))*0.3,
+			x:random(),
+			y:random(),
+			z:random(),
+		});
+		mountains.sort((a, b) => a.z - b.z);
+	}
+}
+
+function drawMountains() {
+	if(1) { //scrollPercent > 0.5) {
+		let hmod = H*(0.5-(scrollPercent*0.5));
+		for(let i = 0, len = mountains.length; i < len; ++i) {
+			let {x, y, z, width, height} = mountains[i];
+			R = ~~(127*z)+92;
+			G = ~~(127*z)+92;
+			B = ~~(64*z)+192;
+			ctx.beginPath();
+			ctx.moveTo(x*W, H-(H*height)+hmod);
+			ctx.lineTo((x-(width/2))*W,H+hmod);
+			ctx.lineTo((x+(width/2))*W,H+hmod);
+			ctx.closePath();
+			ctx.fillStyle = "rgb("+R+","+G+","+B+")";
+			ctx.fill();
+		}
 	}
 }
 
@@ -63,6 +100,7 @@ function animate() {
 	scrollPercent = body.scrollTop/(body.scrollHeight-H);
 	moveClouds();
 	drawBackground();
+	drawMountains();
 	drawClouds();
 }
 
@@ -71,6 +109,7 @@ function init() {
 	body = document.getElementsByTagName("body")[0];
 	ctx = canvas.getContext("2d");
 	generateClouds();
+	generateMountains();
 	animate();
 }
 
