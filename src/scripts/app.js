@@ -1,10 +1,13 @@
 "use strict";
 const CLOUD_COUNT = 30;
 const MOUNTAIN_COUNT = 7;
+import * as triangles from "./triangles";
+const tts = require("text-to-svg");
 let body, canvas, ctx, W, H, scrollPercent, R, G, B;
 let {random, abs, min} = Math;
 let clouds = [];
 let mountains = [];
+let sections;
 
 function generateClouds() {
 	for(let i = 0; i < CLOUD_COUNT; ++i) {
@@ -64,7 +67,7 @@ function drawMountains() {
 	if(1) { //scrollPercent > 0.5) {
 		let hmod = H*(0.5-(scrollPercent*0.5));
 		for(let i = 0, len = mountains.length; i < len; ++i) {
-			let {x, y, z, width, height} = mountains[i];
+			let {x, z, width, height} = mountains[i];
 			R = ~~(127*z)+92;
 			G = ~~(127*z)+92;
 			B = ~~(64*z)+192;
@@ -93,6 +96,34 @@ function drawBackground() {
 	ctx.fillRect(0, 0, W, H);
 }
 
+function inView(bounds) {
+	return (
+		(bounds.bottom > 0 && bounds.top < window.innerHeight) &&
+		(bounds.right > 0 && bounds.left < window.innerWidth)
+	);
+}
+
+function drawHeaderBG() {
+	let bounds, h2, height, path;
+	sections.forEach((section) => {
+		bounds = section.getBoundingClientRect();
+		if(inView(bounds)) {
+			h2 = section.querySelector("h2");
+			if(h2) {
+				height = h2.clientHeight + h2.offsetHeight;
+				ctx.fillStyle = "yellow";
+				ctx.fillRect(0, bounds.top, W, height);
+				path = section.querySelector("h2 path");
+				if(path) path.style.strokeDashoffset = 0;
+			}
+		}
+		else {
+			path = section.querySelector("h2 path");
+			if(path) path.style.strokeDashoffset = path.getTotalLength();
+		}
+	});
+}
+
 function animate() {
 	requestAnimationFrame(animate);
 	W = canvas.width = canvas.clientWidth;
@@ -100,16 +131,68 @@ function animate() {
 	scrollPercent = body.scrollTop/(body.scrollHeight-H);
 	moveClouds();
 	drawBackground();
+	/*
 	drawMountains();
 	drawClouds();
+	*/
+	drawHeaderBG();
+}
+
+function animateLineArtPath(path) {
+	let length = path.getTotalLength();
+	path.style.transition = "none";
+	path.style.strokeDasharray = length + " " + length;
+	path.style.strokeDashoffset = length;
+	path.getBoundingClientRect();
+	path.style.strokeDashoffset = 0;
+	path.style.transition = "stroke-dashoffset 7s ease-in-out";
+}
+
+function initHeaders(tts) {
+	let text, svgEl, path, length;
+	let headers = document.querySelectorAll("section h2");
+	let div = document.createElement("div");
+	headers = Array.prototype.slice.apply(headers);
+	headers.forEach((header) => {
+		text = header.childNodes[0].data;
+		div.innerHTML = tts.getSVG(text, {
+			fontSize:128,
+			y:128
+		});
+		svgEl = div.childNodes[0];
+		svgEl.style.overflow = "visible";
+		path = svgEl.querySelector("path");
+		path.style.stroke = "white"; //header.style.color;
+		path.style.strokeWidth = 2;
+		path.style.fill = "none";
+		length = path.getTotalLength();
+		path.style.strokeDasharray = length + " " + length;
+		path.style.strokeDashoffset = length;
+		path.style.transition = "stroke-dashoffset 7s ease-in-out";
+		header.innerHTML = "";
+		header.appendChild(svgEl);
+		//animateLineArtPath(path);
+	});
+	/*
+	setInterval(() => {
+		Array.prototype.slice.apply(
+			document.querySelectorAll("path")
+		).forEach(animateLineArtPath);
+	}, 7000);
+	*/
 }
 
 function init() {
+	tts.load("https://fonts.gstatic.com/s/poiretone/v4/HrI4ZJpJ3Fh0wa5ofYMK8RsxEYwM7FgeyaSgU71cLG0.woff", function(err, tts) {
+		if(err) console.log(err);
+		else initHeaders(tts);
+	});
 	canvas = document.getElementById("background");
 	body = document.getElementsByTagName("body")[0];
 	ctx = canvas.getContext("2d");
 	generateClouds();
 	generateMountains();
+	sections = Array.prototype.slice.apply(document.querySelectorAll("header, section"));
 	animate();
 }
 

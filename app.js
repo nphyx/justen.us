@@ -24,6 +24,7 @@ var browserifyOptions = {
 	gzip:true,
 	debug:true,
 	cache:false,
+	ignoreMissing:true,
 	production:{
 		precompile:true,
 		minify:true,
