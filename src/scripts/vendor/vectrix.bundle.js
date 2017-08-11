@@ -1,1 +1,0 @@
-../../../node_modules/@nphyx/vectrix/dist/web/vectrix.bundle.js

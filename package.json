@@ -2,30 +2,31 @@
   "name": "justen.us",
   "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "start": "node ./bin/www",
-    "start-dev": "NODE_ENV=\"development\" ./bin/www-basic"
-  },
-  "dependencies": {
+  "author": "Justen Robertson <nphyxx@gmail.com>",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "@nphyx/vectrix": "^0.2.1",
     "babel-core": "^6.25.0",
-    "babel-plugin-transform-regenerator": "^6.24.1",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-polyfill": "^6.23.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-runtime": "^6.23.0",
-    "body-parser": "~1.13.2",
-    "cookie-parser": "~1.3.5",
-    "debug": "~2.2.0",
-    "express": "~4.13.1",
-    "express-babelify-middleware": "^0.2.1",
-    "express-bunyan-logger": "^1.3.2",
-    "letsencrypt": "^1.5.8",
-    "letsencrypt-express": "~1.0.8",
-    "node-sass": "^3.13.1",
-    "node-sass-middleware": "~0.9.7",
-    "pug": "^2.0.0-rc.2",
-    "serve-favicon": "^2.3.2",
-    "text-to-svg": "^3.1.3"
+    "babel-loader": "^6.0.0",
+    "babel-preset-es2015": "^6.0.0",
+    "del": "^2.2.2",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^6.0.0",
+    "gulp-babel-istanbul": "^1.0.0",
+    "gulp-inject-modules": "^0.1.1",
+    "gulp-less": "^3.3.0",
+    "gulp-mocha": "^2.2.0",
+    "gulp-pug": "*",
+    "gulp-replace": "^0.5.4",
+    "gulp-sass": "^3.1.0",
+    "jsdox": "^0.4.9",
+    "jshint": "*",
+    "mocha": "*",
+    "pug": "*",
+    "should": "*",
+    "text-to-svg": "^3.1.3",
+    "webpack": "^2.5.0"
   },
   "jshintConfig": {
     "curly": false,
@@ -44,7 +45,6 @@
     "globals": {
       "unused": true,
       "AudioContext": false,
-      "mocha": false,
       "chai": false,
       "describe": false,
       "define": false,
@@ -57,5 +57,10 @@
       "console": false
     }
   },
-  "devDependencies": {}
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },
+  "license": "GPL 3.0"
 }

@@ -3,4 +3,5 @@ npm-debug.log
 letsencrypt.config
 public/scripts/*
 public/styles/*
+dist/
 *.sw*

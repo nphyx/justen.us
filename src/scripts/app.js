@@ -2,12 +2,19 @@
 const CLOUD_COUNT = 30;
 const MOUNTAIN_COUNT = 7;
 import * as triangles from "./triangles";
-const tts = require("text-to-svg");
+const tts = require("../../node_modules/text-to-svg");
 let body, canvas, ctx, W, H, scrollPercent, R, G, B;
 let {random, abs, min} = Math;
 let clouds = [];
 let mountains = [];
 let sections;
+let triangle = triangles.create();
+triangle[0][0] = 100;
+triangle[0][1] = 100;
+triangle[1][0] = 200;
+triangle[1][0] = 100;
+triangle[2][0] = 100;
+triangle[2][1] = 200;
 
 function generateClouds() {
 	for(let i = 0; i < CLOUD_COUNT; ++i) {
