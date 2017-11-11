@@ -1,20 +1,16 @@
 extends layout
 block content
   canvas#background
-  header
-    h1 Justen Robertson
-    p freelance: designer, developer, et cetera
-  nav
-    ul
-      li: a(href="#about") About
-      li: a(href="#clients") Clients
-      li: a(href="#projects") Projects
-      li: a(href="#code") Code
-  section#about
-    p I can help you build your castles in the sky ...
-    p ... and squash the bugs in your basement.
-    p I can work alone on small projects, 
-    p or as part of a larger team.
+  header#about
+    .container
+      include ../assets/logo.svg
+      //img(src="/assets/logo.svg" alt="Justen Robertson, freelance designer, developer, et cetera")
+      nav
+        ul
+          li: a(href="#about") About
+          li: a(href="#clients") Clients
+          li: a(href="#projects") Projects
+          li: a(href="#code") Code
   section#clients
     h2 Clients
     div.entries
@@ -27,6 +23,7 @@ block content
           li Random House
           li Worthy Publishing
           li Thomas Nelson
+
       div#personalities
         h3 Personalities 
         ul
@@ -36,6 +33,7 @@ block content
           li Red Hot Chili Peppers
           li Shania Twain
           li Taylor Swift
+
       div#small-business
         h3 Small Businesses
         ul
@@ -44,46 +42,64 @@ block content
           li InSage, LLC.
           li Mad Dancer Media, Inc.
           li Tennessee Wine &amp; Spirits
+
       div#medicine.half
         h3 Medicine
         ul
           li Kailos Genetics
           li Vanderbilt Hospital
           li Williamson Medical Center
+
       div#charity.half
-        h3 Non-Profit Organizations
+        h3 Non-Profits
         ul
           li Tug McGraw Foundation
           li Compassion International
           li Ready or Not Foundation
 
-    p I've worked for clients in a wide range of industries and budgets, from some of the biggest names in the music and publishing industry to local small businesses, both directly and as a subcontractor.
-    p Most of my work has been as a programmer and system administrator, but I also do some web and print design as needed.
   section#projects
     h2 Projects
     div.entries
       div#ops.project
         h3 Ops
         p Ops is a pattern-matching puzzle game written in javascript + canvas.
+        div.links #[a(href="https://nphyx.github.io/ops") play] #[a(href="https://github.com/nphyx/ops") source]
+
       div#photonomix.project
         h3 Photonomix
         p An artificial life simulation.
-    p I work on a bunch of things in my spare time to keep my skills sharp. Besides my open source code and my offline projects, I like to build small games and simulations.
+        div.links #[a(href="https://nphyx.github.io/photonomix") play] #[a(href="https://github.com/nphyx/photonomix") source]
+
+      div#scraps.project
+        h3 Scraps
+        p A post-apocalyptic sidescroller.
+        div.links #[a(href="https://nphyx.github.io/scraps") play] #[a(href="https://github.com/nphyx/scraps") source]
+
   section#code
     h2 Code
     div.entries
       div#vectrix
-        img
         h3 Vectrix
         p A convenient, fast vector mathematics library for Nodejs and browsers.
+        div.links #[a(href="https://github.com/nphyx/vectrix") github] #[a(href="https://npmjs.com/package/@nphyx/vectrix") npm]
+
       div#voctopus
-        img
         h3 Voctopus
         p A high performance implementation of sparse voxel octrees in Javascript.
+        div.links #[a(href="https://github.com/nphyx/voctopus") github] #[a(href="https://npmjs.com/package/@nphyx/voctopus") npm]
+
       div#jsvolume
-        img
         h3 JSVolume
         p Volumetric coordinate-aligned grids with functional interfaces.
-    p You can find all my published code on #[a(href="https://github.com/nphyx") github].
+        div.links #[a(href="https://github.com/nphyx/jsvolume") github] #[a(href="https://npmjs.com/package/@nphyx/jsvolume") npm]
+
+      div#pxene
+        h3 Pxene
+        p A collection of tools for creating 2d games and simulations.
+        div.links #[a(href="https://github.com/nphyx/pxene") github] #[a(href="https://npmjs.com/package/@nphyx/pxene") npm]
+
+      div#and-more
+        h3 .. and more
+        p You can find all my published code on #[a(href="https://github.com/nphyx") github].
   footer
-    p Copyright 2017 Justen Robertson, CC-BY-SA.
+    p Copyright &copy;2017 Justen Robertson, #[a(href="https://creativecommons.org/licenses/by-sa/3.0/") CC-BY-SA].

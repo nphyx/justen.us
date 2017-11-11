@@ -8,10 +8,8 @@ const del = require("del");
 const path = require("path");
 const babelRegister = require("babel-core/register");
 const mocha = require("gulp-mocha");
-/*
-var exec = require("child_process").exec;
-var istanbul = require("gulp-babel-istanbul");
-*/
+const spawn = require("child_process").spawn;
+const svgmin = require("gulp-svgmin");
 
 const webpackConfig = {
 	entry:path.resolve(__dirname, "target/scripts/app.js"),
@@ -38,6 +36,16 @@ gulp.task("clean:markup", function() {
 	return del(["dist/*.html"]);
 });
 
+gulp.task("clean:assets", function() {
+	return del(["dist/assets/*.*"]);
+});
+
+gulp.task("svgmin", function() {
+	return gulp.src(["src/assets/inkscape/*.svg"])
+		.pipe(svgmin({plugins:[{cleanupIDs:false}]}))
+		.pipe(gulp.dest("src/assets/"))
+});
+
 gulp.task("scripts", ["clean:scripts"], function() {
 	return gulp.src(["src/scripts/*js"])
 	.pipe(babel())
@@ -56,7 +64,12 @@ gulp.task("styles", ["clean:styles"], function() {
 	.pipe(gulp.dest("dist/styles/"))
 });
 
-gulp.task("webpack", ["scripts", "markup", "styles"], function(callback) {
+gulp.task("assets", ["clean:assets", "svgmin"], function() {
+	return gulp.src("src/assets/*.*")
+	.pipe(gulp.dest("dist/assets/"));
+});
+
+gulp.task("webpack", ["scripts", "markup", "styles", "assets"], function(callback) {
 	webpack(webpackConfig, function(err) {
 		if(err) console.log(err);
 		callback();
@@ -71,6 +84,15 @@ gulp.task("test", function() {
 		js:babelRegister
 		}
 	}));
+});
+
+gulp.task("local-server", function(cb) {
+	const server = spawn("python", ["-m","http.server"], {
+		cwd:"dist",
+		detached:true
+	});
+	server.unref();
+	cb();
 });
 
 gulp.task("default", ["webpack"]);
