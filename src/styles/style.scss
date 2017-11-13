@@ -2,6 +2,7 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,700,300italic,400italic,700italic);
 @import url('https://fonts.googleapis.com/css?family=Poiret+One');
 
+/** variables & mixins **/
 $content-padding: 1em;
 $textshadow: 0 0 0.3em rgba(255,255,255,0.3);
 $rhythm-base: 24px;
@@ -26,110 +27,30 @@ $menu-disappears-below:612px; // breakpoint where the navigation goes away
 @mixin hcenter {display:inline-block; position:relative; left:50%; transform:translateX(-50%);}
 @mixin unhcenter {left:0%; transform:translateX(0%);}
 
-/** svg animation keyframes **/
-@keyframes logo-shadow {
-	  0% {opacity:0.2;}
-	 39% {opacity:0.9;}
-	 40% {opacity:1.0;}
-	 45% {opacity:0.7;}
-	 47% {opacity:1.0;}
-	 49% {opacity:0.5;}
-	 72% {opacity:0.7;}
-	 73% {opacity:1.0;}
-	 74% {opacity:0.7;}
-	100% {opacity:0.2;}
-}
-
-@keyframes logo-body {
-	  0% {opacity:0.93;}
-	 39% {opacity:0.97;}
-	 40% {opacity:1.0;}
-	 45% {opacity:0.97;}
-	 47% {opacity:1.0;}
-	 49% {opacity:0.97;}
-	 72% {opacity:0.97;}
-	 73% {opacity:1.0;}
-	 74% {opacity:0.97;}
-	100% {opacity:0.93;}
-}
-
-/** svg animation keyframes **/
-@keyframes flicker {
-	  0% {text-shadow:0 0 0.25em rgba(255,255,255,0.2); opacity:0.93;}
-	 39% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.97;}
-	 40% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
-	 45% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
-	 47% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
-	 49% {text-shadow:0 0 0.25em rgba(255,255,255,0.5); opacity:0.97;}
-	 72% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
-	 73% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
-	 74% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
-	100% {text-shadow:0 0 0.25em rgba(255,255,255,0.2); opacity:0.93;}
-}
-
-@keyframes flicker-neon-border {
-	  0% {box-shadow:0 0 0.5em rgba(255,255,255,0.2), inset 0 0 0.5em rgba(255,255,255,0.2); opacity:0.93; border:2px solid white; border-radius:6px;}
-	 39% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9); opacity:0.97;}
-	 40% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
-	 45% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
-	 47% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
-	 49% {box-shadow:0 0 0.5em rgba(255,255,255,0.5), inset 0 0 0.5em rgba(255,255,255,0.5); opacity:0.97;}
-	 72% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
-	 73% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
-	 74% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
-	100% {box-shadow:0 0 0.5em rgba(255,255,255,0.2), inset 0 0 0.5em rgba(255,255,255,0.2); opacity:0.93; border:2px solid white; border-radius:6px;}
-}
-
-@keyframes steady-neon-border {
-	  0% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9);
-		    opacity:0.93; border:2px solid white; border-radius:6px;}
-	 50% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0);
-	      opacity:1.0; text-shadow:0 0 0.25em rgba(255,255,255,0.9);}
-	100% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9);
-	      opacity:0.93; border:2px solid white; border-radius:6px;} 
-}
-
-@keyframes steady-link {
-	  0% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.9;}
-	 50% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
-	100% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.9;}
-}
-
-@keyframes fade-in {
-	from {opacity:0;}
-	to {opacity:1;}
-}
-
+/** default styles & layout **/
 html {@include rhythm(1, 0, 0);}
 html * {margin:0; padding:0;}
 body {font-family:'Roboto', sans-serif; color:white; max-width:100%; overflow-x:hidden;}
 h1,h2,h3,h4,h5,h6 {font-family:'Poiret One', sans-serif; mix-blend-mode:screen;}
-h1,h2 {animation:2s flicker infinite; text-shadow:$textshadow;}
 h1 {@include rhythm(4, 1); font-family:'Poiret One', sans-serif;}
 h2 {@include rhythm(3, 1);}
 h3 {@include rhythm(2, 1);}
 h4 {@include rhythm(0.75, 0.75);}
 h5 {@include rhythm(0.50, 0.50);}
 ul {list-style-type:none;}
-a, a:hover, a:focus, a:visited {color:white; text-decoration:none; animation:2s flicker infinite;}
-a:hover, a:focus {animation:2s steady-link infinite;}
-
+a, a:hover, a:focus, a:visited {color:white; text-decoration:none;}
 canvas#background {width:100%; height:100vh; top:0; left:0; position:fixed; z-index:-1; background:black;}
-
 header, section, footer {margin-left:auto; margin-right:auto; max-width:10in;}
 
-svg {
-	#body {animation:2s logo-body infinite;}
-	#shadow {animation:2s logo-shadow infinite;}
-}
 
+/** content styles **/
 header {width:100%; height:$rhythm-base * 10;
 	@media screen and (max-width:$menu-disappears-below) {height:$rhythm-base * 6.5;}
 	.container {height:$rhythm-base * 10; transition:height $head-speed ease; 
 		width:100%; max-width:10in; margin:0 auto; top:0; bottom:calc(100vh - #{$rhythm-base * 10})
 	}
 	svg, nav {@include hcenter; transition:all $head-speed ease-out;}
-	svg {animation:1s fade-in; width:auto; max-width:100%; 
+	svg {width:auto; max-width:100%; 
 		max-height:$rhythm-base * 5; margin-top:$rhythm-base * 3; mix-blend-mode:screen;
 		transition-property:margin-top, margin-left, transform, left, max-height, max-width, width;
 		text {opacity:1; transition:opacity $head-speed ease;}
@@ -139,7 +60,7 @@ header {width:100%; height:$rhythm-base * 10;
 	nav {width:auto; z-index:100; bottom:0; right:auto;
 		ul {list-style-type:none; padding:0 4em 0.5em 4em; height:1.5em; width:auto; display:inline-block; @include rhythm(2); font-family:'Poiret One', sans-serif; 
 			li {display:inline-block; padding:.5em; text-align:center;
-				a {text-decoration:none; text-transform:uppercase;color:white;animation:none;}
+				a {text-decoration:none; text-transform:uppercase;color:white;}
 			}
 		}
 		@media screen and (max-width:$menu-disappears-below) {
@@ -215,4 +136,105 @@ section {
 footer {width:100%; @include rhythm(1, 1, 1); text-align:center; 
 	background:linear-gradient(0deg, rgba(0,0,0,.9), rgba(0,0,0,.9) 95%, transparent);
 	@media screen and (max-width:$menu-disappears-below) {padding-bottom:$rhythm-base * 3;}
+}
+
+/** animation stuff **/
+@keyframes logo-shadow {
+	  0% {opacity:0.2;}
+	 39% {opacity:0.9;}
+	 40% {opacity:1.0;}
+	 45% {opacity:0.7;}
+	 47% {opacity:1.0;}
+	 49% {opacity:0.5;}
+	 72% {opacity:0.7;}
+	 73% {opacity:1.0;}
+	 74% {opacity:0.7;}
+	100% {opacity:0.2;}
+}
+
+@keyframes logo-body {
+	  0% {opacity:0.93;}
+	 39% {opacity:0.97;}
+	 40% {opacity:1.0;}
+	 45% {opacity:0.97;}
+	 47% {opacity:1.0;}
+	 49% {opacity:0.97;}
+	 72% {opacity:0.97;}
+	 73% {opacity:1.0;}
+	 74% {opacity:0.97;}
+	100% {opacity:0.93;}
+}
+
+/** svg animation keyframes **/
+@keyframes flicker {
+	  0% {text-shadow:0 0 0.25em rgba(255,255,255,0.2); opacity:0.93;}
+	 39% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.97;}
+	 40% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
+	 45% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
+	 47% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
+	 49% {text-shadow:0 0 0.25em rgba(255,255,255,0.5); opacity:0.97;}
+	 72% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
+	 73% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
+	 74% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
+	100% {text-shadow:0 0 0.25em rgba(255,255,255,0.2); opacity:0.93;}
+}
+
+@keyframes flicker-neon-border {
+	  0% {box-shadow:0 0 0.5em rgba(255,255,255,0.2), inset 0 0 0.5em rgba(255,255,255,0.2); opacity:0.93; border:2px solid white; border-radius:6px;}
+	 39% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9); opacity:0.97;}
+	 40% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
+	 45% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
+	 47% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
+	 49% {box-shadow:0 0 0.5em rgba(255,255,255,0.5), inset 0 0 0.5em rgba(255,255,255,0.5); opacity:0.97;}
+	 72% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
+	 73% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
+	 74% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
+	100% {box-shadow:0 0 0.5em rgba(255,255,255,0.2), inset 0 0 0.5em rgba(255,255,255,0.2); opacity:0.93; border:2px solid white; border-radius:6px;}
+}
+
+@keyframes steady-neon-border {
+	  0% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9);
+		    opacity:0.93; border:2px solid white; border-radius:6px;}
+	 50% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0);
+	      opacity:1.0; text-shadow:0 0 0.25em rgba(255,255,255,0.9);}
+	100% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9);
+	      opacity:0.93; border:2px solid white; border-radius:6px;} 
+}
+
+@keyframes steady-link {
+	  0% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.9;}
+	 50% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
+	100% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.9;}
+}
+
+@keyframes fade-in {
+	  0% {opacity:0;}
+	 29% {opacity:0;}
+	 30% {opacity:0.3;}
+	 32% {opacity:0.1;}
+	 35% {opacity:0.5;}
+	 38% {opacity:0.3;}
+	 78% {opacity:0.9;}
+	 79% {opacity:0.8;}
+	100% {opacity:1;}
+}
+
+header, section {opacity:0;
+	h1, h2 {animation:2s flicker infinite 2s paused; text-shadow:0 0 0.25em rgba(255,255,255,0.7);}
+	svg {
+		#body {animation:2s logo-body infinite 2s paused;}
+		#shadow {animation:2s logo-shadow infinite 2s paused;}
+	}
+}
+
+section {
+	a, a:visited {animation:2s flicker infinite paused;}
+	a:hover, a:focus {animation:2s steady-link infinite paused;}
+	div.links a {animation:2s flicker-neon-border infinite paused, 2s flicker infinite paused;
+		&:hover, &:focus {animation:2s steady-link infinite paused, 2s steady-neon-border infinite paused;}
+	}
+}
+
+header, section.in-view {animation:2s fade-in ease; opacity:1;
+	h1, h2, svg #body, svg #shadow, a {animation-play-state:running !important;}
 }

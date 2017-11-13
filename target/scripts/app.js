@@ -60,14 +60,20 @@ function moveClouds() {
 }
 
 function drawClouds() {
+	var a = void 0,
+	    x = void 0,
+	    y = void 0,
+	    z = void 0,
+	    width = void 0,
+	    height = void 0;
 	for (var i = 0, len = clouds.length; i < len; ++i) {
-		var a = 1; //0.75 + (0.25*Math.sin((FRAMECOUNT/25)+i)) + (0.25*Math.cos((FRAMECOUNT/30)+i));
-		var _clouds$i = clouds[i],
-		    x = _clouds$i.x,
-		    y = _clouds$i.y,
-		    z = _clouds$i.z,
-		    width = _clouds$i.width,
-		    height = _clouds$i.height;
+		a = 1; //0.75 + (0.25*Math.sin((FRAMECOUNT/25)+i)) + (0.25*Math.cos((FRAMECOUNT/30)+i));
+		var _clouds$i = clouds[i];
+		x = _clouds$i.x;
+		y = _clouds$i.y;
+		z = _clouds$i.z;
+		width = _clouds$i.width;
+		height = _clouds$i.height;
 
 		R = G = B = Math.round(6 * z) + 3; //+192;
 		ctx.fillStyle = "rgba(" + R + "," + G + "," + B + "," + a + ")";
@@ -86,22 +92,10 @@ function inView(bounds) {
 	return bounds.bottom > 0 && bounds.top < window.innerHeight && bounds.right > 0 && bounds.left < window.innerWidth;
 }
 
-function animateHeaders() {
-	var bounds = void 0,
-	    h2 = void 0,
-	    path = void 0;
+function checkInView() {
+	var sections = document.querySelectorAll("section");
 	sections.forEach(function (section) {
-		bounds = section.getBoundingClientRect();
-		if (inView(bounds)) {
-			h2 = section.querySelector("h2");
-			if (h2) {
-				path = section.querySelector("h2 path");
-				if (path) path.style.strokeDashoffset = 0;
-			}
-		} else {
-			path = section.querySelector("h2 path");
-			if (path) path.style.strokeDashoffset = path.getTotalLength();
-		}
+		if (inView(section.getBoundingClientRect())) section.classList.add("in-view");else section.classList.remove("in-view");
 	});
 }
 
@@ -109,13 +103,12 @@ function animate() {
 	var broken = false;
 	try {
 		FRAMECOUNT++;
-		W = canvas.width = canvas.clientWidth;
-		H = canvas.height = canvas.clientHeight;
+		if (W !== canvas.clientWidth) W = canvas.width = canvas.clientWidth;
+		if (H !== canvas.clientHeight) H = canvas.height = canvas.clientHeight;
 		scrollPercent = body.scrollTop / (body.scrollHeight - H);
 		moveClouds();
 		drawBackground();
 		drawClouds();
-		animateHeaders();
 	} catch (e) {
 		console.log(e);
 		broken = true;
@@ -138,8 +131,12 @@ function init() {
 	ctx.fillStyle = "black";
 	ctx.fillRect(0, 0, W, H);
 	generateClouds();
+	checkInView();
 	pinHeader();
-	window.addEventListener("scroll", pinHeader);
+	window.addEventListener("scroll", function () {
+		checkInView();
+		pinHeader();
+	});
 	document.querySelector("header div.container").addEventListener("click", function (event) {
 		if (event.target.tagName == "A") this.classList.remove("open");else this.classList.toggle("open");
 	});

@@ -45,9 +45,10 @@ function moveClouds() {
 }
 
 function drawClouds() {
+	let a, x, y, z, width, height;
 	for(let i = 0, len = clouds.length; i < len; ++i) {
-		let a = 1; //0.75 + (0.25*Math.sin((FRAMECOUNT/25)+i)) + (0.25*Math.cos((FRAMECOUNT/30)+i));
-		let {x, y, z, width, height} = clouds[i];
+		a = 1; //0.75 + (0.25*Math.sin((FRAMECOUNT/25)+i)) + (0.25*Math.cos((FRAMECOUNT/30)+i));
+		({x, y, z, width, height} = clouds[i]);
 		R = G = B = Math.round(6*z)+3;//+192;
 		ctx.fillStyle = "rgba("+R+","+G+","+B+","+a+")";
 		let ypos = y * (
@@ -70,21 +71,11 @@ function inView(bounds) {
 	);
 }
 
-function animateHeaders() {
-	let bounds, h2, path;
+function checkInView() {
+	let sections = document.querySelectorAll("section");
 	sections.forEach((section) => {
-		bounds = section.getBoundingClientRect();
-		if(inView(bounds)) {
-			h2 = section.querySelector("h2");
-			if(h2) {
-				path = section.querySelector("h2 path");
-				if(path) path.style.strokeDashoffset = 0;
-			}
-		}
-		else {
-			path = section.querySelector("h2 path");
-			if(path) path.style.strokeDashoffset = path.getTotalLength();
-		}
+		if(inView(section.getBoundingClientRect())) section.classList.add("in-view");
+		else section.classList.remove("in-view");
 	});
 }
 
@@ -92,13 +83,12 @@ function animate() {
 	let broken = false;
 	try {
 		FRAMECOUNT++;
-		W = canvas.width = canvas.clientWidth;
-		H = canvas.height = canvas.clientHeight;
+		if(W !== canvas.clientWidth) W = canvas.width = canvas.clientWidth;
+		if(H !== canvas.clientHeight) H = canvas.height = canvas.clientHeight;
 		scrollPercent = body.scrollTop/(body.scrollHeight-H);
 		moveClouds();
 		drawBackground();
 		drawClouds();
-		animateHeaders();
 	}
 	catch(e) {
 		console.log(e);
@@ -123,8 +113,12 @@ function init() {
 	ctx.fillStyle = "black";
 	ctx.fillRect(0, 0, W, H);
 	generateClouds();
+	checkInView();
 	pinHeader();
-	window.addEventListener("scroll", pinHeader);
+	window.addEventListener("scroll", function() {
+		checkInView();
+		pinHeader();
+	});
 	document.querySelector("header div.container").addEventListener("click", function(event) {
 		if(event.target.tagName == "A") this.classList.remove("open");
 		else this.classList.toggle("open");
@@ -132,4 +126,3 @@ function init() {
 }
 
 window.addEventListener("load", init);
-
