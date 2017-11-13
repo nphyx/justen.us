@@ -40,7 +40,7 @@ gulp.task("clean:assets", function() {
 	return del(["dist/assets/*.*"]);
 });
 
-gulp.task("svgmin", function() {
+gulp.task("svgmin", ["clean:assets"], function() {
 	return gulp.src(["src/assets/inkscape/*.svg"])
 		.pipe(svgmin({plugins:[{cleanupIDs:false}]}))
 		.pipe(gulp.dest("src/assets/"))
