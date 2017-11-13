@@ -1,6 +1,6 @@
-@import "reset.css";
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,700,300italic,400italic,700italic);
-@import url('https://fonts.googleapis.com/css?family=Poiret+One');
+@import url(https://fonts.googleapis.com/css?family=Poiret+One);
+@import "reset";
 
 /** variables & mixins **/
 $content-padding: 1em;
@@ -127,7 +127,7 @@ section {
 	&#find-me .entries {
 		// special breaks for this section because we don't want break to 2 columns, but have to break to 1 early
 		@media screen and (max-width:800px) {@include grid-container(repeat(3, 1fr)); margin:$rhythm-base * 2;}
-		@media screen and (max-width:650px) {@include grid-container(1fr, auto, 0);} 
+		@media screen and (max-width:$menu-disappears-below) {@include grid-container(1fr, auto, 0);} 
 		div {text-align:center;
 			svg {width:50%; height:auto;}
 		}
@@ -168,7 +168,7 @@ footer {width:100%; @include rhythm(1, 1, 1); text-align:center;
 
 /** svg animation keyframes **/
 @keyframes flicker {
-	  0% {text-shadow:0 0 0.25em rgba(255,255,255,0.2); opacity:0.93;}
+	  0% {text-shadow:0 0 0.25em rgba(255,255,255,0.5); opacity:0.93;}
 	 39% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.97;}
 	 40% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
 	 45% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
@@ -177,7 +177,7 @@ footer {width:100%; @include rhythm(1, 1, 1); text-align:center;
 	 72% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
 	 73% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
 	 74% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
-	100% {text-shadow:0 0 0.25em rgba(255,255,255,0.2); opacity:0.93;}
+	100% {text-shadow:0 0 0.25em rgba(255,255,255,0.5); opacity:0.93;}
 }
 
 @keyframes flicker-neon-border {
@@ -210,7 +210,7 @@ footer {width:100%; @include rhythm(1, 1, 1); text-align:center;
 
 @keyframes fade-in {
 	  0% {opacity:0;}
-	 29% {opacity:0;}
+	 29% {opacity:0.05;}
 	 30% {opacity:0.3;}
 	 32% {opacity:0.1;}
 	 35% {opacity:0.5;}
@@ -230,13 +230,15 @@ header, section {
 }
 
 header, section.in-view {
-	h1, h2 {animation:2s flicker infinite, 2s fade-in ease; opacity:1;} 
-	h1, h2, h3, p, a, li, svg {animation:2s fade-in ease;}
-	a, a:visited {animation:2s fade-in ease, 2s flicker infinite;}
+	h1, h2, h3, p, a, li, svg {opacity:1; animation:2s fade-in ease;}
 	a:hover, a:focus {animation:2s fade-in ease, 2s steady-link infinite;}
+	h1, h2 {animation:2s flicker infinite, 2s fade-in ease; opacity:1;} 
 	div.links a {animation:2s fade-in ease, 2s flicker-neon-border infinite 2s, 2s flicker infinite 2s;
 		&:hover, &:focus {animation:2s fade-in ease, 2s steady-link infinite 2s, 2s steady-neon-border infinite 2s;
 		}
 	}
-	h1, h2, h3, p, a, li, svg {opacity:1;}
+}
+
+section.in-view {
+	a, a:visited {animation:2s fade-in ease, 2s flicker infinite;}
 }
