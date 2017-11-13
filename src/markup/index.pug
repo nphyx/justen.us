@@ -7,10 +7,10 @@ block content
       //img(src="/assets/logo.svg" alt="Justen Robertson, freelance designer, developer, et cetera")
       nav
         ul
-          li: a(href="#about") About
           li: a(href="#clients") Clients
           li: a(href="#projects") Projects
           li: a(href="#code") Code
+          li: a(href="#find-me") Find Me
   section#clients
     h2 Clients
     div.entries
@@ -101,5 +101,21 @@ block content
       div#and-more
         h3 .. and more
         p You can find all my published code on #[a(href="https://github.com/nphyx") github].
+  section#find-me
+    h2 Find Me
+    div.entries
+      div
+        a(href="https://www.github.com/nphyx")
+          include ../assets/github.svg
+          h3 On Github
+      div
+        a(href="https://www.quora.com/profile/Justen-Robertson-1")
+          include ../assets/quora.svg
+          h3 On Quora
+      div
+        a(href="mailto:justen@justen.us")
+          include ../assets/email.svg
+          h3 Via Email
+
   footer
     p Copyright &copy;2017 Justen Robertson, #[a(href="https://creativecommons.org/licenses/by-sa/3.0/") CC-BY-SA].

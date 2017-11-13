@@ -140,7 +140,7 @@ function init() {
 	generateClouds();
 	pinHeader();
 	window.addEventListener("scroll", pinHeader);
-	document.querySelector("header div.container").addEventListener("click", function () {
+	document.querySelector("header div.container").addEventListener("click", function (event) {
 		if (event.target.tagName == "A") this.classList.remove("open");else this.classList.toggle("open");
 	});
 }

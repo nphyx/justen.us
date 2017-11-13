@@ -118,6 +118,11 @@ canvas#background {width:100%; height:100vh; top:0; left:0; position:fixed; z-in
 
 header, section, footer {margin-left:auto; margin-right:auto; max-width:10in;}
 
+svg {
+	#body {animation:2s logo-body infinite;}
+	#shadow {animation:2s logo-shadow infinite;}
+}
+
 header {width:100%; height:$rhythm-base * 10;
 	@media screen and (max-width:$menu-disappears-below) {height:$rhythm-base * 6.5;}
 	.container {height:$rhythm-base * 10; transition:height $head-speed ease; 
@@ -126,10 +131,8 @@ header {width:100%; height:$rhythm-base * 10;
 	svg, nav {@include hcenter; transition:all $head-speed ease-out;}
 	svg {animation:1s fade-in; width:auto; max-width:100%; 
 		max-height:$rhythm-base * 5; margin-top:$rhythm-base * 3; mix-blend-mode:screen;
-		transition-property:margin-top, margin-left, transform, left, max-height;
+		transition-property:margin-top, margin-left, transform, left, max-height, max-width, width;
 		text {opacity:1; transition:opacity $head-speed ease;}
-		g#body {animation:2s logo-body infinite;}
-		g#shadow {animation:2s logo-shadow infinite;}
 		@media screen and (max-width:$menu-disappears-below) {margin-top:0;}
 	}
 
@@ -198,6 +201,9 @@ section {
 	>* {margin:$rhythm-base;}
 	>h2 {text-align:center; text-transform:uppercase; @include rhythm(5); padding-top:$rhythm-base * 3;
 		@media screen and (max-width:$menu-disappears-below) {@include rhythm(3, 1, 0); margin:0;}
+	}
+	&#find-me .entries div {text-align:center;
+		svg {width:50%; height:auto;}
 	}
 }
 
