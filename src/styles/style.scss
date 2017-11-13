@@ -202,8 +202,13 @@ section {
 	>h2 {text-align:center; text-transform:uppercase; @include rhythm(5); padding-top:$rhythm-base * 3;
 		@media screen and (max-width:$menu-disappears-below) {@include rhythm(3, 1, 0); margin:0;}
 	}
-	&#find-me .entries div {text-align:center;
-		svg {width:50%; height:auto;}
+	&#find-me .entries {
+		// special breaks for this section because we don't want break to 2 columns, but have to break to 1 early
+		@media screen and (max-width:800px) {@include grid-container(repeat(3, 1fr)); margin:$rhythm-base * 2;}
+		@media screen and (max-width:650px) {@include grid-container(1fr, auto, 0);} 
+		div {text-align:center;
+			svg {width:50%; height:auto;}
+		}
 	}
 }
 
