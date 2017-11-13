@@ -16,6 +16,9 @@ var clouds = [];
 var sections = void 0;
 var MOVE_SPEED = 0.0005;
 var FRAMECOUNT = 0;
+var PAUSE = false;
+var BROKE = false;
+var PAUSE_TIMEOUT = 0;
 
 function generateClouds() {
 	var y = 0,
@@ -100,8 +103,8 @@ function checkInView() {
 }
 
 function animate() {
-	var broken = false;
-	try {
+	if (!BROKE) requestAnimationFrame(animate);
+	if (!PAUSE && !BROKE) try {
 		FRAMECOUNT++;
 		if (W !== canvas.clientWidth) W = canvas.width = canvas.clientWidth;
 		if (H !== canvas.clientHeight) H = canvas.height = canvas.clientHeight;
@@ -111,9 +114,8 @@ function animate() {
 		drawClouds();
 	} catch (e) {
 		console.log(e);
-		broken = true;
+		BROKE = true;
 	}
-	if (!broken) requestAnimationFrame(animate);
 }
 
 function pinHeader() {

@@ -6,6 +6,9 @@ let clouds = [];
 let sections;
 let MOVE_SPEED = 0.0005;
 let FRAMECOUNT = 0;
+let PAUSE = false;
+let BROKE = false;
+let PAUSE_TIMEOUT = 0;
 
 function generateClouds() {
 	let y = 0, height = 0, width = 0, direction = 0;
@@ -80,8 +83,8 @@ function checkInView() {
 }
 
 function animate() {
-	let broken = false;
-	try {
+	if(!BROKE) requestAnimationFrame(animate);
+	if(!PAUSE && !BROKE) try {
 		FRAMECOUNT++;
 		if(W !== canvas.clientWidth) W = canvas.width = canvas.clientWidth;
 		if(H !== canvas.clientHeight) H = canvas.height = canvas.clientHeight;
@@ -92,9 +95,8 @@ function animate() {
 	}
 	catch(e) {
 		console.log(e);
-		broken = true;
+		BROKE = true;
 	}
-	if(!broken) requestAnimationFrame(animate);
 }
 
 function pinHeader() {

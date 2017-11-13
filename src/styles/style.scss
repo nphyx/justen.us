@@ -44,7 +44,7 @@ header, section, footer {margin-left:auto; margin-right:auto; max-width:10in;}
 
 
 /** content styles **/
-header {width:100%; height:$rhythm-base * 10;
+header {width:100%; height:$rhythm-base * 12;
 	@media screen and (max-width:$menu-disappears-below) {height:$rhythm-base * 6.5;}
 	.container {height:$rhythm-base * 10; transition:height $head-speed ease; 
 		width:100%; max-width:10in; margin:0 auto; top:0; bottom:calc(100vh - #{$rhythm-base * 10})
@@ -114,8 +114,9 @@ section {
 			ul {list-style-type:disc; margin-left:1em;}
 			div.links {position:absolute; bottom:-2em; left:0;
 				a {display:inline-block; @include rhythm(1, 0.25, 0.25); padding-top:0; 
-					padding-bottom:0; animation:2s flicker-neon-border infinite, 2s flicker infinite;}
-				a:hover, a:focus {animation:2s steady-link infinite, 2s steady-neon-border infinite;}
+					border:2px solid white; border-radius:6px; padding-bottom:0;
+					box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7);
+				}
 			}
 		}
 	}
@@ -219,22 +220,23 @@ footer {width:100%; @include rhythm(1, 1, 1); text-align:center;
 	100% {opacity:1;}
 }
 
-header, section {opacity:0;
-	h1, h2 {animation:2s flicker infinite 2s paused; text-shadow:0 0 0.25em rgba(255,255,255,0.7);}
+header, section {
+	h1, h2 {text-shadow:0 0 0.25em rgba(255,255,255,0.7);} 
 	svg {
-		#body {animation:2s logo-body infinite 2s paused;}
-		#shadow {animation:2s logo-shadow infinite 2s paused;}
+		#body {animation:2s logo-body infinite;}
+		#shadow {animation:2s logo-shadow infinite;}
 	}
+	h1, h2, h3, p, a, li, svg {opacity:0;}
 }
 
-section {
-	a, a:visited {animation:2s flicker infinite paused;}
-	a:hover, a:focus {animation:2s steady-link infinite paused;}
-	div.links a {animation:2s flicker-neon-border infinite paused, 2s flicker infinite paused;
-		&:hover, &:focus {animation:2s steady-link infinite paused, 2s steady-neon-border infinite paused;}
+header, section.in-view {
+	h1, h2 {animation:2s flicker infinite, 2s fade-in ease; opacity:1;} 
+	h1, h2, h3, p, a, li, svg {animation:2s fade-in ease;}
+	a, a:visited {animation:2s fade-in ease, 2s flicker infinite;}
+	a:hover, a:focus {animation:2s fade-in ease, 2s steady-link infinite;}
+	div.links a {animation:2s fade-in ease, 2s flicker-neon-border infinite 2s, 2s flicker infinite 2s;
+		&:hover, &:focus {animation:2s fade-in ease, 2s steady-link infinite 2s, 2s steady-neon-border infinite 2s;
+		}
 	}
-}
-
-header, section.in-view {animation:2s fade-in ease; opacity:1;
-	h1, h2, svg #body, svg #shadow, a {animation-play-state:running !important;}
+	h1, h2, h3, p, a, li, svg {opacity:1;}
 }
