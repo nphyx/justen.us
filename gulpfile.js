@@ -8,8 +8,8 @@ const del = require("del");
 const path = require("path");
 const babelRegister = require("babel-core/register");
 const mocha = require("gulp-mocha");
-const spawn = require("child_process").spawn;
 const svgmin = require("gulp-svgmin");
+var {exec, spawn} = require("child_process");
 
 const webpackConfig = {
 	entry:path.resolve(__dirname, "target/scripts/app.js"),
