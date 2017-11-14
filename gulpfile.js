@@ -86,6 +86,14 @@ gulp.task("test", function() {
 	}));
 });
 
+gulp.task("deploy", function(cb) {
+	exec("git subtree push --prefix dist hub gh-pages", function(err, stdout, stderr) {
+		console.log(stdout);
+		console.log(stderr);
+		cb(err);
+	});
+});
+
 gulp.task("local-server", function(cb) {
 	const server = spawn("python", ["-m","http.server"], {
 		cwd:"dist",
