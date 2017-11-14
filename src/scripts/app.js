@@ -13,9 +13,9 @@ function generateClouds() {
 	for(i = 0; i < CLOUD_COUNT; ++i) {
 		height = ((random() * 0.5) + 0.75) * yinc;
 		width = (1.0+random());
-		direction = (random() < 0.5?1:0);
+		direction = direction?0:1;
 		clouds.push({
-			width:width,//*0.5,
+			width:width,
 			height:height,
 			x:(0.5*random())+(direction?-width:0),
 			y:y,
