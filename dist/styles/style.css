@@ -156,9 +156,6 @@ header {
     margin-top: 72px;
     mix-blend-mode: screen;
     transition-property: margin-top, margin-left, transform, left, max-height, max-width, width; }
-    header svg text {
-      opacity: 1;
-      transition: opacity 0.2s ease; }
     @media screen and (max-width: 612px) {
       header svg {
         margin-top: 0; } }
@@ -526,7 +523,7 @@ footer {
   0% {
     opacity: 0; }
   29% {
-    opacity: 0.05; }
+    opacity: 0.1; }
   30% {
     opacity: 0.3; }
   32% {
@@ -554,6 +551,11 @@ header svg #shadow, section svg #shadow {
 header h1, header h2, header h3, header p, header a, header li, header svg, section h1, section h2, section h3, section p, section a, section li, section svg {
   opacity: 0; }
 
+section {
+  /* header already has its own custom transitions so this is separate */ }
+  section h1, section h2, section h3, section p, section a, section li, section svg {
+    transition: opacity 1s ease; }
+
 header h1, header h2, header h3, header p, header a, header li, header svg, section.in-view h1, section.in-view h2, section.in-view h3, section.in-view p, section.in-view a, section.in-view li, section.in-view svg {
   opacity: 1;
   animation: 2s fade-in ease; }
@@ -562,13 +564,15 @@ header a:hover, header a:focus, section.in-view a:hover, section.in-view a:focus
   animation: 2s fade-in ease, 2s steady-link infinite; }
 
 header h1, header h2, section.in-view h1, section.in-view h2 {
-  animation: 2s flicker infinite, 2s fade-in ease;
-  opacity: 1; }
+  animation: 2s flicker infinite, 2s fade-in ease; }
 
 header div.links a, section.in-view div.links a {
   animation: 2s fade-in ease, 2s flicker-neon-border infinite 2s, 2s flicker infinite 2s; }
   header div.links a:hover, header div.links a:focus, section.in-view div.links a:hover, section.in-view div.links a:focus {
     animation: 2s fade-in ease, 2s steady-link infinite 2s, 2s steady-neon-border infinite 2s; }
+
+section.in-view h1, section.in-view h2, section.in-view h3, section.in-view p, section.in-view a, section.in-view li, section.in-view svg {
+  transition: none; }
 
 section.in-view a, section.in-view a:visited {
   animation: 2s fade-in ease, 2s flicker infinite; }

@@ -98,7 +98,7 @@ function drawBackground() {
 }
 
 function inView(bounds) {
-	return bounds.bottom > 0 && bounds.top < window.innerHeight && bounds.right > 0 && bounds.left < window.innerWidth;
+	return bounds.bottom > window.innerHeight * 0.2 && bounds.top < window.innerHeight * 0.8 && bounds.right > 0 && bounds.left < window.innerWidth;
 }
 
 function checkInView() {

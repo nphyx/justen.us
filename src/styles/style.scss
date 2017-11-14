@@ -53,7 +53,6 @@ header {width:100%; height:$rhythm-base * 12;
 	svg {width:auto; max-width:100%; 
 		max-height:$rhythm-base * 5; margin-top:$rhythm-base * 3; mix-blend-mode:screen;
 		transition-property:margin-top, margin-left, transform, left, max-height, max-width, width;
-		text {opacity:1; transition:opacity $head-speed ease;}
 		@media screen and (max-width:$menu-disappears-below) {margin-top:0;}
 	}
 
@@ -81,10 +80,8 @@ header {width:100%; height:$rhythm-base * 12;
 				background:linear-gradient(0deg, rgba(0,0,0,.9), rgba(0,0,0,.9) 95%, transparent);
 				svg {left:calc(100vw - #{$rhythm-base * 9.5}); z-index:200; min-height:$rhythm-base * 3; width:auto; max-width:initial;}
 				nav {height:0; width:100%; display:none;
-					ul {
-						li {margin:0; padding:0; width:100%;
-							a {display:block; width:100%; text-align:center; background:rgba(0,0,0,.9); @include rhythm(2, 0, 1);}
-						}
+					ul li {margin:0; padding:0; width:100%;
+						a {display:block; width:100%; text-align:center; background:rgba(0,0,0,.9); @include rhythm(2, 0, 1);}
 					}
 				}
 				&.open {background:rgba(0,0,0,0.9);
@@ -93,11 +90,12 @@ header {width:100%; height:$rhythm-base * 12;
 			}
 		}
 		svg, nav {@include unhcenter; position:absolute;}
-		svg {max-height:$rhythm-base * 3; margin-top:0; text {opacity:0;} left:calc(50vw - 5in + #{$rhythm-base * -6});
+		svg {max-height:$rhythm-base * 3; margin-top:0; left:calc(50vw - 5in + #{$rhythm-base * -6}); 
+			text {opacity:0;}
 			@media screen and (max-width:10in) {left:$rhythm-base * -5.5;}
 		}
-		nav {@include rhythm(1.5); left:auto; margin-top:0; right:calc(50vw - 5in); 
-			bottom:$rhythm-base * 0.5; ul {margin-top:0;}
+		nav {@include rhythm(1.5); left:auto; margin-top:0; right:calc(50vw - 5in); bottom:$rhythm-base * 0.5; 
+			ul {margin-top:0;}
 			@media screen and (max-width:10in) {right:$rhythm-base * 0.5;}
 		}
 	}
@@ -141,82 +139,82 @@ footer {width:100%; @include rhythm(1, 1, 1); text-align:center;
 
 /** animation stuff **/
 @keyframes logo-shadow {
-	  0% {opacity:0.2;}
-	 39% {opacity:0.9;}
-	 40% {opacity:1.0;}
-	 45% {opacity:0.7;}
-	 47% {opacity:1.0;}
-	 49% {opacity:0.5;}
-	 72% {opacity:0.7;}
-	 73% {opacity:1.0;}
-	 74% {opacity:0.7;}
+	0% {opacity:0.2;}
+	39% {opacity:0.9;}
+	40% {opacity:1.0;}
+	45% {opacity:0.7;}
+	47% {opacity:1.0;}
+	49% {opacity:0.5;}
+	72% {opacity:0.7;}
+	73% {opacity:1.0;}
+	74% {opacity:0.7;}
 	100% {opacity:0.2;}
 }
 
 @keyframes logo-body {
-	  0% {opacity:0.93;}
-	 39% {opacity:0.97;}
-	 40% {opacity:1.0;}
-	 45% {opacity:0.97;}
-	 47% {opacity:1.0;}
-	 49% {opacity:0.97;}
-	 72% {opacity:0.97;}
-	 73% {opacity:1.0;}
-	 74% {opacity:0.97;}
+	0% {opacity:0.93;}
+	39% {opacity:0.97;}
+	40% {opacity:1.0;}
+	45% {opacity:0.97;}
+	47% {opacity:1.0;}
+	49% {opacity:0.97;}
+	72% {opacity:0.97;}
+	73% {opacity:1.0;}
+	74% {opacity:0.97;}
 	100% {opacity:0.93;}
 }
 
 /** svg animation keyframes **/
 @keyframes flicker {
-	  0% {text-shadow:0 0 0.25em rgba(255,255,255,0.5); opacity:0.93;}
-	 39% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.97;}
-	 40% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
-	 45% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
-	 47% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
-	 49% {text-shadow:0 0 0.25em rgba(255,255,255,0.5); opacity:0.97;}
-	 72% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
-	 73% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
-	 74% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
+	0% {text-shadow:0 0 0.25em rgba(255,255,255,0.5); opacity:0.93;}
+	39% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.97;}
+	40% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
+	45% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
+	47% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
+	49% {text-shadow:0 0 0.25em rgba(255,255,255,0.5); opacity:0.97;}
+	72% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
+	73% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
+	74% {text-shadow:0 0 0.25em rgba(255,255,255,0.7); opacity:0.97;}
 	100% {text-shadow:0 0 0.25em rgba(255,255,255,0.5); opacity:0.93;}
 }
 
 @keyframes flicker-neon-border {
-	  0% {box-shadow:0 0 0.5em rgba(255,255,255,0.2), inset 0 0 0.5em rgba(255,255,255,0.2); opacity:0.93; border:2px solid white; border-radius:6px;}
-	 39% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9); opacity:0.97;}
-	 40% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
-	 45% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
-	 47% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
-	 49% {box-shadow:0 0 0.5em rgba(255,255,255,0.5), inset 0 0 0.5em rgba(255,255,255,0.5); opacity:0.97;}
-	 72% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
-	 73% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
-	 74% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
+	0% {box-shadow:0 0 0.5em rgba(255,255,255,0.2), inset 0 0 0.5em rgba(255,255,255,0.2); opacity:0.93; border:2px solid white; border-radius:6px;}
+	39% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9); opacity:0.97;}
+	40% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
+	45% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
+	47% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
+	49% {box-shadow:0 0 0.5em rgba(255,255,255,0.5), inset 0 0 0.5em rgba(255,255,255,0.5); opacity:0.97;}
+	72% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
+	73% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0); opacity:1.0;}
+	74% {box-shadow:0 0 0.5em rgba(255,255,255,0.7), inset 0 0 0.5em rgba(255,255,255,0.7); opacity:0.97;}
 	100% {box-shadow:0 0 0.5em rgba(255,255,255,0.2), inset 0 0 0.5em rgba(255,255,255,0.2); opacity:0.93; border:2px solid white; border-radius:6px;}
 }
 
 @keyframes steady-neon-border {
-	  0% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9);
-		    opacity:0.93; border:2px solid white; border-radius:6px;}
-	 50% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0);
-	      opacity:1.0; text-shadow:0 0 0.25em rgba(255,255,255,0.9);}
+	0% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9);
+	opacity:0.93; border:2px solid white; border-radius:6px;}
+	50% {box-shadow:0 0 0.5em rgba(255,255,255,1.0), inset 0 0 0.5em rgba(255,255,255,1.0);
+	opacity:1.0; text-shadow:0 0 0.25em rgba(255,255,255,0.9);}
 	100% {box-shadow:0 0 0.5em rgba(255,255,255,0.9), inset 0 0 0.5em rgba(255,255,255,0.9);
-	      opacity:0.93; border:2px solid white; border-radius:6px;} 
+	opacity:0.93; border:2px solid white; border-radius:6px;} 
 }
 
 @keyframes steady-link {
-	  0% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.9;}
-	 50% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
+	0% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.9;}
+	50% {text-shadow:0 0 0.25em rgba(255,255,255,1.0); opacity:1.0;}
 	100% {text-shadow:0 0 0.25em rgba(255,255,255,0.9); opacity:0.9;}
 }
 
 @keyframes fade-in {
-	  0% {opacity:0;}
-	 29% {opacity:0.05;}
-	 30% {opacity:0.3;}
-	 32% {opacity:0.1;}
-	 35% {opacity:0.5;}
-	 38% {opacity:0.3;}
-	 78% {opacity:0.9;}
-	 79% {opacity:0.8;}
+	0% {opacity:0;}
+	29% {opacity:0.1;}
+	30% {opacity:0.3;}
+	32% {opacity:0.1;}
+	35% {opacity:0.5;}
+	38% {opacity:0.3;}
+	78% {opacity:0.9;}
+	79% {opacity:0.8;}
 	100% {opacity:1;}
 }
 
@@ -228,11 +226,13 @@ header, section {
 	}
 	h1, h2, h3, p, a, li, svg {opacity:0;}
 }
-
+section {
+	h1, h2, h3, p, a, li, svg {transition:opacity 1s ease;} /* header already has its own custom transitions so this is separate */
+}
 header, section.in-view {
 	h1, h2, h3, p, a, li, svg {opacity:1; animation:2s fade-in ease;}
 	a:hover, a:focus {animation:2s fade-in ease, 2s steady-link infinite;}
-	h1, h2 {animation:2s flicker infinite, 2s fade-in ease; opacity:1;} 
+	h1, h2 {animation:2s flicker infinite, 2s fade-in ease;} 
 	div.links a {animation:2s fade-in ease, 2s flicker-neon-border infinite 2s, 2s flicker infinite 2s;
 		&:hover, &:focus {animation:2s fade-in ease, 2s steady-link infinite 2s, 2s steady-neon-border infinite 2s;
 		}
@@ -240,5 +240,6 @@ header, section.in-view {
 }
 
 section.in-view {
+	h1, h2, h3, p, a, li, svg {transition:none;}
 	a, a:visited {animation:2s fade-in ease, 2s flicker infinite;}
 }
