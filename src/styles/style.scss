@@ -24,7 +24,7 @@ $font-head:'Poiret One', sans-serif;
 	display:grid;
 	grid-template-columns:$columns;
 	grid-auto-rows:$rows;
-	grid-gap:2 * $gap;
+	grid-gap:$gap;
 	align-items:$align;
 }
 
@@ -110,14 +110,14 @@ header {width:100%; height:$rhythm-base * 12;
 }
 
 section {
-	&#projects, &#code {.entries div {padding-bottom:2em;}}
 	width:100%; position:relative; font-size:1em; color:white; margin:$rhythm-base * 4 auto;
-	@media screen and (max-width:$menu-large-break) {margin:$rhythm-base 0;}
+	&#projects, &#code {.entries div {padding-bottom:2em;}}
+	@media screen and (max-width:$menu-large-break) {margin:$rhythm-base * 2 0;}
 	@include rhythm(1, 1, 0);
 	.entries {@include grid-container(repeat(3, 1fr));
-		@media screen and (max-width:800px) {@include grid-container(repeat(2, 1fr)); margin:$rhythm-base * 2;}
-		@media screen and (max-width:$menu-large-break) {@include grid-container(1fr, auto, 0);}
-		div {position:relative; margin-top:$rhythm-base;
+		@media screen and (max-width:$menu-large-break) {@include grid-container(repeat(2, 1fr), auto, $rhythm-base * 2); margin:0 $rhythm-base * 2;}
+		@media screen and (max-width:$menu-small-break) {@include grid-container(1fr, auto, $rhythm-base);}
+		div {position:relative;
 			ul {list-style-type:disc; margin:0 0 1em 1em;}
 			div.links {position:absolute; bottom:-2em; left:0;
 				a {display:inline-block; @include rhythm(1, 0.25, 0.25); padding-top:0; 
@@ -132,9 +132,9 @@ section {
 		@media screen and (max-width:$menu-large-break) {@include rhythm(3, 1, 0); margin:0;}
 	}
 	&#find-me .entries {
-		// special breaks for this section because we don't want break to 2 columns, but have to break to 1 early
-		@media screen and (max-width:800px) {@include grid-container(repeat(3, 1fr)); margin:$rhythm-base * 2;}
-		@media screen and (max-width:$menu-large-break) {@include grid-container(1fr, auto, 0);} 
+		// special breaks for this section because we don't want break to 2 columns
+		@media screen and (max-width:$menu-large-break) {@include grid-container(repeat(3, 1fr)); margin:$rhythm-base * 2;}
+		@media screen and (max-width:$menu-small-break) {@include grid-container(1fr, auto, $rhythm-base);}
 		div {text-align:center;
 			svg {width:50%; height:auto;}
 		}
