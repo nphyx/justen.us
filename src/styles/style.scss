@@ -117,7 +117,7 @@ section {
 	.entries {@include grid-container(repeat(3, 1fr));
 		@media screen and (max-width:800px) {@include grid-container(repeat(2, 1fr)); margin:$rhythm-base * 2;}
 		@media screen and (max-width:$menu-large-break) {@include grid-container(1fr, auto, 0);}
-		div {position:relative;
+		div {position:relative; margin-top:$rhythm-base;
 			ul {list-style-type:disc; margin:0 0 1em 1em;}
 			div.links {position:absolute; bottom:-2em; left:0;
 				a {display:inline-block; @include rhythm(1, 0.25, 0.25); padding-top:0; 

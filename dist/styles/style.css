@@ -322,7 +322,8 @@ section {
         grid-gap: 0;
         align-items: stretch; } }
     section .entries div {
-      position: relative; }
+      position: relative;
+      margin-top: 24px; }
       section .entries div ul {
         list-style-type: disc;
         margin: 0 0 1em 1em; }
