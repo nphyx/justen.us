@@ -252,3 +252,7 @@ section.in-view {
 	h1, h2, h3, p, a, li, svg {transition:none;}
 	a, a:visited {animation:2s fade-in ease, 2s flicker infinite;}
 }
+
+footer {
+	a, a:visited {animation:2s fade-in ease, 2s flicker infinite;}
+}
