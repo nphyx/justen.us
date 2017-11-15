@@ -26,7 +26,7 @@ function generateClouds() {
 	    i = void 0,
 	    yinc = 2 / CLOUD_COUNT;
 	for (i = 0; i < CLOUD_COUNT; ++i) {
-		height = (random() * 0.5 + 0.75) * yinc;
+		height = (random() * 1.5 + 0.75) * yinc;
 		width = 1.0 + random();
 		direction = direction ? 0 : 1;
 		clouds.push({
@@ -38,7 +38,7 @@ function generateClouds() {
 			direction: direction,
 			speed: 0.4 + random() * 0.6
 		});
-		y += height;
+		y += yinc;
 		if (y > 1) y -= 1;
 		clouds.sort(function (a, b) {
 			return a.z - b.z;
@@ -87,7 +87,7 @@ function drawClouds() {
 		R = G = B = Math.round(6 * z) * 2 + 1; //+192;
 		ctx.fillStyle = "rgba(" + R + "," + G + "," + B + "," + a + ")";
 		ypos = y * (H - H * scrollPercent * 0.5) - H * scrollPercent * 0.25;
-		ctx.fillRect(x * W, ypos, width * W, height * W);
+		ctx.fillRect(x * W, ypos, width * W, height * H);
 	}
 	ctx.restore();
 }
