@@ -589,3 +589,6 @@ section.in-view h1, section.in-view h2, section.in-view h3, section.in-view p, s
 
 section.in-view a, section.in-view a:visited {
   animation: 2s fade-in ease, 2s flicker infinite; }
+
+footer a, footer a:visited {
+  animation: 2s fade-in ease, 2s flicker infinite; }
