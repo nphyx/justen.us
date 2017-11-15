@@ -4,10 +4,10 @@ block content
   header#about
     .container
       include ../assets/logo.svg
-      //img(src="/assets/logo.svg" alt="Justen Robertson, freelance designer, developer, et cetera")
       nav
         ul
           li: a(href="#clients") Clients
+          li: a(href="#skills") Skills
           li: a(href="#projects") Projects
           li: a(href="#code") Code
           li: a(href="#find-me") Find Me
@@ -43,19 +43,62 @@ block content
           li Mad Dancer Media, Inc.
           li Tennessee Fine Wine &amp; Spirits
 
-      div#medicine.half
+      div#medicine
         h3 Medicine
         ul
           li Kailos Genetics
           li Vanderbilt Hospital
           li Williamson Medical Center
 
-      div#charity.half
+      div#non-profit
         h3 Non-Profits
         ul
           li Tug McGraw Foundation
           li Compassion International
           li Ready or Not Foundation
+
+  section#skills
+    h2 Skills
+    div.entries
+      div#skills-core
+        h3 Core
+        ul
+          li Full-stack Javascript
+            ul
+              li ES5/6/+
+              li Node
+              li Most Popular Frameworks
+          li Database
+            ul
+              li MySQL
+              li MongoDB
+              li CouchDB
+              li memcached
+      div#skills-professional
+        h3 Professional
+        ul
+          li Graphic Design
+            ul
+              li esp. using open-source tools
+          li Linux SysAdmin/DevOps/IT
+            ul
+              li CentOS/RHEL/Fedora
+              li Debian/Ubuntu/*buntu
+              li Arch
+          li PHP
+            ul
+              li PHP 4/5
+              li CakePHP
+              li Content Management Systems
+          li eCommerce
+      div#skills-other
+        h3 Familiarities
+        ul
+          li Web-based Games
+          li Go
+          li Rust
+          li Java
+          li C/C++
 
   section#projects
     h2 Projects

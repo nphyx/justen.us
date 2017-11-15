@@ -7,7 +7,11 @@ $content-padding: 1em;
 $textshadow: 0 0 0.3em rgba(255,255,255,0.3);
 $rhythm-base: 24px;
 $head-speed: .2s;
-$menu-disappears-below:612px; // breakpoint where the navigation goes away
+$menu-large-break:740px; // full-size menu text goes to medium
+$menu-small-break:600px; // mid-size menu text goes to small
+$menu-vsmall-break:455px; // mid-size menu text goes to small
+$font-main:'Roboto', sans-serif;
+$font-head:'Poiret One', sans-serif;
 
 @mixin rhythm($size, $margin:1, $padding:0, $font-size:0.66667) {
 	font-size:$rhythm-base * $size * $font-size;
@@ -30,11 +34,11 @@ $menu-disappears-below:612px; // breakpoint where the navigation goes away
 /** default styles & layout **/
 html {@include rhythm(1, 0, 0);}
 html * {margin:0; padding:0;}
-body {font-family:'Roboto', sans-serif; color:white; max-width:100%; overflow-x:hidden;}
-h1,h2,h3,h4,h5,h6 {font-family:'Poiret One', sans-serif; mix-blend-mode:screen;}
-h1 {@include rhythm(4, 1); font-family:'Poiret One', sans-serif;}
+body {font-family:$font-main; color:white; max-width:100%; overflow-x:hidden;}
+h1,h2,h3,h4,h5,h6 {font-family:$font-head; mix-blend-mode:screen;}
+h1 {@include rhythm(4, 1); font-family:$font-head;}
 h2 {@include rhythm(3, 1);}
-h3 {@include rhythm(2, 1);}
+h3 {@include rhythm(2, 0);}
 h4 {@include rhythm(0.75, 0.75);}
 h5 {@include rhythm(0.50, 0.50);}
 ul {list-style-type:none;}
@@ -45,7 +49,7 @@ header, section, footer {margin-left:auto; margin-right:auto; max-width:10in;}
 
 /** content styles **/
 header {width:100%; height:$rhythm-base * 12;
-	@media screen and (max-width:$menu-disappears-below) {height:$rhythm-base * 6.5;}
+	@media screen and (max-width:$menu-large-break) {height:$rhythm-base * 6.5;}
 	.container {height:$rhythm-base * 10; transition:height $head-speed ease; 
 		width:100%; max-width:10in; margin:0 auto; top:0; bottom:calc(100vh - #{$rhythm-base * 10})
 	}
@@ -53,63 +57,68 @@ header {width:100%; height:$rhythm-base * 12;
 	svg {width:auto; max-width:100%; 
 		max-height:$rhythm-base * 5; margin-top:$rhythm-base * 3; mix-blend-mode:screen;
 		transition-property:margin-top, margin-left, transform, left, max-height, max-width, width;
-		@media screen and (max-width:$menu-disappears-below) {margin-top:0;}
+		@media screen and (max-width:$menu-large-break) {margin-top:0;}
 	}
 
 	nav {width:auto; z-index:100; bottom:0; right:auto;
-		ul {list-style-type:none; padding:0 4em 0.5em 4em; height:1.5em; width:auto; display:inline-block; @include rhythm(2); font-family:'Poiret One', sans-serif; 
-			li {display:inline-block; padding:.5em; text-align:center;
+		ul {list-style-type:none; height:1.5em; width:auto; display:inline-block; @include rhythm(2, 0, 0); font-family:$font-head; /*padding:0 4em 0.5em 4em*/;
+			li {display:inline-block; padding:0.25em .5em; text-align:center;
 				a {text-decoration:none; text-transform:uppercase;color:white;}
 			}
 		}
-		@media screen and (max-width:$menu-disappears-below) {
-			margin-top:-$rhythm-base;
-			ul {@include rhythm(1.5, 0, 0)}
-		}
-		@media screen and (max-width:424px) { // this is where the menu wraps to a new line, looks shitty
-			ul {@include rhythm(1, 0, 0); font-weight:bold;}
-		}
+	}
+
+	&:not(.sticky) nav ul {
+		@media screen and (max-width:$menu-large-break) {li {padding:0 0.25em;}}
+		@media screen and (max-width:$menu-small-break) {@include rhythm(1.5, 0, 0)}
+		@media screen and (max-width:$menu-vsmall-break) {@include rhythm(1, 0, 0); font-family:$font-main;}
 	}
 
 	&.sticky {
 		.container {position:fixed; background:linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,.9) 95%, transparent);
 			width:100vw; max-width:100vw; left:0; padding:0 calc(50vw - 5in); height:$rhythm-base * 3; z-index:100;
-			@media screen and (max-width:10in) {padding:0 0;}
-			@media screen and (max-width:$menu-disappears-below) {
+
+			svg, nav {@include unhcenter; position:absolute; top:0;}
+			svg {max-height:$rhythm-base * 3; margin-top:0; left:calc(50vw - 5in + #{$rhythm-base * -6});
+				text {opacity:0;}
+			}
+			nav {@include rhythm(1.5); left:auto; margin-top:0; right:calc(50vw - 5in); bottom:$rhythm-base * 0.5; 
+				ul {margin-top:0;}
+			}
+			@media screen and (max-width:10in) {padding:0 0;
+				nav {right:$rhythm-base * 0.5;}
+				svg {left:$rhythm-base * -5.5;}
+			}
+			@media screen and (max-width:$menu-large-break) {
+				ul {@include rhythm(1.5); li {padding:0.5em;}}
+			}
+			@media screen and (max-width:$menu-small-break) { // this is where the menu flips to bottom-right position
 				top:auto; bottom:0; transition:bottom $head-speed ease;
 				background:linear-gradient(0deg, rgba(0,0,0,.9), rgba(0,0,0,.9) 95%, transparent);
 				svg {left:calc(100vw - #{$rhythm-base * 9.5}); z-index:200; min-height:$rhythm-base * 3; width:auto; max-width:initial;}
 				nav {height:0; width:100%; display:none;
-					ul li {margin:0; padding:0; width:100%;
-						a {display:block; width:100%; text-align:center; background:rgba(0,0,0,.9); @include rhythm(2, 0, 1);}
+					ul {position:absolute; height:auto; bottom:0;
+						li {margin:0; padding:0; width:100%;
+							a {display:block; width:100%; text-align:center; background:rgba(0,0,0,.9); @include rhythm(2, 0, 1);}
+						}
 					}
 				}
-				&.open {background:rgba(0,0,0,0.9);
-					nav {height:auto; display:block; bottom:$rhythm-base * 4;}
-				}
+				&.open {background:rgba(0,0,0,0.9); nav {height:auto; display:block; bottom:$rhythm-base * 4;}}
 			}
-		}
-		svg, nav {@include unhcenter; position:absolute;}
-		svg {max-height:$rhythm-base * 3; margin-top:0; left:calc(50vw - 5in + #{$rhythm-base * -6}); 
-			text {opacity:0;}
-			@media screen and (max-width:10in) {left:$rhythm-base * -5.5;}
-		}
-		nav {@include rhythm(1.5); left:auto; margin-top:0; right:calc(50vw - 5in); bottom:$rhythm-base * 0.5; 
-			ul {margin-top:0;}
-			@media screen and (max-width:10in) {right:$rhythm-base * 0.5;}
 		}
 	}
 }
 
 section {
+	&#projects, &#code {.entries div {padding-bottom:2em;}}
 	width:100%; position:relative; font-size:1em; color:white; margin:$rhythm-base * 4 auto;
-	@media screen and (max-width:$menu-disappears-below) {margin:$rhythm-base 0;}
+	@media screen and (max-width:$menu-large-break) {margin:$rhythm-base 0;}
 	@include rhythm(1, 1, 0);
 	.entries {@include grid-container(repeat(3, 1fr));
 		@media screen and (max-width:800px) {@include grid-container(repeat(2, 1fr)); margin:$rhythm-base * 2;}
-		@media screen and (max-width:$menu-disappears-below) {@include grid-container(1fr, auto, 0);}
-		div {position:relative; padding-bottom:2em;
-			ul {list-style-type:disc; margin-left:1em;}
+		@media screen and (max-width:$menu-large-break) {@include grid-container(1fr, auto, 0);}
+		div {position:relative;
+			ul {list-style-type:disc; margin:0 0 1em 1em;}
 			div.links {position:absolute; bottom:-2em; left:0;
 				a {display:inline-block; @include rhythm(1, 0.25, 0.25); padding-top:0; 
 					border:2px solid white; border-radius:6px; padding-bottom:0;
@@ -120,12 +129,12 @@ section {
 	}
 	>* {margin:$rhythm-base;}
 	>h2 {text-align:center; text-transform:uppercase; @include rhythm(5); padding-top:$rhythm-base * 3;
-		@media screen and (max-width:$menu-disappears-below) {@include rhythm(3, 1, 0); margin:0;}
+		@media screen and (max-width:$menu-large-break) {@include rhythm(3, 1, 0); margin:0;}
 	}
 	&#find-me .entries {
 		// special breaks for this section because we don't want break to 2 columns, but have to break to 1 early
 		@media screen and (max-width:800px) {@include grid-container(repeat(3, 1fr)); margin:$rhythm-base * 2;}
-		@media screen and (max-width:$menu-disappears-below) {@include grid-container(1fr, auto, 0);} 
+		@media screen and (max-width:$menu-large-break) {@include grid-container(1fr, auto, 0);} 
 		div {text-align:center;
 			svg {width:50%; height:auto;}
 		}
@@ -134,7 +143,7 @@ section {
 
 footer {width:100%; @include rhythm(1, 1, 1); text-align:center; 
 	background:linear-gradient(0deg, rgba(0,0,0,.9), rgba(0,0,0,.9) 95%, transparent);
-	@media screen and (max-width:$menu-disappears-below) {padding-bottom:$rhythm-base * 3;}
+	@media screen and (max-width:$menu-large-break) {padding-bottom:$rhythm-base * 3;}
 }
 
 /** animation stuff **/
