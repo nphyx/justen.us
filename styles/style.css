@@ -67,13 +67,13 @@ html * {
   padding: 0; }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   color: white;
   max-width: 100%;
   overflow-x: hidden; }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Poiret One', sans-serif;
+  font-family: "Poiret One", sans-serif;
   mix-blend-mode: screen; }
 
 h1 {
@@ -81,7 +81,7 @@ h1 {
   line-height: 96px;
   margin-top: 24px;
   padding: 0px;
-  font-family: 'Poiret One', sans-serif; }
+  font-family: "Poiret One", sans-serif; }
 
 h2 {
   font-size: 48.00024px;
@@ -92,7 +92,7 @@ h2 {
 h3 {
   font-size: 32.00016px;
   line-height: 48px;
-  margin-top: 24px;
+  margin-top: 0px;
   padding: 0px; }
 
 h4 {
@@ -132,7 +132,7 @@ header, section, footer {
 header {
   width: 100%;
   height: 288px; }
-  @media screen and (max-width: 612px) {
+  @media screen and (max-width: 740px) {
     header {
       height: 156px; } }
   header .container {
@@ -156,7 +156,7 @@ header {
     margin-top: 72px;
     mix-blend-mode: screen;
     transition-property: margin-top, margin-left, transform, left, max-height, max-width, width; }
-    @media screen and (max-width: 612px) {
+    @media screen and (max-width: 740px) {
       header svg {
         margin-top: 0; } }
   header nav {
@@ -166,38 +166,39 @@ header {
     right: auto; }
     header nav ul {
       list-style-type: none;
-      padding: 0 4em 0.5em 4em;
       height: 1.5em;
       width: auto;
       display: inline-block;
       font-size: 32.00016px;
       line-height: 48px;
-      margin-top: 24px;
+      margin-top: 0px;
       padding: 0px;
-      font-family: 'Poiret One', sans-serif; }
+      font-family: "Poiret One", sans-serif;
+      /*padding:0 4em 0.5em 4em*/ }
       header nav ul li {
         display: inline-block;
-        padding: .5em;
+        padding: 0.25em .5em;
         text-align: center; }
         header nav ul li a {
           text-decoration: none;
           text-transform: uppercase;
           color: white; }
-    @media screen and (max-width: 612px) {
-      header nav {
-        margin-top: -24px; }
-        header nav ul {
-          font-size: 24.00012px;
-          line-height: 36px;
-          margin-top: 0px;
-          padding: 0px; } }
-    @media screen and (max-width: 424px) {
-      header nav ul {
-        font-size: 16.00008px;
-        line-height: 24px;
-        margin-top: 0px;
-        padding: 0px;
-        font-weight: bold; } }
+  @media screen and (max-width: 740px) {
+    header:not(.sticky) nav ul li {
+      padding: 0 0.25em; } }
+  @media screen and (max-width: 600px) {
+    header:not(.sticky) nav ul {
+      font-size: 24.00012px;
+      line-height: 36px;
+      margin-top: 0px;
+      padding: 0px; } }
+  @media screen and (max-width: 455px) {
+    header:not(.sticky) nav ul {
+      font-size: 16.00008px;
+      line-height: 24px;
+      margin-top: 0px;
+      padding: 0px;
+      font-family: "Roboto", sans-serif; } }
   header.sticky .container {
     position: fixed;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9) 95%, transparent);
@@ -207,10 +208,44 @@ header {
     padding: 0 calc(50vw - 5in);
     height: 72px;
     z-index: 100; }
+    header.sticky .container svg, header.sticky .container nav {
+      left: 0%;
+      transform: translateX(0%);
+      position: absolute;
+      top: 0; }
+    header.sticky .container svg {
+      max-height: 72px;
+      margin-top: 0;
+      left: calc(50vw - 5in + -144px); }
+      header.sticky .container svg text {
+        opacity: 0; }
+    header.sticky .container nav {
+      font-size: 24.00012px;
+      line-height: 36px;
+      margin-top: 24px;
+      padding: 0px;
+      left: auto;
+      margin-top: 0;
+      right: calc(50vw - 5in);
+      bottom: 12px; }
+      header.sticky .container nav ul {
+        margin-top: 0; }
     @media screen and (max-width: 10in) {
       header.sticky .container {
-        padding: 0 0; } }
-    @media screen and (max-width: 612px) {
+        padding: 0 0; }
+        header.sticky .container nav {
+          right: 12px; }
+        header.sticky .container svg {
+          left: -132px; } }
+    @media screen and (max-width: 740px) {
+      header.sticky .container ul {
+        font-size: 24.00012px;
+        line-height: 36px;
+        margin-top: 24px;
+        padding: 0px; }
+        header.sticky .container ul li {
+          padding: 0.5em; } }
+    @media screen and (max-width: 600px) {
       header.sticky .container {
         top: auto;
         bottom: 0;
@@ -226,52 +261,29 @@ header {
           height: 0;
           width: 100%;
           display: none; }
-          header.sticky .container nav ul li {
-            margin: 0;
-            padding: 0;
-            width: 100%; }
-            header.sticky .container nav ul li a {
-              display: block;
-              width: 100%;
-              text-align: center;
-              background: rgba(0, 0, 0, 0.9);
-              font-size: 32.00016px;
-              line-height: 48px;
-              margin-top: 0px;
-              padding: 24px; }
+          header.sticky .container nav ul {
+            position: absolute;
+            height: auto;
+            bottom: 0; }
+            header.sticky .container nav ul li {
+              margin: 0;
+              padding: 0;
+              width: 100%; }
+              header.sticky .container nav ul li a {
+                display: block;
+                width: 100%;
+                text-align: center;
+                background: rgba(0, 0, 0, 0.9);
+                font-size: 32.00016px;
+                line-height: 48px;
+                margin-top: 0px;
+                padding: 24px; }
         header.sticky .container.open {
           background: rgba(0, 0, 0, 0.9); }
           header.sticky .container.open nav {
             height: auto;
             display: block;
             bottom: 96px; } }
-  header.sticky svg, header.sticky nav {
-    left: 0%;
-    transform: translateX(0%);
-    position: absolute; }
-  header.sticky svg {
-    max-height: 72px;
-    margin-top: 0;
-    left: calc(50vw - 5in + -144px); }
-    header.sticky svg text {
-      opacity: 0; }
-    @media screen and (max-width: 10in) {
-      header.sticky svg {
-        left: -132px; } }
-  header.sticky nav {
-    font-size: 24.00012px;
-    line-height: 36px;
-    margin-top: 24px;
-    padding: 0px;
-    left: auto;
-    margin-top: 0;
-    right: calc(50vw - 5in);
-    bottom: 12px; }
-    header.sticky nav ul {
-      margin-top: 0; }
-    @media screen and (max-width: 10in) {
-      header.sticky nav {
-        right: 12px; } }
 
 section {
   width: 100%;
@@ -283,7 +295,9 @@ section {
   line-height: 24px;
   margin-top: 24px;
   padding: 0px; }
-  @media screen and (max-width: 612px) {
+  section#projects .entries div, section#code .entries div {
+    padding-bottom: 2em; }
+  @media screen and (max-width: 740px) {
     section {
       margin: 24px 0; } }
   section .entries {
@@ -300,7 +314,7 @@ section {
         grid-gap: 48px;
         align-items: stretch;
         margin: 48px; } }
-    @media screen and (max-width: 612px) {
+    @media screen and (max-width: 740px) {
       section .entries {
         display: grid;
         grid-template-columns: 1fr;
@@ -308,11 +322,10 @@ section {
         grid-gap: 0;
         align-items: stretch; } }
     section .entries div {
-      position: relative;
-      padding-bottom: 2em; }
+      position: relative; }
       section .entries div ul {
         list-style-type: disc;
-        margin-left: 1em; }
+        margin: 0 0 1em 1em; }
       section .entries div div.links {
         position: absolute;
         bottom: -2em;
@@ -338,7 +351,7 @@ section {
     margin-top: 24px;
     padding: 0px;
     padding-top: 72px; }
-    @media screen and (max-width: 612px) {
+    @media screen and (max-width: 740px) {
       section > h2 {
         font-size: 48.00024px;
         line-height: 72px;
@@ -353,7 +366,7 @@ section {
       grid-gap: 48px;
       align-items: stretch;
       margin: 48px; } }
-  @media screen and (max-width: 612px) {
+  @media screen and (max-width: 740px) {
     section#find-me .entries {
       display: grid;
       grid-template-columns: 1fr;
@@ -374,7 +387,7 @@ footer {
   padding: 24px;
   text-align: center;
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9) 95%, transparent); }
-  @media screen and (max-width: 612px) {
+  @media screen and (max-width: 740px) {
     footer {
       padding-bottom: 72px; } }
 
